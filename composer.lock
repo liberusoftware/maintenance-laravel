@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c09b96cc0daec9c6004ab22c3ec07016",
+    "content-hash": "7e041474582c587de4cbce59f1d5beab",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -6815,6 +6815,146 @@
                 "AGPL-3.0-or-later"
             ],
             "description": "Inspections Livewire adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-inventory",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-inventory",
+                "reference": "e0fab149fb9b1bdb2a06ca15fdce28f25c22f4d4"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-manager": "^1.0",
+                "liberusoftware/organizations-teams": "^1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-inventory",
+                    "provider": "Liberu\\Modules\\Maintenance\\Inventory\\InventoryServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Inventory\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Inventory domain module for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-inventory-api",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-inventory-api",
+                "reference": "46be8c3361cb6b279fbd52e1c621fc37c66540d8"
+            },
+            "require": {
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "liberusoftware/module-maintenance-inventory": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-inventory-api",
+                    "provider": "Liberu\\Modules\\Maintenance\\Inventory\\Api\\InventoryApiServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Inventory\\Api\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Inventory API adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-inventory-filament",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-inventory-filament",
+                "reference": "0f8a33233a8a78e18e92c09ad3a5fac5023f89c8"
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "liberusoftware/module-maintenance-inventory": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-inventory-filament",
+                    "provider": "Liberu\\Modules\\Maintenance\\Inventory\\Filament\\InventoryFilamentServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Inventory\\Filament\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Inventory Filament adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-inventory-livewire",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-inventory-livewire",
+                "reference": "ef4ddfebb33477af00bea4b0b13fc0898170f8a5"
+            },
+            "require": {
+                "liberusoftware/module-maintenance-inventory": "0.1.0",
+                "livewire/livewire": "^4.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-inventory-livewire",
+                    "provider": "Liberu\\Modules\\Maintenance\\Inventory\\Livewire\\InventoryLivewireServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Inventory\\Livewire\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Inventory Livewire adapter for Liberu Maintenance",
             "transport-options": {
                 "symlink": false,
                 "relative": true

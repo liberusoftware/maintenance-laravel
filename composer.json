@@ -254,6 +254,10 @@
         ,{"type":"path","url":"modules/module-maintenance-inspections-api","options":{"symlink":false}}
         ,{"type":"path","url":"modules/module-maintenance-inspections-filament","options":{"symlink":false}}
         ,{"type":"path","url":"modules/module-maintenance-inspections-livewire","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-inventory","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-inventory-api","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-inventory-filament","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-inventory-livewire","options":{"symlink":false}}
     ],
     "require": {
         "php": "^8.5",
@@ -323,6 +327,10 @@
         "liberusoftware/module-maintenance-inspections-api": "0.1.0",
         "liberusoftware/module-maintenance-inspections-filament": "0.1.0",
         "liberusoftware/module-maintenance-inspections-livewire": "0.1.0",
+        "liberusoftware/module-maintenance-inventory": "0.1.0",
+        "liberusoftware/module-maintenance-inventory-api": "0.1.0",
+        "liberusoftware/module-maintenance-inventory-filament": "0.1.0",
+        "liberusoftware/module-maintenance-inventory-livewire": "0.1.0",
         "liberusoftware/notifications": "^1.0",
         "liberusoftware/observability": "^1.0",
         "liberusoftware/organizations-teams": "^1.0",
