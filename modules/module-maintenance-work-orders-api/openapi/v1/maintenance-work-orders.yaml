@@ -1,0 +1,9 @@
+openapi: 3.1.0
+info: {title: maintenance work orders API, version: 1.0.0}
+paths:
+  /api/v1/maintenance/work-orders:
+    get: {operationId: maintenance.work.orders.list, security: [{sanctum: []}], responses: {'200': {description: Authorized work orders}}}
+    post: {operationId: maintenance.work.orders.create, security: [{sanctum: []}], responses: {'201': {description: Work order created}}}
+  /api/v1/maintenance/work-orders/{id}:
+    get: {operationId: maintenance.work.orders.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Work order}}}
+components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}
