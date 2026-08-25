@@ -1,7 +1,7 @@
 {
     "organization": "liberusoftware",
-    "repository": "boilerplate-laravel",
-    "genre": "boilerplate",
+    "repository": "maintenance-laravel",
+    "genre": "maintenance",
     "scriptsRepository": "boilerplate-scripts",
     "components": {
         "modules": { "path": "modules", "repositoryPrefix": "module-" },
