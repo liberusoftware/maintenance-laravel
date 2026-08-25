@@ -1,0 +1,9 @@
+openapi: 3.1.0
+info: {title: maintenance procurement API, version: 1.0.0}
+paths:
+  /api/v1/maintenance/procurement:
+    get: {operationId: maintenance.procurement.list, security: [{sanctum: []}], responses: {'200': {description: Authorized purchase requests}}}
+    post: {operationId: maintenance.procurement.create, security: [{sanctum: []}], responses: {'201': {description: Purchase request created}}}
+  /api/v1/maintenance/procurement/{id}:
+    get: {operationId: maintenance.procurement.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase request}}}
+components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}
