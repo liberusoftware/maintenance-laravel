@@ -1,0 +1,9 @@
+openapi: 3.1.0
+info: {title: maintenance inspections API, version: 1.0.0}
+paths:
+  /api/v1/maintenance/inspections:
+    get: {operationId: maintenance.inspections.list, security: [{sanctum: []}], responses: {'200': {description: Authorized inspections}}}
+    post: {operationId: maintenance.inspections.create, security: [{sanctum: []}], responses: {'201': {description: Inspection created}}}
+  /api/v1/maintenance/inspections/{id}:
+    get: {operationId: maintenance.inspections.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Inspection}}}
+components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}
