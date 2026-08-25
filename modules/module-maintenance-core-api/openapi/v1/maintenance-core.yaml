@@ -1,0 +1,41 @@
+openapi: 3.1.0
+info:
+  title: Maintenance Core API
+  version: 0.1.0
+paths:
+  /api/v1/maintenance/maintenance-core/organizations:
+    get:
+      operationId: maintenance.core.organizations.list
+      security: [{ sanctum: [] }]
+      responses:
+        '200': { description: Authorized organization collection }
+    post:
+      operationId: maintenance.core.organizations.create
+      security: [{ sanctum: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OrganizationInput' }
+      responses:
+        '201': { description: Organization created }
+  /api/v1/maintenance/maintenance-core/organizations/{id}:
+    get:
+      operationId: maintenance.core.organizations.get
+      security: [{ sanctum: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Authorized organization }
+        '404': { description: Concealed or missing resource }
+components:
+  securitySchemes:
+    sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum }
+  schemas:
+    OrganizationInput:
+      type: object
+      required: [name, code]
+      properties:
+        name: { type: string, maxLength: 255 }
+        code: { type: string, maxLength: 32 }
+        description: { type: [string, 'null'] }

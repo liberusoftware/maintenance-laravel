@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "liberusoftware/boilerplate-laravel",
+    "name": "liberusoftware/maintenance-laravel",
     "type": "project",
-    "description": "Liberu boilerplate Laravel application.",
+    "description": "Liberu Maintenance Laravel application.",
     "keywords": [
         "laravel",
         "framework",
@@ -201,6 +201,34 @@
         {
             "type": "vcs",
             "url": "https://github.com/liberusoftware/theme-base.git"
+        },
+        {
+            "type": "path",
+            "url": "modules/maintenance-maintenance-core",
+            "options": {
+                "symlink": false
+            }
+        },
+        {
+            "type": "path",
+            "url": "modules/module-maintenance-core-api",
+            "options": {
+                "symlink": false
+            }
+        },
+        {
+            "type": "path",
+            "url": "modules/module-maintenance-core-filament",
+            "options": {
+                "symlink": false
+            }
+        },
+        {
+            "type": "path",
+            "url": "modules/module-maintenance-core-livewire",
+            "options": {
+                "symlink": false
+            }
         }
     ],
     "require": {
@@ -243,6 +271,10 @@
         "liberusoftware/localization-core-livewire": "^1.0",
         "liberusoftware/localization-mymemory": "^1.0",
         "liberusoftware/module-manager": "^1.0",
+        "liberusoftware/module-maintenance-maintenance-core": "0.1.0",
+        "liberusoftware/module-maintenance-core-api": "0.1.0",
+        "liberusoftware/module-maintenance-core-filament": "0.1.0",
+        "liberusoftware/module-maintenance-core-livewire": "0.1.0",
         "liberusoftware/notifications": "^1.0",
         "liberusoftware/observability": "^1.0",
         "liberusoftware/organizations-teams": "^1.0",

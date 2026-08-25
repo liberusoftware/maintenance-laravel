@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "65bfca91cd46392de592237ddb6b393d",
+    "content-hash": "5b5cab171a02f5a97d630ef8a1fa7b7f",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -6295,6 +6295,158 @@
                 "issues": "https://github.com/liberusoftware/module-localization-mymemory/issues"
             },
             "time": "2026-08-07T14:25:31+00:00"
+        },
+        {
+            "name": "liberusoftware/module-maintenance-core-api",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-core-api",
+                "reference": "1d490be21ad7ecaa0c90c46a34156cb942110cdf"
+            },
+            "require": {
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "illuminate/support": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "liberusoftware/module-maintenance-maintenance-core": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-core-api"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Core\\Api\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "HTTP API adapter for Maintenance Core.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-core-filament",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-core-filament",
+                "reference": "049f43af55a02e3ae1b2597add135bd878c729c8"
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "liberusoftware/module-maintenance-maintenance-core": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-core-filament"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Core\\Filament\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Filament 5 adapter for Maintenance Core.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-core-livewire",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-core-livewire",
+                "reference": "8f608f66c14a10f9d1db8a512e06e2f28daa139f"
+            },
+            "require": {
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-maintenance-maintenance-core": "0.1.0",
+                "livewire/livewire": "^4.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-core-livewire"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Core\\Livewire\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Livewire 4 adapter for Maintenance Core.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-maintenance-core",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/maintenance-maintenance-core",
+                "reference": "1771d266db8d25f93c5104cd11c52e895d429f34"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-manager": "^1.0",
+                "liberusoftware/organizations-teams": "^1.0",
+                "php": "^8.5"
+            },
+            "require-dev": {
+                "liberusoftware/package-testbench": "^1.5",
+                "pestphp/pest": "^5.0"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "maintenance-maintenance-core"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Core\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Core\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "pest"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Maintenance organizations, service settings, statuses, priorities, numbering, and shared events.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
         },
         {
             "name": "liberusoftware/module-manager",
