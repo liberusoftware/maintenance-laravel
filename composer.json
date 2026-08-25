@@ -246,6 +246,10 @@
         ,{"type":"path","url":"modules/module-maintenance-scheduling-api","options":{"symlink":false}}
         ,{"type":"path","url":"modules/module-maintenance-scheduling-filament","options":{"symlink":false}}
         ,{"type":"path","url":"modules/module-maintenance-scheduling-livewire","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-preventative-maintenance","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-preventative-maintenance-api","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-preventative-maintenance-filament","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-preventative-maintenance-livewire","options":{"symlink":false}}
     ],
     "require": {
         "php": "^8.5",
@@ -307,6 +311,10 @@
         "liberusoftware/module-maintenance-scheduling-api": "0.1.0",
         "liberusoftware/module-maintenance-scheduling-filament": "0.1.0",
         "liberusoftware/module-maintenance-scheduling-livewire": "0.1.0",
+        "liberusoftware/module-maintenance-preventative-maintenance": "0.1.0",
+        "liberusoftware/module-maintenance-preventative-maintenance-api": "0.1.0",
+        "liberusoftware/module-maintenance-preventative-maintenance-filament": "0.1.0",
+        "liberusoftware/module-maintenance-preventative-maintenance-livewire": "0.1.0",
         "liberusoftware/notifications": "^1.0",
         "liberusoftware/observability": "^1.0",
         "liberusoftware/organizations-teams": "^1.0",

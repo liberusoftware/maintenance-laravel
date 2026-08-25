@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5de0690ffaa770c36d98ac7e39f49a92",
+    "content-hash": "08e88cc3a479ba6cb1fcb9c41c030f25",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -6725,6 +6725,146 @@
                 "MIT"
             ],
             "description": "Maintenance organizations, service settings, statuses, priorities, numbering, and shared events.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-preventative-maintenance",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-preventative-maintenance",
+                "reference": "eb42e4189ed4ba6754cc35707fe9ba6a9e883eeb"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-manager": "^1.0",
+                "liberusoftware/organizations-teams": "^1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-preventative-maintenance",
+                    "provider": "Liberu\\Modules\\Maintenance\\PreventativeMaintenance\\PreventativeMaintenanceServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\PreventativeMaintenance\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Preventative maintenance domain module for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-preventative-maintenance-api",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-preventative-maintenance-api",
+                "reference": "a91ed823f0333e29939be3f0d4ac95666af2d712"
+            },
+            "require": {
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "liberusoftware/module-maintenance-preventative-maintenance": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-preventative-maintenance-api",
+                    "provider": "Liberu\\Modules\\Maintenance\\PreventativeMaintenance\\Api\\PreventativeMaintenanceApiServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\PreventativeMaintenance\\Api\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Preventative maintenance API adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-preventative-maintenance-filament",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-preventative-maintenance-filament",
+                "reference": "77f0563f61347a02d116c1596f37ba73f806cd12"
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "liberusoftware/module-maintenance-preventative-maintenance": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-preventative-maintenance-filament",
+                    "provider": "Liberu\\Modules\\Maintenance\\PreventativeMaintenance\\Filament\\PreventativeMaintenanceFilamentServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\PreventativeMaintenance\\Filament\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Preventative maintenance Filament adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-preventative-maintenance-livewire",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-preventative-maintenance-livewire",
+                "reference": "94808c9ed724eec74df5e0492bf18e33b3d98cf2"
+            },
+            "require": {
+                "liberusoftware/module-maintenance-preventative-maintenance": "0.1.0",
+                "livewire/livewire": "^4.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-preventative-maintenance-livewire",
+                    "provider": "Liberu\\Modules\\Maintenance\\PreventativeMaintenance\\Livewire\\PreventativeMaintenanceLivewireServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\PreventativeMaintenance\\Livewire\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Preventative maintenance Livewire adapter for Liberu Maintenance",
             "transport-options": {
                 "symlink": false,
                 "relative": true
