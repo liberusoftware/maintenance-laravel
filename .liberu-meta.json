@@ -4,7 +4,7 @@
     "genre": "maintenance",
     "scriptsRepository": "boilerplate-scripts",
     "components": {
-        "modules": { "path": "modules", "repositoryPrefix": "module-" },
+        "modules": { "path": "modules", "repositoryPrefix": "" },
         "themes": { "path": "themes", "repositoryPrefix": "theme-" },
         "scripts": { "path": "scripts", "repository": "boilerplate-scripts" }
     },
