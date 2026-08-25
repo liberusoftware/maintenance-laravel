@@ -234,6 +234,10 @@
         {"type":"path","url":"modules/module-maintenance-customers-and-sites-api","options":{"symlink":false}},
         {"type":"path","url":"modules/module-maintenance-customers-and-sites-filament","options":{"symlink":false}},
         {"type":"path","url":"modules/module-maintenance-customers-and-sites-livewire","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-assets","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-assets-api","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-assets-filament","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-assets-livewire","options":{"symlink":false}}
     ],
     "require": {
         "php": "^8.5",
@@ -283,6 +287,10 @@
         "liberusoftware/module-maintenance-customers-and-sites-api": "0.1.0",
         "liberusoftware/module-maintenance-customers-and-sites-filament": "0.1.0",
         "liberusoftware/module-maintenance-customers-and-sites-livewire": "0.1.0",
+        "liberusoftware/module-maintenance-assets": "0.1.0",
+        "liberusoftware/module-maintenance-assets-api": "0.1.0",
+        "liberusoftware/module-maintenance-assets-filament": "0.1.0",
+        "liberusoftware/module-maintenance-assets-livewire": "0.1.0",
         "liberusoftware/notifications": "^1.0",
         "liberusoftware/observability": "^1.0",
         "liberusoftware/organizations-teams": "^1.0",
