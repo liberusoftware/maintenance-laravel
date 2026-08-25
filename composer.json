@@ -266,22 +266,22 @@
         ,{"type":"path","url":"modules/module-maintenance-labor-and-time-api","options":{"symlink":false}}
         ,{"type":"path","url":"modules/module-maintenance-labor-and-time-filament","options":{"symlink":false}}
         ,{"type":"path","url":"modules/module-maintenance-labor-and-time-livewire","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-commercial","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-commercial-api","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-commercial-filament","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-commercial-livewire","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-compliance","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-compliance-api","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-compliance-filament","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-compliance-livewire","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-portals","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-portals-api","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-portals-filament","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-portals-livewire","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-reporting","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-reporting-api","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-reporting-filament","options":{"symlink":false}}
-        ,{"type":"path","url":"modules/module-maintenance-reporting-livewire","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-commercial","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-commercial":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-commercial-api","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-commercial-api":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-commercial-filament","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-commercial-filament":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-commercial-livewire","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-commercial-livewire":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-compliance","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-compliance":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-compliance-api","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-compliance-api":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-compliance-filament","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-compliance-filament":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-compliance-livewire","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-compliance-livewire":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-portals","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-portals":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-portals-api","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-portals-api":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-portals-filament","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-portals-filament":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-portals-livewire","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-portals-livewire":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-reporting","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-reporting":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-reporting-api","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-reporting-api":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-reporting-filament","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-reporting-filament":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-reporting-livewire","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-reporting-livewire":"0.1.0"}}}
     ],
     "require": {
         "php": "^8.5",

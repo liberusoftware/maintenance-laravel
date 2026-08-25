@@ -3,7 +3,6 @@
   "description": "Compliance domain module for Liberu Maintenance",
   "type": "liberu-module",
   "license": "AGPL-3.0-or-later",
-  "version": "0.1.0",
   "require": {
     "php": "^8.5",
     "illuminate/database": "^13.0",
