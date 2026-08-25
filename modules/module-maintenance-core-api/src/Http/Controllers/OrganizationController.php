@@ -16,6 +16,7 @@ final class OrganizationController extends Controller
     {
         $teamId = $this->teamId($request);
         abort_if($teamId === null, 403, 'A current team context is required.');
+        abort_unless($request->user()->can('viewAny', Organization::class), 403);
 
         $organizations = Organization::query()
             ->where('team_id', $teamId)
@@ -43,6 +44,7 @@ final class OrganizationController extends Controller
     {
         $teamId = $this->teamId($request);
         abort_if($teamId === null, 403, 'A current team context is required.');
+        abort_unless($request->user()->can('create', Organization::class), 403);
         $attributes = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:32'],
@@ -55,7 +57,7 @@ final class OrganizationController extends Controller
 
     public function show(Request $request, Organization $organization): JsonResponse
     {
-        abort_unless($this->teamId($request) === $organization->team_id, 404);
+        abort_unless($this->teamId($request) === $organization->team_id && $request->user()->can('view', $organization), 404);
 
         return response()->json(['data' => $this->resource($organization)]);
     }

@@ -6405,9 +6405,10 @@
             "dist": {
                 "type": "path",
                 "url": "modules/maintenance-maintenance-core",
-                "reference": "1771d266db8d25f93c5104cd11c52e895d429f34"
+                "reference": "f55b0acf75968d8025f20a0e1f911e066034fd72"
             },
             "require": {
+                "illuminate/auth": "^13.0",
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
                 "liberusoftware/module-manager": "^1.0",
