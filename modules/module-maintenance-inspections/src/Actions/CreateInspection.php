@@ -17,6 +17,6 @@ class CreateInspection
             throw ValidationException::withMessages(['title' => 'An inspection title is required.']);
         }
 
-return DB::transaction(fn () => Inspection::create(array_merge($attributes, ['team_id' => $teamId, 'title' => $title, 'status' => $attributes['status'] ?? 'draft', 'outcome' => $attributes['outcome'] ?? 'pending', 'inspector_id' => $attributes['inspector_id'] ?? null])));
+        return DB::transaction(fn () => Inspection::create(array_merge($attributes, ['team_id' => $teamId, 'title' => $title, 'status' => $attributes['status'] ?? 'draft', 'outcome' => $attributes['outcome'] ?? 'pending', 'inspector_id' => $attributes['inspector_id'] ?? null])));
     }
 }

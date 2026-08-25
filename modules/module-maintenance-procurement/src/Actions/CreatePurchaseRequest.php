@@ -18,6 +18,6 @@ class CreatePurchaseRequest
             throw ValidationException::withMessages(['title' => 'A title and non-negative amount are required.']);
         }
 
-return DB::transaction(fn () => PurchaseRequest::create(array_merge($attributes, ['team_id' => $teamId, 'title' => $title, 'amount' => $amount, 'currency' => $attributes['currency'] ?? 'USD', 'status' => 'pending', 'requested_by' => $attributes['requested_by'] ?? null])));
+        return DB::transaction(fn () => PurchaseRequest::create(array_merge($attributes, ['team_id' => $teamId, 'title' => $title, 'amount' => $amount, 'currency' => $attributes['currency'] ?? 'USD', 'status' => 'pending', 'requested_by' => $attributes['requested_by'] ?? null])));
     }
 }

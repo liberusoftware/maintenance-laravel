@@ -20,6 +20,6 @@ class CreateStockItem
             throw ValidationException::withMessages(['part_number' => 'The part number is already in use.']);
         }
 
-return DB::transaction(fn () => StockItem::create(array_merge($attributes, ['team_id' => $teamId, 'part_number' => $part, 'name' => $name, 'quantity' => (int) ($attributes['quantity'] ?? 0), 'reorder_level' => (int) ($attributes['reorder_level'] ?? 0)])));
+        return DB::transaction(fn () => StockItem::create(array_merge($attributes, ['team_id' => $teamId, 'part_number' => $part, 'name' => $name, 'quantity' => (int) ($attributes['quantity'] ?? 0), 'reorder_level' => (int) ($attributes['reorder_level'] ?? 0)])));
     }
 }

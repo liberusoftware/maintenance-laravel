@@ -17,6 +17,6 @@ class CreateTimeEntry
             throw ValidationException::withMessages(['minutes' => 'Time must contain at least one minute.']);
         }
 
-return DB::transaction(fn () => TimeEntry::create(array_merge($attributes, ['team_id' => $teamId, 'user_id' => $attributes['user_id'] ?? null, 'minutes' => $minutes, 'status' => 'pending', 'currency' => $attributes['currency'] ?? 'USD'])));
+        return DB::transaction(fn () => TimeEntry::create(array_merge($attributes, ['team_id' => $teamId, 'user_id' => $attributes['user_id'] ?? null, 'minutes' => $minutes, 'status' => 'pending', 'currency' => $attributes['currency'] ?? 'USD'])));
     }
 }

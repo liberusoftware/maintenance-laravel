@@ -21,6 +21,6 @@ class CreateMaintenancePlan
             throw ValidationException::withMessages(['code' => 'The plan code is already in use.']);
         }
 
-return DB::transaction(fn () => MaintenancePlan::create(array_merge($attributes, ['team_id' => $teamId, 'name' => $name, 'code' => $code, 'frequency_value' => $value, 'frequency_unit' => $attributes['frequency_unit'] ?? 'days', 'is_active' => $attributes['is_active'] ?? true])));
+        return DB::transaction(fn () => MaintenancePlan::create(array_merge($attributes, ['team_id' => $teamId, 'name' => $name, 'code' => $code, 'frequency_value' => $value, 'frequency_unit' => $attributes['frequency_unit'] ?? 'days', 'is_active' => $attributes['is_active'] ?? true])));
     }
 }

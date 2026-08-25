@@ -16,7 +16,7 @@ class AdjustStock
             abort(404);
         }
 
-return DB::transaction(function () use ($item, $delta) {
+        return DB::transaction(function () use ($item, $delta) {
             $item->refresh();
             $next = (int) $item->quantity + $delta;
             if ($next < 0) {
