@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: maintenance-storage
-  namespace: liberu-maintenance
+  name: boilerplate-storage
+  namespace: boilerplate-laravel
   labels:
-    app: liberu-maintenance
+    app: boilerplate-laravel
 spec:
   accessModes:
     - ReadWriteOnce

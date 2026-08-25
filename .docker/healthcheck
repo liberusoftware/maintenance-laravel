@@ -1,32 +1,35 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+
+set -e
 
 container_mode=${CONTAINER_MODE:-"http"}
-ROOT=${ROOT:-"/var/www/html"}
-
-check_supervisor_process() {
-    local process="$1"
-    local status
-    status="$(supervisorctl status "${process}" 2>/dev/null | awk '{print tolower($2)}')"
-    if [ "${status}" = "running" ]; then
-        return 0
-    fi
-    echo "Healthcheck failed: ${process} is not running (status: ${status})"
-    return 1
-}
 
 if [ "${container_mode}" = "http" ]; then
     php "${ROOT}/artisan" octane:status
 elif [ "${container_mode}" = "horizon" ]; then
     php "${ROOT}/artisan" horizon:status
 elif [ "${container_mode}" = "reverb" ]; then
-    check_supervisor_process "reverb"
+    if [ "$(supervisorctl status reverb:reverb_0 | awk '{print tolower($2)}')" = "running" ]; then
+        exit 0
+    else
+        echo "Healthcheck failed."
+        exit 1
+    fi
 elif [ "${container_mode}" = "scheduler" ]; then
-    check_supervisor_process "scheduler"
+    if [ "$(supervisorctl status scheduler:scheduler_0 | awk '{print tolower($2)}')" = "running" ]; then
+        exit 0
+    else
+        echo "Healthcheck failed."
+        exit 1
+    fi
 elif [ "${container_mode}" = "worker" ]; then
-    check_supervisor_process "worker"
-elif [ "${container_mode}" = "ssr" ]; then
-    check_supervisor_process "ssr"
+    if [ "$(supervisorctl status worker:worker_0 | awk '{print tolower($2)}')" = "running" ]; then
+        exit 0
+    else
+        echo "Healthcheck failed."
+        exit 1
+    fi
 else
-    echo "Container mode '${container_mode}' is not recognised."
+    echo "Container mode mismatched."
     exit 1
 fi

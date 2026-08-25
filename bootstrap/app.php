@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Middleware\AssignDefaultTeam;
-use App\Http\Middleware\SecurityHeaders;
-use App\Http\Middleware\TeamsPermission;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Liberu\Foundation\ApplicationCore\Http\Middleware\SecurityHeaders;
+use Liberu\Foundation\Localization\Http\Middleware\SetLocale;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,21 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(append: [
-            SecurityHeaders::class,
-            AssignDefaultTeam::class,
-        ]);
-
-        $middleware->api(append: [
-            SecurityHeaders::class,
-        ]);
-
-        $middleware->alias([
-            'teams.permission' => TeamsPermission::class,
-        ]);
+    ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->appendToGroup('web', [SetLocale::class, SecurityHeaders::class]);
     })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })
-    ->create();
+    ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+        );
+    })->create();

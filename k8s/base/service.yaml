@@ -1,11 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: liberu-maintenance
-  namespace: liberu-maintenance
+  name: boilerplate-laravel
+  namespace: boilerplate-laravel
   labels:
-    app: liberu-maintenance
-    component: application
+    app: boilerplate-laravel
 spec:
   type: ClusterIP
   sessionAffinity: ClientIP
@@ -13,10 +12,10 @@ spec:
     clientIP:
       timeoutSeconds: 10800
   ports:
-    - port: 80
-      targetPort: 8000
-      protocol: TCP
-      name: http
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+    name: http
   selector:
-    app: liberu-maintenance
+    app: boilerplate-laravel
     component: application

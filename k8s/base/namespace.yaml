@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: liberu-maintenance
+  name: boilerplate-laravel
   labels:
-    name: liberu-maintenance
-    app: liberu-maintenance
+    name: boilerplate-laravel
+    app: liberu-boilerplate

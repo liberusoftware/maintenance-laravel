@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: maintenance-quota
-  namespace: liberu-maintenance
+  name: boilerplate-quota
+  namespace: boilerplate-laravel
 spec:
   hard:
     requests.cpu: "10"
@@ -19,20 +19,20 @@ spec:
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: maintenance-limits
-  namespace: liberu-maintenance
+  name: boilerplate-limits
+  namespace: boilerplate-laravel
 spec:
   limits:
-    - max:
-        cpu: "4"
-        memory: 8Gi
-      min:
-        cpu: "100m"
-        memory: 64Mi
-      default:
-        cpu: "500m"
-        memory: 512Mi
-      defaultRequest:
-        cpu: "200m"
-        memory: 256Mi
-      type: Container
+  - max:
+      cpu: "4"
+      memory: 8Gi
+    min:
+      cpu: "100m"
+      memory: 64Mi
+    default:
+      cpu: "500m"
+      memory: 512Mi
+    defaultRequest:
+      cpu: "200m"
+      memory: 256Mi
+    type: Container

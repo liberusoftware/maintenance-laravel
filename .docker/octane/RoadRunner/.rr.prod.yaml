@@ -1,46 +1,25 @@
-version: "3"
-
+version: '2.7'
 rpc:
-  listen: tcp://127.0.0.1:6001
-
+  listen: 'tcp://127.0.0.1:6001'
 server:
   relay: pipes
-
 http:
-  address: "0.0.0.0:8000"
-  max_request_size: 256
-  middleware:
-    - gzip
-    - static
-    - headers
-  headers:
-    response:
-      X-Content-Type-Options: nosniff
-      X-Frame-Options: SAMEORIGIN
+  middleware: [ "static", "gzip", "headers" ]
+  max_request_size: 20
   static:
-    dir: "/var/www/html/public"
-    forbid:
-      - .php
-      - .htaccess
+    dir: "public"
+    forbid: [ ".php", ".htaccess" ]
   uploads:
-    forbid:
-      - .php
-      - .exe
-      - .bat
-      - .sh
+    forbid: [".php", ".exe", ".bat", ".sh"]
   pool:
     allocate_timeout: 10s
     destroy_timeout: 10s
     supervisor:
-      max_worker_memory: 256
+      max_worker_memory: 128
       exec_ttl: 60s
-
 logs:
   mode: production
-  level: warn
+  level: debug
   encoding: json
-  output: stdout
-  err_output: stderr
-
 status:
-  address: "0.0.0.0:8080"
+    address: localhost:2114
