@@ -3,6 +3,7 @@
   "description": "Portals domain module for Liberu Maintenance",
   "type": "liberu-module",
   "license": "AGPL-3.0-or-later",
+  "version": "0.1.0",
   "require": {
     "php": "^8.5",
     "illuminate/database": "^13.0",
@@ -12,7 +13,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Liberu\\Modules\\Maintenance\\Portals\\": "src/"
+      "Liberu\\Modules\\Maintenance\\Portal\\": "src/"
     }
   },
   "config": {
@@ -23,8 +24,11 @@
   "extra": {
     "liberu": {
       "name": "module-maintenance-portals",
-      "provider": "Liberu\\Modules\\Maintenance\\Portals\\PortalServiceProvider"
+      "provider": "Liberu\\Modules\\Maintenance\\Portal\\PortalServiceProvider"
     }
   },
-  "version": "0.1.0"
+  "support": {
+    "source": "https://github.com/liberusoftware/module-maintenance-portals/tree/main",
+    "issues": "https://github.com/liberusoftware/module-maintenance-portals/issues"
+  }
 }

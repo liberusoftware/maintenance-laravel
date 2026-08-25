@@ -3,6 +3,7 @@
   "description": "Compliance domain module for Liberu Maintenance",
   "type": "liberu-module",
   "license": "AGPL-3.0-or-later",
+  "version": "0.1.0",
   "require": {
     "php": "^8.5",
     "illuminate/database": "^13.0",
@@ -26,5 +27,8 @@
       "provider": "Liberu\\Modules\\Maintenance\\Compliance\\ComplianceServiceProvider"
     }
   },
-  "version": "0.1.0"
+  "support": {
+    "source": "https://github.com/liberusoftware/module-maintenance-compliance/tree/main",
+    "issues": "https://github.com/liberusoftware/module-maintenance-compliance/issues"
+  }
 }
