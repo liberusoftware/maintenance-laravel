@@ -1,0 +1,9 @@
+openapi: 3.1.0
+info: {title: maintenance labor and time API, version: 1.0.0}
+paths:
+  /api/v1/maintenance/labor-and-time:
+    get: {operationId: maintenance.labor.and.time.list, security: [{sanctum: []}], responses: {'200': {description: Authorized time entries}}}
+    post: {operationId: maintenance.labor.and.time.create, security: [{sanctum: []}], responses: {'201': {description: Time entry created}}}
+  /api/v1/maintenance/labor-and-time/{id}:
+    get: {operationId: maintenance.labor.and.time.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Time entry}}}
+components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

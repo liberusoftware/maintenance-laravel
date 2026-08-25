@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4739454d467d8f07a11da5e09e78f796",
+    "content-hash": "0d2be9e28d7fbb3bbe531830a79f4584",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -6955,6 +6955,146 @@
                 "AGPL-3.0-or-later"
             ],
             "description": "Inventory Livewire adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-labor-and-time",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-labor-and-time",
+                "reference": "33b47e5e8195ab0a01ecf7430fd80b1118aa2089"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-manager": "^1.0",
+                "liberusoftware/organizations-teams": "^1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-labor-and-time",
+                    "provider": "Liberu\\Modules\\Maintenance\\LaborAndTime\\LaborAndTimeServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\LaborAndTime\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Labor and time domain module for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-labor-and-time-api",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-labor-and-time-api",
+                "reference": "d363a6f0e2905973eb60b5515061cc7788a76f96"
+            },
+            "require": {
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "liberusoftware/module-maintenance-labor-and-time": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-labor-and-time-api",
+                    "provider": "Liberu\\Modules\\Maintenance\\LaborAndTime\\Api\\LaborAndTimeApiServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\LaborAndTime\\Api\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Labor and time API adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-labor-and-time-filament",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-labor-and-time-filament",
+                "reference": "4c5917e075601bae7dd30434b94588ca8dddf650"
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "liberusoftware/module-maintenance-labor-and-time": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-labor-and-time-filament",
+                    "provider": "Liberu\\Modules\\Maintenance\\LaborAndTime\\Filament\\LaborAndTimeFilamentServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\LaborAndTime\\Filament\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Labor and time Filament adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-labor-and-time-livewire",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-labor-and-time-livewire",
+                "reference": "42458adc682e4112d0e258ca5183bf0974bb2121"
+            },
+            "require": {
+                "liberusoftware/module-maintenance-labor-and-time": "0.1.0",
+                "livewire/livewire": "^4.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-labor-and-time-livewire",
+                    "provider": "Liberu\\Modules\\Maintenance\\LaborAndTime\\Livewire\\LaborAndTimeLivewireServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\LaborAndTime\\Livewire\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Labor and time Livewire adapter for Liberu Maintenance",
             "transport-options": {
                 "symlink": false,
                 "relative": true

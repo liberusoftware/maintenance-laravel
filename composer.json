@@ -262,6 +262,10 @@
         ,{"type":"path","url":"modules/module-maintenance-procurement-api","options":{"symlink":false}}
         ,{"type":"path","url":"modules/module-maintenance-procurement-filament","options":{"symlink":false}}
         ,{"type":"path","url":"modules/module-maintenance-procurement-livewire","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-labor-and-time","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-labor-and-time-api","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-labor-and-time-filament","options":{"symlink":false}}
+        ,{"type":"path","url":"modules/module-maintenance-labor-and-time-livewire","options":{"symlink":false}}
     ],
     "require": {
         "php": "^8.5",
@@ -339,6 +343,10 @@
         "liberusoftware/module-maintenance-procurement-api": "0.1.0",
         "liberusoftware/module-maintenance-procurement-filament": "0.1.0",
         "liberusoftware/module-maintenance-procurement-livewire": "0.1.0",
+        "liberusoftware/module-maintenance-labor-and-time": "0.1.0",
+        "liberusoftware/module-maintenance-labor-and-time-api": "0.1.0",
+        "liberusoftware/module-maintenance-labor-and-time-filament": "0.1.0",
+        "liberusoftware/module-maintenance-labor-and-time-livewire": "0.1.0",
         "liberusoftware/notifications": "^1.0",
         "liberusoftware/observability": "^1.0",
         "liberusoftware/organizations-teams": "^1.0",
