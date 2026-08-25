@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d9ccccc43950a5ba5dc8a981f6e09352",
+    "content-hash": "5de0690ffaa770c36d98ac7e39f49a92",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -6725,6 +6725,146 @@
                 "MIT"
             ],
             "description": "Maintenance organizations, service settings, statuses, priorities, numbering, and shared events.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-scheduling",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-scheduling",
+                "reference": "4f3ab5f7cbeaa4765abb41fca13615fb4c012345"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-manager": "^1.0",
+                "liberusoftware/organizations-teams": "^1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-scheduling",
+                    "provider": "Liberu\\Modules\\Maintenance\\Scheduling\\SchedulingServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Scheduling\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Scheduling domain module for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-scheduling-api",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-scheduling-api",
+                "reference": "afd6b96d8bf59e6715f6b36b6db108c1d06fde75"
+            },
+            "require": {
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "liberusoftware/module-maintenance-scheduling": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-scheduling-api",
+                    "provider": "Liberu\\Modules\\Maintenance\\Scheduling\\Api\\SchedulingApiServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Scheduling\\Api\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Scheduling API adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-scheduling-filament",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-scheduling-filament",
+                "reference": "16cb40f5f082b2d53f5dab8294611bffab9eafe0"
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "liberusoftware/module-maintenance-scheduling": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-scheduling-filament",
+                    "provider": "Liberu\\Modules\\Maintenance\\Scheduling\\Filament\\SchedulingFilamentServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Scheduling\\Filament\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Scheduling Filament adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-scheduling-livewire",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-scheduling-livewire",
+                "reference": "7cd27e2255bdc0869eb90b2c4ab30fc25093f559"
+            },
+            "require": {
+                "liberusoftware/module-maintenance-scheduling": "0.1.0",
+                "livewire/livewire": "^4.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-scheduling-livewire",
+                    "provider": "Liberu\\Modules\\Maintenance\\Scheduling\\Livewire\\SchedulingLivewireServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Scheduling\\Livewire\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Scheduling Livewire adapter for Liberu Maintenance",
             "transport-options": {
                 "symlink": false,
                 "relative": true
