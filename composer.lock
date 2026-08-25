@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5b5cab171a02f5a97d630ef8a1fa7b7f",
+    "content-hash": "f932df0f7dadc69329bf5fb89e04584c",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -6394,6 +6394,147 @@
                 "MIT"
             ],
             "description": "Livewire 4 adapter for Maintenance Core.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-customers-and-sites",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-customers-and-sites",
+                "reference": "024f89b60bd33c945283808b016a27d2493f4a43"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-maintenance-maintenance-core": "0.1.0",
+                "liberusoftware/module-manager": "^1.0",
+                "liberusoftware/organizations-teams": "^1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-customers-and-sites",
+                    "provider": "Liberu\\Modules\\Maintenance\\CustomersAndSites\\CustomersAndSitesServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\CustomersAndSites\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Customers and sites domain module for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-customers-and-sites-api",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-customers-and-sites-api",
+                "reference": "8b52287e538ba25bdb8ebaab87a4569a2121bc6a"
+            },
+            "require": {
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "liberusoftware/module-maintenance-customers-and-sites": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-customers-and-sites-api",
+                    "provider": "Liberu\\Modules\\Maintenance\\CustomersAndSites\\Api\\CustomersAndSitesApiServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\CustomersAndSites\\Api\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Customers and sites API adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-customers-and-sites-filament",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-customers-and-sites-filament",
+                "reference": "cb5c3dbe60b4b3a196524773cc82b787197eba0a"
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "liberusoftware/module-maintenance-customers-and-sites": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-customers-and-sites-filament",
+                    "provider": "Liberu\\Modules\\Maintenance\\CustomersAndSites\\Filament\\CustomersAndSitesFilamentServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\CustomersAndSites\\Filament\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Customers and sites Filament adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-customers-and-sites-livewire",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-customers-and-sites-livewire",
+                "reference": "e2191afac2327492254776b3e25ee1a222a73ce1"
+            },
+            "require": {
+                "liberusoftware/module-maintenance-customers-and-sites": "0.1.0",
+                "livewire/livewire": "^4.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-customers-and-sites-livewire",
+                    "provider": "Liberu\\Modules\\Maintenance\\CustomersAndSites\\Livewire\\CustomersAndSitesLivewireServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\CustomersAndSites\\Livewire\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Customers and sites Livewire adapter for Liberu Maintenance",
             "transport-options": {
                 "symlink": false,
                 "relative": true

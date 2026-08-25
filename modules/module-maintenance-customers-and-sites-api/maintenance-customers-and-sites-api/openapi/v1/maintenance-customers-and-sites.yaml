@@ -1,0 +1,9 @@
+openapi: 3.1.0
+info: {title: maintenance customers and sites API, version: 1.0.0}
+paths:
+  /api/v1/maintenance/customers-and-sites:
+    get: {operationId: maintenance.customers.and.sites.list, security: [{sanctum: []}], responses: {'200': {description: Authorized customers}}}
+    post: {operationId: maintenance.customers.and.sites.create, security: [{sanctum: []}], responses: {'201': {description: Customer created}}}
+  /api/v1/maintenance/customers-and-sites/{id}:
+    get: {operationId: maintenance.customers.and.sites.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Customer}}}
+components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}
