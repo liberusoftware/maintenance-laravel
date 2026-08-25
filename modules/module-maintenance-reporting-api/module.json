@@ -1,0 +1,30 @@
+{
+  "name": "module-maintenance-reporting-api",
+  "display_name": "Maintenance Reporting api",
+  "description": "Reporting api presentation adapter.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Reporting\\Api\\ReportingApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-maintenance-reporting": "0.1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.reporting.api"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Backlog",
+    "Response",
+    "First-time fix",
+    "Downtime",
+    "Cost",
+    "Utilization",
+    "Stock",
+    "SLA",
+    "Compliance metrics"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "liberusoftware/module-maintenance-portals-filament",
+  "desc": "Portals Filament adapter for Liberu Maintenance",
+  "autoload": {
+  "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Portals\\Filament\\": "src/"
+    }
+  },
+  "provider": "Liberu\\Modules\\Maintenance\\Portals\\Filament\\PortalsFilamentServiceProvider",
+  "require": {
+    "php": "^8.5",
+    "filament/filament": "~5.1",
+    "liberusoftware/module-maintenance-portals": "0.1.0"
+  },
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-portals-filament",
+      "provider": "Liberu\\Modules\\Maintenance\\Portals\\Filament\\PortalsFilamentServiceProvider"
+    }
+  },
+  "version": "0.1.0"
+}

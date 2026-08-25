@@ -1,0 +1,29 @@
+{
+  "name": "module-maintenance-compliance",
+  "display_name": "Maintenance Compliance",
+  "description": "Tenant-scoped compliance records and workflows.",
+  "version": "0.1.0",
+  "category": "capability",
+  "provider": "Liberu\\Modules\\Maintenance\\Compliance\\ComplianceServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-manager": "^1.0",
+      "liberusoftware/organizations-teams": "^1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.compliance"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Requirements",
+    "Permits",
+    "Risk assessments",
+    "Incidents",
+    "Corrective actions",
+    "Evidence",
+    "Expiry"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "liberusoftware/module-maintenance-compliance-api",
+  "desc": "Compliance API adapter for Liberu Maintenance",
+  "autoload": {
+  "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Compliance\\Api\\": "src/"
+    }
+  },
+  "provider": "Liberu\\Modules\\Maintenance\\Compliance\\Api\\ComplianceApiServiceProvider",
+  "require": {
+    "php": "^8.5",
+    "illuminate/http": "^13.0",
+    "illuminate/routing": "^13.0",
+    "liberusoftware/module-maintenance-compliance": "0.1.0",
+    "laravel/sanctum": "^4.0"
+  },
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-compliance-api",
+      "provider": "Liberu\\Modules\\Maintenance\\Compliance\\Api\\ComplianceApiServiceProvider"
+    }
+  },
+  "version": "0.1.0"
+}

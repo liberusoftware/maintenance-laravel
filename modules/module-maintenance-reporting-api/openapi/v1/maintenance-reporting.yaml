@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info:
+  title: maintenance reporting API
+  version: 1.0.0
+paths:
+  /api/v1/maintenance/reporting:
+    get:
+      operationId: maintenance.reporting.list
+      security:
+        - sanctum: []
+      responses:
+        "200":
+          description: Authorized reporting records
+    post:
+      operationId: maintenance.reporting.create
+      security:
+        - sanctum: []
+      responses:
+        "201":
+          description: Created reporting record
+components:
+  securitySchemes:
+    sanctum:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+

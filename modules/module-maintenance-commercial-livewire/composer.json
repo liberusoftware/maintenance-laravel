@@ -1,0 +1,29 @@
+{
+  "name": "liberusoftware/module-maintenance-commercial-livewire",
+  "desc": "Commercial Livewire adapter for Liberu Maintenance",
+  "autoload": {
+  "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Commercial\\Livewire\\": "src/"
+    }
+  },
+  "provider": "Liberu\\Modules\\Maintenance\\Commercial\\Livewire\\CommercialLivewireServiceProvider",
+  "require": {
+    "php": "^8.5",
+    "livewire/livewire": "^4.0",
+    "liberusoftware/module-maintenance-commercial": "0.1.0"
+  },
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-commercial-livewire",
+      "provider": "Liberu\\Modules\\Maintenance\\Commercial\\Livewire\\CommercialLivewireServiceProvider"
+    }
+  },
+  "version": "0.1.0"
+}

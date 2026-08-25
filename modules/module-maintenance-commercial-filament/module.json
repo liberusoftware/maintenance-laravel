@@ -1,0 +1,28 @@
+{
+  "name": "module-maintenance-commercial-filament",
+  "display_name": "Maintenance Commercial filament",
+  "description": "Commercial filament presentation adapter.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Commercial\\Filament\\CommercialFilamentServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-maintenance-commercial": "0.1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.commercial.filament"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Quotes",
+    "Contracts",
+    "Covered assets/services",
+    "Rates",
+    "Renewals",
+    "SLA",
+    "Billable lines"
+  ]
+}

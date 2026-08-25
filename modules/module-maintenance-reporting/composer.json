@@ -1,0 +1,30 @@
+{
+  "name": "liberusoftware/module-maintenance-reporting",
+  "description": "Reporting domain module for Liberu Maintenance",
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "require": {
+    "php": "^8.5",
+    "illuminate/database": "^13.0",
+    "illuminate/support": "^13.0",
+    "liberusoftware/module-manager": "^1.0",
+    "liberusoftware/organizations-teams": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Report\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-reporting",
+      "provider": "Liberu\\Modules\\Maintenance\\Report\\ReportServiceProvider"
+    }
+  },
+  "version": "0.1.0"
+}

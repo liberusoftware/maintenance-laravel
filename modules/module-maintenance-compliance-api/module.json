@@ -1,0 +1,28 @@
+{
+  "name": "module-maintenance-compliance-api",
+  "display_name": "Maintenance Compliance api",
+  "description": "Compliance api presentation adapter.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Compliance\\Api\\ComplianceApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-maintenance-compliance": "0.1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.compliance.api"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Requirements",
+    "Permits",
+    "Risk assessments",
+    "Incidents",
+    "Corrective actions",
+    "Evidence",
+    "Expiry"
+  ]
+}

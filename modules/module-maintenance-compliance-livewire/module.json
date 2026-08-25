@@ -1,0 +1,28 @@
+{
+  "name": "module-maintenance-compliance-livewire",
+  "display_name": "Maintenance Compliance livewire",
+  "description": "Compliance livewire presentation adapter.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Compliance\\Livewire\\ComplianceLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-maintenance-compliance": "0.1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.compliance.livewire"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Requirements",
+    "Permits",
+    "Risk assessments",
+    "Incidents",
+    "Corrective actions",
+    "Evidence",
+    "Expiry"
+  ]
+}

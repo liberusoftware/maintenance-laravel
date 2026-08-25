@@ -1,0 +1,29 @@
+{
+  "name": "liberusoftware/module-maintenance-portals-livewire",
+  "desc": "Portals Livewire adapter for Liberu Maintenance",
+  "autoload": {
+  "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Portals\\Livewire\\": "src/"
+    }
+  },
+  "provider": "Liberu\\Modules\\Maintenance\\Portals\\Livewire\\PortalsLivewireServiceProvider",
+  "require": {
+    "php": "^8.5",
+    "livewire/livewire": "^4.0",
+    "liberusoftware/module-maintenance-portals": "0.1.0"
+  },
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-portals-livewire",
+      "provider": "Liberu\\Modules\\Maintenance\\Portals\\Livewire\\PortalsLivewireServiceProvider"
+    }
+  },
+  "version": "0.1.0"
+}

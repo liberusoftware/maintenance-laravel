@@ -1,0 +1,29 @@
+{
+  "name": "liberusoftware/module-maintenance-compliance-filament",
+  "desc": "Compliance Filament adapter for Liberu Maintenance",
+  "autoload": {
+  "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Compliance\\Filament\\": "src/"
+    }
+  },
+  "provider": "Liberu\\Modules\\Maintenance\\Compliance\\Filament\\ComplianceFilamentServiceProvider",
+  "require": {
+    "php": "^8.5",
+    "filament/filament": "~5.1",
+    "liberusoftware/module-maintenance-compliance": "0.1.0"
+  },
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-compliance-filament",
+      "provider": "Liberu\\Modules\\Maintenance\\Compliance\\Filament\\ComplianceFilamentServiceProvider"
+    }
+  },
+  "version": "0.1.0"
+}

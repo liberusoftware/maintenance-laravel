@@ -1,0 +1,31 @@
+{
+  "name": "liberusoftware/module-maintenance-reporting-api",
+  "desc": "Reporting API adapter for Liberu Maintenance",
+  "autoload": {
+  "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Reporting\\Api\\": "src/"
+    }
+  },
+  "provider": "Liberu\\Modules\\Maintenance\\Reporting\\Api\\ReportingApiServiceProvider",
+  "require": {
+    "php": "^8.5",
+    "illuminate/http": "^13.0",
+    "illuminate/routing": "^13.0",
+    "liberusoftware/module-maintenance-reporting": "0.1.0",
+    "laravel/sanctum": "^4.0"
+  },
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-reporting-api",
+      "provider": "Liberu\\Modules\\Maintenance\\Reporting\\Api\\ReportingApiServiceProvider"
+    }
+  },
+  "version": "0.1.0"
+}
