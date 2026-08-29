@@ -96,3 +96,17 @@ it('soft deletes work orders while keeping them recoverable', function () {
     expect(WorkOrder::query()->whereKey($order->id)->exists())->toBeFalse()
         ->and(WorkOrder::withTrashed()->whereKey($order->id)->first()->deleted_at)->not->toBeNull();
 });
+
+it('provides triaged and blocked work-order scopes', function () {
+    $team = Team::factory()->create();
+    $triaged = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Triage repair']);
+    $blocked = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Blocked repair']);
+    $transition = app(TransitionWorkOrder::class);
+    $transition->handle($team->id, $triaged, 'triaged');
+    $transition->handle($team->id, $blocked, 'triaged');
+    $transition->handle($team->id, $blocked, 'in_progress');
+    $transition->handle($team->id, $blocked, 'blocked');
+
+    expect(WorkOrder::query()->where('team_id', $team->id)->triaged()->whereKey($triaged)->exists())->toBeTrue()
+        ->and(WorkOrder::query()->where('team_id', $team->id)->blocked()->whereKey($blocked)->exists())->toBeTrue();
+});

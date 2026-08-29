@@ -31,6 +31,9 @@ class WorkOrderController extends Controller
         if ($r->filled('assigned_to')) {
             $query->assignedToUser($r->integer('assigned_to'));
         }
+        if ($r->filled('status')) {
+            $query->where('status', $r->string('status')->toString());
+        }
         $items = $query->latest()->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (WorkOrder $o) => $this->resource($o))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);

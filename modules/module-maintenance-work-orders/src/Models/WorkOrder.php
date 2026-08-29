@@ -31,6 +31,16 @@ class WorkOrder extends Model
         return $query->where('status', 'in_progress');
     }
 
+    public function scopeTriaged(Builder $query): Builder
+    {
+        return $query->where('status', 'triaged');
+    }
+
+    public function scopeBlocked(Builder $query): Builder
+    {
+        return $query->where('status', 'blocked');
+    }
+
     public function scopeCompleted(Builder $query): Builder
     {
         return $query->where('status', 'completed');
