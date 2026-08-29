@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Inventory\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
@@ -14,6 +15,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
 use Liberu\Modules\Maintenance\Inventory\Filament\Resources\StockItemResource\Pages\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Filament\Resources\StockItemResource\Pages\EditStockItem;
 use Liberu\Modules\Maintenance\Inventory\Filament\Resources\StockItemResource\Pages\ListStockItems;
@@ -42,8 +45,18 @@ class StockItemResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('part_number')->searchable(), TextColumn::make('name')->searchable(), TextColumn::make('location'), TextColumn::make('quantity')->sortable(), TextColumn::make('reorder_level')])->recordActions([
+        return $table->columns([TextColumn::make('part_number')->searchable(), TextColumn::make('name')->searchable(), TextColumn::make('location'), TextColumn::make('quantity')->sortable(), TextColumn::make('reserved_quantity')->sortable(), TextColumn::make('reorder_level')])->recordActions([
             EditAction::make(),
+            Action::make('reserve')->label('Reserve')->form([TextInput::make('quantity')->numeric()->minValue(1)->required()])->action(function (StockItem $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(ReserveStock::class)->handle((int) $teamId, $record, (int) $data['quantity']);
+            }),
+            Action::make('release')->label('Release')->form([TextInput::make('quantity')->numeric()->minValue(1)->required()])->action(function (StockItem $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(ReleaseReservedStock::class)->handle((int) $teamId, $record, (int) $data['quantity']);
+            }),
             DeleteAction::make()->action(function (StockItem $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);

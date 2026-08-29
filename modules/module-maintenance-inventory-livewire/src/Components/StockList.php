@@ -8,6 +8,8 @@ use Illuminate\View\View;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\UpdateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
 use Livewire\Component;
@@ -19,6 +21,8 @@ class StockList extends Component
     public string $name = '';
 
     public int $quantity = 0;
+
+    public int $reservationQuantity = 1;
 
     public ?int $editingItemId = null;
 
@@ -59,6 +63,22 @@ class StockList extends Component
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         $delete->handle((int) $teamId, $this->itemForCurrentTeam($itemId));
+    }
+
+    public function reserve(int $itemId, ReserveStock $reserve): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['reservationQuantity' => 'required|integer|min:1']);
+        $reserve->handle((int) $teamId, $this->itemForCurrentTeam($itemId), $this->reservationQuantity);
+    }
+
+    public function release(int $itemId, ReleaseReservedStock $release): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['reservationQuantity' => 'required|integer|min:1']);
+        $release->handle((int) $teamId, $this->itemForCurrentTeam($itemId), $this->reservationQuantity);
     }
 
     public function cancelEdit(): void

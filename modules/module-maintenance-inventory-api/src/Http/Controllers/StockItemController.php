@@ -10,6 +10,8 @@ use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\UpdateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
 
@@ -52,6 +54,26 @@ class StockItemController extends Controller
         return response()->json(['data' => $this->resource($adjust->handle($id, $stockItem, $data['delta'], $data['reason'] ?? 'adjustment', $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
     }
 
+    public function reserve(Request $r, StockItem $stockItem, ReserveStock $reserve): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000']]);
+
+        return response()->json(['data' => $this->resource($reserve->handle($id, $stockItem, $data['quantity']))]);
+    }
+
+    public function release(Request $r, StockItem $stockItem, ReleaseReservedStock $release): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000']]);
+
+        return response()->json(['data' => $this->resource($release->handle($id, $stockItem, $data['quantity']))]);
+    }
+
     public function update(Request $r, StockItem $stockItem, UpdateStockItem $update): JsonResponse
     {
         $id = $this->teamId($r);
@@ -81,7 +103,7 @@ class StockItemController extends Controller
 
     private function resource(StockItem $i): array
     {
-        return ['id' => (string) $i->getKey(), 'type' => 'maintenance-stock-item', 'attributes' => ['part_number' => $i->part_number, 'name' => $i->name, 'location' => $i->location, 'quantity' => $i->quantity, 'reorder_level' => $i->reorder_level, 'unit' => $i->unit]];
+        return ['id' => (string) $i->getKey(), 'type' => 'maintenance-stock-item', 'attributes' => ['part_number' => $i->part_number, 'name' => $i->name, 'location' => $i->location, 'quantity' => $i->quantity, 'reserved_quantity' => $i->reserved_quantity, 'available_quantity' => $i->availableQuantity(), 'reorder_level' => $i->reorder_level, 'unit' => $i->unit]];
     }
 
     public function movements(Request $r, StockItem $stockItem): JsonResponse
