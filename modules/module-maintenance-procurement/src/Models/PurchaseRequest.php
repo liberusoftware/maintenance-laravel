@@ -36,4 +36,14 @@ class PurchaseRequest extends Model
     {
         return $query->where('status', 'rejected');
     }
+
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->where('status', 'ordered');
+    }
+
+    public function scopeReceived(Builder $query): Builder
+    {
+        return $query->where('status', 'received');
+    }
 }

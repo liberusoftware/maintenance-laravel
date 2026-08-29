@@ -13,6 +13,7 @@ use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
+use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
 it('creates tenant-scoped records for the remaining maintenance capabilities', function () {
@@ -35,6 +36,14 @@ it('rejects incomplete remaining capability records', function () {
     $team = Team::factory()->create();
 
     expect(fn () => app(CreateCommercialRecord::class)->handle($team->id, ['kind' => 'quote']))
+        ->toThrow(ValidationException::class);
+});
+
+it('restricts reporting records to the supported metric families', function () {
+    $team = Team::factory()->create();
+
+    expect(ReportKind::options())->toHaveKeys(['backlog', 'response', 'first_time_fix', 'downtime', 'cost', 'utilization', 'stock', 'sla', 'compliance'])
+        ->and(fn () => app(CreateReportRecord::class)->handle($team->id, ['kind' => 'arbitrary', 'title' => 'Unsupported metric']))
         ->toThrow(ValidationException::class);
 });
 

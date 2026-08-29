@@ -32,7 +32,7 @@ class ScheduleEntryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('title')->required()->maxLength(255), TextInput::make('resource_key')->maxLength(255), DateTimePicker::make('starts_at')->required(), DateTimePicker::make('ends_at')->required(), TextInput::make('territory')->maxLength(255)]);
+        return $schema->components([TextInput::make('title')->required()->maxLength(255), TextInput::make('resource_key')->maxLength(255), DateTimePicker::make('starts_at')->required(), DateTimePicker::make('ends_at')->required(), TextInput::make('territory')->maxLength(255), TextInput::make('recurrence_type')->datalist(['daily', 'weekly', 'monthly', 'yearly', 'hours']), TextInput::make('recurrence_value')->numeric()->minValue(1)->default(1), TextInput::make('priority')->datalist(['low', 'medium', 'high', 'critical'])->default('medium')]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -45,7 +45,7 @@ class ScheduleEntryResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('starts_at')->dateTime()->sortable(), TextColumn::make('ends_at')->dateTime(), TextColumn::make('status')->badge()])->recordActions([
+        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('starts_at')->dateTime()->sortable(), TextColumn::make('ends_at')->dateTime(), TextColumn::make('status')->badge(), TextColumn::make('next_due_at')->dateTime()])->recordActions([
             EditAction::make(),
             Action::make('start')->label('Start')->visible(fn (ScheduleEntry $record): bool => $record->status === 'scheduled')->action(fn (ScheduleEntry $record): ScheduleEntry => app(TransitionScheduleEntry::class)->handle((int) (Filament::getTenant() ?? auth()->user()?->currentTeam)->getKey(), $record, 'in_progress')),
             Action::make('complete')->label('Complete')->visible(fn (ScheduleEntry $record): bool => $record->status === 'in_progress')->action(fn (ScheduleEntry $record): ScheduleEntry => app(TransitionScheduleEntry::class)->handle((int) (Filament::getTenant() ?? auth()->user()?->currentTeam)->getKey(), $record, 'completed')),

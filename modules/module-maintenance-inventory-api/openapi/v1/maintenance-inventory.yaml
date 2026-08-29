@@ -12,4 +12,8 @@ paths:
     post: {operationId: maintenance.inventory.reserve, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock reserved}}}
   /api/v1/maintenance/inventory/{id}/release:
     post: {operationId: maintenance.inventory.release, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Reserved stock released}}}
+  /api/v1/maintenance/inventory/{id}/issue:
+    post: {operationId: maintenance.inventory.issue, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock issued}}}
+  /api/v1/maintenance/inventory/{id}/return:
+    post: {operationId: maintenance.inventory.return, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock returned}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

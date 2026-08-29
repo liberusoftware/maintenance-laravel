@@ -10,8 +10,10 @@ use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\IssueStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReturnStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\UpdateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
 
@@ -78,6 +80,26 @@ class StockItemController extends Controller
         $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000']]);
 
         return response()->json(['data' => $this->resource($release->handle($id, $stockItem, $data['quantity']))]);
+    }
+
+    public function issue(Request $r, StockItem $stockItem, IssueStock $issue): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000'], 'notes' => ['sometimes', 'nullable', 'string', 'max:10000']]);
+
+        return response()->json(['data' => $this->resource($issue->handle($id, $stockItem, $data['quantity'], $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
+    }
+
+    public function return(Request $r, StockItem $stockItem, ReturnStock $returnStock): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000'], 'notes' => ['sometimes', 'nullable', 'string', 'max:10000']]);
+
+        return response()->json(['data' => $this->resource($returnStock->handle($id, $stockItem, $data['quantity'], $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
     }
 
     public function update(Request $r, StockItem $stockItem, UpdateStockItem $update): JsonResponse

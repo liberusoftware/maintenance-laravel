@@ -2,7 +2,7 @@ openapi: 3.1.0
 info: {title: maintenance inspections API, version: 1.0.0}
 paths:
   /api/v1/maintenance/inspections:
-    get: {operationId: maintenance.inspections.list, security: [{sanctum: []}], responses: {'200': {description: Authorized inspections}}}
+    get: {operationId: maintenance.inspections.list, security: [{sanctum: []}], parameters: [{name: status, in: query, schema: {type: string, enum: [draft, completed]}}, {name: outcome, in: query, schema: {type: string, enum: [pending, pass, fail, conditional]}}, {name: inspected_after, in: query, schema: {type: string, format: date-time}}, {name: inspected_before, in: query, schema: {type: string, format: date-time}}], responses: {'200': {description: Authorized inspections}}}
     post: {operationId: maintenance.inspections.create, security: [{sanctum: []}], responses: {'201': {description: Inspection created}}}
   /api/v1/maintenance/inspections/{id}:
     get: {operationId: maintenance.inspections.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Inspection}}}

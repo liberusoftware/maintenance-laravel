@@ -7,12 +7,15 @@ namespace Liberu\Modules\Maintenance\WorkOrders\Livewire\Components;
 use Illuminate\View\View;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderEvidence;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\RemoveWorkOrderDependency;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\RemoveWorkOrderEvidence;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderDependency;
+use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderEvidence;
 use Livewire\Component;
 
 class WorkOrderList extends Component
@@ -28,6 +31,12 @@ class WorkOrderList extends Component
     public bool $commentIsInternal = false;
 
     public ?int $dependsOnWorkOrderId = null;
+
+    public string $evidenceKind = '';
+
+    public string $evidenceLabel = '';
+
+    public string $evidenceReference = '';
 
     public function save(CreateWorkOrder $create): void
     {
@@ -85,6 +94,23 @@ class WorkOrderList extends Component
         $remove->handle((int) $teamId, $dependency);
     }
 
+    public function addEvidence(int $orderId, AddWorkOrderEvidence $add): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['evidenceKind' => 'required|string|max:64', 'evidenceLabel' => 'required|string|max:255', 'evidenceReference' => 'required|string|max:10000']);
+        $add->handle((int) $teamId, $this->orderForCurrentTeam($orderId), ['kind' => $this->evidenceKind, 'label' => $this->evidenceLabel, 'reference' => $this->evidenceReference, 'added_by' => auth()->id()]);
+        $this->reset(['evidenceKind', 'evidenceLabel', 'evidenceReference']);
+    }
+
+    public function removeEvidence(int $evidenceId, RemoveWorkOrderEvidence $remove): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $evidence = WorkOrderEvidence::query()->where('team_id', $teamId)->findOrFail($evidenceId);
+        $remove->handle((int) $teamId, $evidence);
+    }
+
     public function addComment(int $orderId, AddWorkOrderComment $add): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
@@ -98,7 +124,7 @@ class WorkOrderList extends Component
     public function render(): View
     {
         $id = auth()->user()?->currentTeam?->getKey();
-        $orders = $id === null ? collect() : WorkOrder::where('team_id', $id)->with(['comments', 'dependencies.dependsOn'])->latest()->get();
+        $orders = $id === null ? collect() : WorkOrder::where('team_id', $id)->with(['comments', 'dependencies.dependsOn', 'evidence'])->latest()->get();
 
         return view('module-maintenance-work-orders-livewire::livewire.work-order-list', compact('orders'));
     }

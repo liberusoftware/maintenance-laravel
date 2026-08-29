@@ -24,6 +24,14 @@ final class UpdateScheduleEntry
         if (! in_array($status, ['scheduled', 'in_progress', 'completed', 'cancelled'], true)) {
             throw ValidationException::withMessages(['status' => 'The schedule status is invalid.']);
         }
+        $recurrenceType = array_key_exists('recurrence_type', $attributes) ? $attributes['recurrence_type'] : $entry->recurrence_type;
+        $recurrenceValue = array_key_exists('recurrence_value', $attributes) ? (int) $attributes['recurrence_value'] : (int) $entry->recurrence_value;
+        if ($recurrenceType !== null && ! in_array($recurrenceType, ['daily', 'weekly', 'monthly', 'yearly', 'hours'], true)) {
+            throw ValidationException::withMessages(['recurrence_type' => 'The recurrence type is invalid.']);
+        }
+        if ($recurrenceValue < 1) {
+            throw ValidationException::withMessages(['recurrence_value' => 'The recurrence value must be at least one.']);
+        }
         $conflict = ScheduleEntry::query()
             ->where('team_id', $teamId)
             ->where('resource_key', $resourceKey)
@@ -37,7 +45,7 @@ final class UpdateScheduleEntry
         }
 
         return DB::transaction(function () use ($entry, $attributes, $start, $end): ScheduleEntry {
-            $entry->fill(array_merge($attributes, ['starts_at' => $start, 'ends_at' => $end]));
+            $entry->fill(array_merge($attributes, ['starts_at' => $start, 'ends_at' => $end, 'recurrence_value' => $recurrenceValue]));
             $entry->save();
 
             return $entry->refresh();

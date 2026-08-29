@@ -80,4 +80,9 @@ class WorkOrder extends Model
     {
         return $this->hasMany(WorkOrderDependency::class, 'depends_on_work_order_id');
     }
+
+    public function evidence(): HasMany
+    {
+        return $this->hasMany(WorkOrderEvidence::class);
+    }
 }

@@ -3,6 +3,9 @@
         <input wire:model="name" placeholder="Asset name">
         <input wire:model="code" placeholder="Code">
         <input wire:model="category" placeholder="Category">
+        <input wire:model="location" placeholder="Location">
+        <input wire:model="manufacturer" placeholder="Manufacturer">
+        <input wire:model="model" placeholder="Model">
         <input wire:model="sensor_type" placeholder="Sensor type (optional)">
         <button type="submit">{{ $editingAssetId === null ? 'Add asset' : 'Update asset' }}</button>
         @if ($editingAssetId !== null)<button type="button" wire:click="cancelEdit">Cancel</button>@endif

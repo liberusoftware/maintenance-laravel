@@ -15,8 +15,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\IssueStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReturnStock;
 use Liberu\Modules\Maintenance\Inventory\Filament\Resources\StockItemResource\Pages\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Filament\Resources\StockItemResource\Pages\EditStockItem;
 use Liberu\Modules\Maintenance\Inventory\Filament\Resources\StockItemResource\Pages\ListStockItems;
@@ -56,6 +58,16 @@ class StockItemResource extends Resource
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);
                 app(ReleaseReservedStock::class)->handle((int) $teamId, $record, (int) $data['quantity']);
+            }),
+            Action::make('issue')->label('Issue')->form([TextInput::make('quantity')->numeric()->minValue(1)->required(), TextInput::make('notes')->maxLength(10000)])->action(function (StockItem $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(IssueStock::class)->handle((int) $teamId, $record, (int) $data['quantity'], auth()->id(), $data['notes'] ?? null);
+            }),
+            Action::make('return')->label('Return')->form([TextInput::make('quantity')->numeric()->minValue(1)->required(), TextInput::make('notes')->maxLength(10000)])->action(function (StockItem $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(ReturnStock::class)->handle((int) $teamId, $record, (int) $data['quantity'], auth()->id(), $data['notes'] ?? null);
             }),
             DeleteAction::make()->action(function (StockItem $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();

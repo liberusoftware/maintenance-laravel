@@ -15,4 +15,7 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/work-orders')->gro
     Route::get('/{workOrder}/dependencies', [WorkOrderController::class, 'dependencies']);
     Route::post('/{workOrder}/dependencies', [WorkOrderController::class, 'addDependency']);
     Route::delete('/{workOrder}/dependencies/{dependency}', [WorkOrderController::class, 'removeDependency']);
+    Route::get('/{workOrder}/evidence', [WorkOrderController::class, 'evidence']);
+    Route::post('/{workOrder}/evidence', [WorkOrderController::class, 'addEvidence']);
+    Route::delete('/{workOrder}/evidence/{evidence}', [WorkOrderController::class, 'removeEvidence']);
 });

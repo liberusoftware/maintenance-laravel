@@ -19,6 +19,12 @@ class AssetList extends Component
 
     public string $category = '';
 
+    public string $location = '';
+
+    public string $manufacturer = '';
+
+    public string $model = '';
+
     public string $criticality = 'normal';
 
     public string $sensor_type = '';
@@ -29,9 +35,9 @@ class AssetList extends Component
     {
         $id = auth()->user()?->currentTeam?->getKey();
         abort_if($id === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'criticality' => 'required|in:normal,high,critical', 'sensor_type' => 'nullable|string|max:80']);
-        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'category' => $this->category, 'criticality' => $this->criticality, 'sensor_type' => $this->sensor_type, 'sensor_enabled' => $this->sensor_type !== '']);
-        $this->reset(['name', 'code', 'category', 'criticality', 'sensor_type']);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'location' => 'nullable|string|max:255', 'manufacturer' => 'nullable|string|max:255', 'model' => 'nullable|string|max:255', 'criticality' => 'required|in:normal,high,critical', 'sensor_type' => 'nullable|string|max:80']);
+        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'category' => $this->category, 'location' => $this->location, 'manufacturer' => $this->manufacturer, 'model' => $this->model, 'criticality' => $this->criticality, 'sensor_type' => $this->sensor_type, 'sensor_enabled' => $this->sensor_type !== '']);
+        $this->reset(['name', 'code', 'category', 'location', 'manufacturer', 'model', 'criticality', 'sensor_type']);
         $this->dispatch('maintenance-assets-created');
     }
 
@@ -42,6 +48,9 @@ class AssetList extends Component
         $this->name = $asset->name;
         $this->code = $asset->code;
         $this->category = (string) ($asset->category ?? '');
+        $this->location = (string) ($asset->location ?? '');
+        $this->manufacturer = (string) ($asset->manufacturer ?? '');
+        $this->model = (string) ($asset->model ?? '');
         $this->criticality = (string) ($asset->criticality ?? 'normal');
         $this->sensor_type = (string) ($asset->sensor_type ?? '');
     }
@@ -50,8 +59,8 @@ class AssetList extends Component
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingAssetId === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'criticality' => 'required|in:normal,high,critical', 'sensor_type' => 'nullable|string|max:80']);
-        $update->handle((int) $teamId, $this->assetForCurrentTeam($this->editingAssetId), ['name' => $this->name, 'code' => $this->code, 'category' => $this->category, 'criticality' => $this->criticality, 'sensor_type' => $this->sensor_type, 'sensor_enabled' => $this->sensor_type !== '']);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'location' => 'nullable|string|max:255', 'manufacturer' => 'nullable|string|max:255', 'model' => 'nullable|string|max:255', 'criticality' => 'required|in:normal,high,critical', 'sensor_type' => 'nullable|string|max:80']);
+        $update->handle((int) $teamId, $this->assetForCurrentTeam($this->editingAssetId), ['name' => $this->name, 'code' => $this->code, 'category' => $this->category, 'location' => $this->location, 'manufacturer' => $this->manufacturer, 'model' => $this->model, 'criticality' => $this->criticality, 'sensor_type' => $this->sensor_type, 'sensor_enabled' => $this->sensor_type !== '']);
         $this->cancelEdit();
         $this->dispatch('maintenance-assets-updated');
     }
@@ -66,7 +75,7 @@ class AssetList extends Component
 
     public function cancelEdit(): void
     {
-        $this->reset(['name', 'code', 'category', 'criticality', 'sensor_type', 'editingAssetId']);
+        $this->reset(['name', 'code', 'category', 'location', 'manufacturer', 'model', 'criticality', 'sensor_type', 'editingAssetId']);
     }
 
     public function render(): View

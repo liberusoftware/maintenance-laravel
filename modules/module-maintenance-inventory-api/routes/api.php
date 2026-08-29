@@ -12,5 +12,7 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/inventory')->group
     Route::post('/{stockItem}/adjust', [StockItemController::class, 'adjust']);
     Route::post('/{stockItem}/reserve', [StockItemController::class, 'reserve']);
     Route::post('/{stockItem}/release', [StockItemController::class, 'release']);
+    Route::post('/{stockItem}/issue', [StockItemController::class, 'issue']);
+    Route::post('/{stockItem}/return', [StockItemController::class, 'return']);
     Route::get('/{stockItem}/movements', [StockItemController::class, 'movements']);
 });

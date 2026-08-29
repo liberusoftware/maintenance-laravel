@@ -11,4 +11,5 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/procurement')->gro
     Route::delete('/{purchaseRequest}', [PurchaseRequestController::class, 'destroy']);
     Route::post('/{purchaseRequest}/approve', [PurchaseRequestController::class, 'approve']);
     Route::post('/{purchaseRequest}/reject', [PurchaseRequestController::class, 'reject']);
+    Route::post('/{purchaseRequest}/transitions', [PurchaseRequestController::class, 'transition']);
 });

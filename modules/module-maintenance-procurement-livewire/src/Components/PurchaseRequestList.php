@@ -8,6 +8,7 @@ use Illuminate\View\View;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\DeletePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\RejectPurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\TransitionPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\UpdatePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
 use Livewire\Component;
@@ -59,6 +60,14 @@ class PurchaseRequestList extends Component
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         $reject->handle((int) $teamId, $this->requestForCurrentTeam($requestId), (int) auth()->id());
+    }
+
+    public function transition(int $requestId, string $status, TransitionPurchaseRequest $transition): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['status' => 'required|in:ordered,received,cancelled']);
+        $transition->handle((int) $teamId, $this->requestForCurrentTeam($requestId), $status, auth()->id());
     }
 
     public function cancelEdit(): void

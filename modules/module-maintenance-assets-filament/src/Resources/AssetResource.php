@@ -7,6 +7,8 @@ namespace Liberu\Modules\Maintenance\Assets\Filament\Resources;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -29,7 +31,7 @@ class AssetResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('name')->required()->maxLength(255), TextInput::make('code')->required()->maxLength(64), TextInput::make('category')->maxLength(255), TextInput::make('serial_number')->maxLength(255), TextInput::make('condition')->maxLength(64), TextInput::make('criticality')->maxLength(32), TextInput::make('status')->maxLength(64), TextInput::make('sensor_type')->maxLength(80), TextInput::make('sensor_id')->maxLength(255)]);
+        return $schema->components([TextInput::make('name')->required()->maxLength(255), Textarea::make('description')->maxLength(10000), TextInput::make('code')->required()->maxLength(64), TextInput::make('category')->maxLength(255), TextInput::make('serial_number')->maxLength(255), TextInput::make('model')->maxLength(255), TextInput::make('manufacturer')->maxLength(255), TextInput::make('location')->maxLength(255), DatePicker::make('purchase_date'), DatePicker::make('warranty_expiry')->afterOrEqual('purchase_date'), Textarea::make('notes')->maxLength(10000), TextInput::make('condition')->maxLength(64), TextInput::make('criticality')->maxLength(32), TextInput::make('status')->maxLength(64), TextInput::make('sensor_type')->maxLength(80), TextInput::make('sensor_id')->maxLength(255)]);
     }
 
     public static function getEloquentQuery(): Builder

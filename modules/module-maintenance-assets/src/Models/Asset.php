@@ -13,9 +13,9 @@ class Asset extends Model
 {
     protected $table = 'maintenance_assets';
 
-    protected $fillable = ['team_id', 'name', 'code', 'category', 'serial_number', 'condition', 'criticality', 'status', 'qr_code', 'barcode', 'sensor_enabled', 'sensor_type', 'sensor_id', 'sensor_config', 'last_sensor_reading_at', 'metadata'];
+    protected $fillable = ['team_id', 'name', 'description', 'code', 'category', 'serial_number', 'model', 'manufacturer', 'location', 'purchase_date', 'warranty_expiry', 'notes', 'condition', 'criticality', 'status', 'qr_code', 'barcode', 'sensor_enabled', 'sensor_type', 'sensor_id', 'sensor_config', 'last_sensor_reading_at', 'metadata'];
 
-    protected $casts = ['team_id' => 'integer', 'sensor_enabled' => 'boolean', 'sensor_config' => 'array', 'last_sensor_reading_at' => 'datetime', 'metadata' => 'array'];
+    protected $casts = ['team_id' => 'integer', 'purchase_date' => 'date', 'warranty_expiry' => 'date', 'sensor_enabled' => 'boolean', 'sensor_config' => 'array', 'last_sensor_reading_at' => 'datetime', 'metadata' => 'array'];
 
     public function scopeActive(Builder $query): Builder
     {

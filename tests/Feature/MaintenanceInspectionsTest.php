@@ -33,3 +33,14 @@ it('does not allow a completed inspection to be completed again', function () {
     expect(fn () => app(CompleteInspection::class)->handle($team->id, $inspection, 'fail'))
         ->toThrow(ValidationException::class);
 });
+
+it('provides inspection status, outcome, and date query scopes', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateInspection::class);
+    $draft = $create->handle($team->id, ['title' => 'Draft inspection']);
+    $passed = $create->handle($team->id, ['title' => 'Passed inspection', 'inspected_at' => '2026-08-20 10:00:00']);
+    app(CompleteInspection::class)->handle($team->id, $passed, 'pass');
+
+    expect(Inspection::query()->where('team_id', $team->id)->draft()->whereKey($draft)->exists())->toBeTrue()
+        ->and(Inspection::query()->where('team_id', $team->id)->completed()->withOutcome('pass')->inspectedBetween('2026-08-20', '2026-08-21')->whereKey($passed)->exists())->toBeTrue();
+});

@@ -76,3 +76,33 @@ it('does not let terminal schedule entries block future bookings', function () {
 
     expect($replacement->title)->toBe('Replacement visit');
 });
+
+it('advances recurring maintenance when a schedule entry is completed', function () {
+    $team = Team::factory()->create();
+    $entry = app(CreateScheduleEntry::class)->handle($team->id, [
+        'title' => 'Pump inspection',
+        'starts_at' => now()->subHour(),
+        'ends_at' => now(),
+        'recurrence_type' => 'weekly',
+        'recurrence_value' => 2,
+    ]);
+
+    $completed = app(TransitionScheduleEntry::class)->handle($team->id, $entry, 'in_progress');
+    $completed = app(TransitionScheduleEntry::class)->handle($team->id, $completed, 'completed');
+
+    expect($completed->last_completed_at)->not->toBeNull()
+        ->and($completed->next_due_at->equalTo($completed->last_completed_at->copy()->addWeeks(2)))->toBeTrue();
+});
+
+it('includes recurring due dates in upcoming schedules', function () {
+    $team = Team::factory()->create();
+    $entry = app(CreateScheduleEntry::class)->handle($team->id, [
+        'title' => 'Recurring inspection',
+        'starts_at' => now()->addMonths(2),
+        'ends_at' => now()->addMonths(2)->addHour(),
+        'next_due_at' => now()->addDays(3),
+        'recurrence_type' => 'weekly',
+    ]);
+
+    expect(ScheduleEntry::query()->where('team_id', $team->id)->upcoming(7)->whereKey($entry)->exists())->toBeTrue();
+});

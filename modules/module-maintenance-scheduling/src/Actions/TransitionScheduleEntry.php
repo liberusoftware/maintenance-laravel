@@ -24,7 +24,13 @@ final class TransitionScheduleEntry
             throw ValidationException::withMessages(['status' => 'That schedule transition is not allowed.']);
         }
 
-        $entry->update(['status' => $status]);
+        $attributes = ['status' => $status];
+        if ($status === 'completed') {
+            $completedAt = now();
+            $attributes['last_completed_at'] = $completedAt;
+            $attributes['next_due_at'] = $entry->calculateNextDueAt($completedAt);
+        }
+        $entry->update($attributes);
 
         return $entry->refresh();
     }
