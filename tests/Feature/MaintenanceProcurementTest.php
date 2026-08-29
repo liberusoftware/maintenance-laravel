@@ -19,7 +19,8 @@ it('creates and approves a tenant-scoped purchase request', function () {
     expect($request)->toBeInstanceOf(PurchaseRequest::class)
         ->and($request->team_id)->toBe($team->id)
         ->and($request->status)->toBe('approved')
-        ->and($request->approved_by)->toBe($approver->id);
+        ->and($request->approved_by)->toBe($approver->id)
+        ->and($request->metadata['status_history'][0]['to'])->toBe('approved');
 });
 
 it('prevents self-approval of purchase requests', function () {
@@ -40,7 +41,8 @@ it('rejects pending purchase requests and records the reason', function () {
     $rejected = app(RejectPurchaseRequest::class)->handle($team->id, $request, $approver->id, 'Budget unavailable');
 
     expect($rejected->status)->toBe('rejected')
-        ->and($rejected->metadata['rejection_reason'])->toBe('Budget unavailable');
+        ->and($rejected->metadata['rejection_reason'])->toBe('Budget unavailable')
+        ->and($rejected->metadata['status_history'][0]['to'])->toBe('rejected');
 });
 
 it('provides procurement status query scopes', function () {
@@ -67,7 +69,7 @@ it('moves approved purchase requests through ordering and receiving', function (
     expect($request->status)->toBe('ordered');
     $request = $transition->handle($team->id, $request, 'received', $approver->id);
     expect($request->status)->toBe('received')
-        ->and($request->metadata['status_history'])->toHaveCount(2);
+        ->and($request->metadata['status_history'])->toHaveCount(3);
     expect(fn () => $transition->handle($team->id, $request, 'cancelled', $approver->id))
         ->toThrow(ValidationException::class);
 });

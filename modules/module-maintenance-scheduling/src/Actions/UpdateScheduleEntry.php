@@ -44,7 +44,7 @@ final class UpdateScheduleEntry
             throw ValidationException::withMessages(['starts_at' => 'The schedule conflicts with an existing entry.']);
         }
 
-        return DB::transaction(function () use ($entry, $attributes, $start, $end): ScheduleEntry {
+        return DB::transaction(function () use ($entry, $attributes, $start, $end, $recurrenceValue): ScheduleEntry {
             $entry->fill(array_merge($attributes, ['starts_at' => $start, 'ends_at' => $end, 'recurrence_value' => $recurrenceValue]));
             $entry->save();
 

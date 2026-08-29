@@ -21,7 +21,9 @@ it('creates and transitions a tenant-scoped work order', function () {
     expect($order)->toBeInstanceOf(WorkOrder::class)
         ->and($order->number)->toBe('WO-000001')
         ->and($order->status)->toBe('completed')
-        ->and($order->completed_at)->not->toBeNull();
+        ->and($order->completed_at)->not->toBeNull()
+        ->and($order->metadata['status_history'])->toHaveCount(3)
+        ->and($order->metadata['status_history'][0]['to'])->toBe('triaged');
 });
 
 it('rejects invalid work-order status transitions', function () {
@@ -81,6 +83,14 @@ it('retains legacy guest intake and review fields in the modular model', functio
         ->and($order->reviewed_at->toDateTimeString())->toBe($reviewed->toDateTimeString())
         ->and($order->vendor_id)->toBe(29)
         ->and($order->notes)->toBe('Call before arrival.');
+});
+
+it('derives legacy hour values from modular minute tracking', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Track repair', 'estimated_minutes' => 90, 'actual_minutes' => 125]);
+
+    expect($order->estimatedHours())->toBe(1.5)
+        ->and($order->actualHours())->toBe(2.08);
 });
 
 it('stores comments within the work order tenant boundary', function () {

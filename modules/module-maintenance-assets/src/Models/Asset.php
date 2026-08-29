@@ -42,6 +42,11 @@ class Asset extends Model
         return $query->where('criticality', 'high');
     }
 
+    public function scopeInCondition(Builder $query, string $condition): Builder
+    {
+        return $query->where('condition', trim($condition));
+    }
+
     public function scopeSensorEnabled(Builder $query): Builder
     {
         return $query->where('sensor_enabled', true);

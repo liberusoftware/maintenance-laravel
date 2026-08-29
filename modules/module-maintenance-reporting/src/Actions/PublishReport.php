@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Report\Actions;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
@@ -16,7 +17,13 @@ final class PublishReport
             throw ValidationException::withMessages(['status' => 'Only draft reports can be published.']);
         }
 
-        $record->update(['status' => 'published']);
+        DB::transaction(function () use ($record): void {
+            $metadata = is_array($record->metadata) ? $record->metadata : [];
+            $history = is_array($metadata['status_history'] ?? null) ? $metadata['status_history'] : [];
+            $history[] = ['from' => $record->status, 'to' => 'published', 'at' => now()->toISOString()];
+            $metadata['status_history'] = $history;
+            $record->forceFill(['status' => 'published', 'metadata' => $metadata])->save();
+        });
 
         return $record->refresh();
     }

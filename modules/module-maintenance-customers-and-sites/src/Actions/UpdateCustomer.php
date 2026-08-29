@@ -19,6 +19,9 @@ final class UpdateCustomer
         if ($name === '' || $code === '') {
             throw ValidationException::withMessages(['name' => 'Name and code are required.']);
         }
+        if (array_key_exists('type', $attributes) && ! in_array($attributes['type'], ['customer', 'vendor', 'supplier', 'both'], true)) {
+            throw ValidationException::withMessages(['type' => 'The customer type is invalid.']);
+        }
         if (Customer::query()->where('team_id', $teamId)->where('code', $code)->whereKeyNot($customer->getKey())->exists()) {
             throw ValidationException::withMessages(['code' => 'The customer code is already in use.']);
         }

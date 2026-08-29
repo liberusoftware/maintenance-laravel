@@ -112,7 +112,7 @@ class WorkOrderController extends Controller
         abort_unless($id === (int) $workOrder->team_id && $r->user()->can('update', $workOrder), 404);
         $data = $r->validate(['status' => ['required', 'string', 'max:64']]);
 
-        return response()->json(['data' => $this->resource($transition->handle($id, $workOrder, $data['status']))]);
+        return response()->json(['data' => $this->resource($transition->handle($id, $workOrder, $data['status'], (int) $r->user()->getKey()))]);
     }
 
     public function comments(Request $r, WorkOrder $workOrder): JsonResponse
@@ -204,7 +204,7 @@ class WorkOrderController extends Controller
 
     private function resource(WorkOrder $o): array
     {
-        return ['id' => (string) $o->getKey(), 'type' => 'maintenance-work-order', 'attributes' => ['number' => $o->number, 'title' => $o->title, 'description' => $o->description, 'location' => $o->location, 'equipment_id' => $o->equipment_id, 'customer_id' => $o->customer_id, 'vendor_id' => $o->vendor_id, 'assigned_to' => $o->assigned_to, 'guest_name' => $o->guest_name, 'guest_email' => $o->guest_email, 'guest_phone' => $o->guest_phone, 'submitted_at' => $o->submitted_at?->toISOString(), 'reviewed_by' => $o->reviewed_by, 'reviewed_at' => $o->reviewed_at?->toISOString(), 'due_date' => $o->due_date?->toISOString(), 'started_at' => $o->started_at?->toISOString(), 'estimated_minutes' => $o->estimated_minutes, 'actual_minutes' => $o->actual_minutes, 'maintenance_plan_id' => $o->maintenance_plan_id, 'checklist_id' => $o->checklist_id, 'priority' => $o->priority, 'status' => $o->status, 'completed_at' => $o->completed_at?->toISOString(), 'notes' => $o->notes, 'metadata' => $o->metadata, 'created_at' => $o->created_at?->toISOString(), 'updated_at' => $o->updated_at?->toISOString()]];
+        return ['id' => (string) $o->getKey(), 'type' => 'maintenance-work-order', 'attributes' => ['number' => $o->number, 'title' => $o->title, 'description' => $o->description, 'location' => $o->location, 'equipment_id' => $o->equipment_id, 'customer_id' => $o->customer_id, 'vendor_id' => $o->vendor_id, 'assigned_to' => $o->assigned_to, 'guest_name' => $o->guest_name, 'guest_email' => $o->guest_email, 'guest_phone' => $o->guest_phone, 'submitted_at' => $o->submitted_at?->toISOString(), 'reviewed_by' => $o->reviewed_by, 'reviewed_at' => $o->reviewed_at?->toISOString(), 'due_date' => $o->due_date?->toISOString(), 'started_at' => $o->started_at?->toISOString(), 'estimated_minutes' => $o->estimated_minutes, 'estimated_hours' => $o->estimatedHours(), 'actual_minutes' => $o->actual_minutes, 'actual_hours' => $o->actualHours(), 'maintenance_plan_id' => $o->maintenance_plan_id, 'checklist_id' => $o->checklist_id, 'priority' => $o->priority, 'status' => $o->status, 'completed_at' => $o->completed_at?->toISOString(), 'notes' => $o->notes, 'metadata' => $o->metadata, 'created_at' => $o->created_at?->toISOString(), 'updated_at' => $o->updated_at?->toISOString()]];
     }
 
     private function dependencyResource(WorkOrderDependency $dependency): array

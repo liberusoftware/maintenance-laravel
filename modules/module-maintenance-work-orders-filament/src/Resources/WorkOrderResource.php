@@ -47,7 +47,7 @@ class WorkOrderResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('number')->sortable(), TextColumn::make('title')->searchable(), TextColumn::make('priority')->badge(), TextColumn::make('status')->badge(), TextColumn::make('created_at')->dateTime()])->recordActions([
+        return $table->columns([TextColumn::make('number')->sortable(), TextColumn::make('title')->searchable(), TextColumn::make('priority')->badge(), TextColumn::make('status')->badge(), TextColumn::make('estimated_hours')->label('Estimated hours')->state(fn (WorkOrder $record): ?string => $record->estimatedHours() === null ? null : number_format($record->estimatedHours(), 2)), TextColumn::make('actual_hours')->label('Actual hours')->state(fn (WorkOrder $record): ?string => $record->actualHours() === null ? null : number_format($record->actualHours(), 2)), TextColumn::make('created_at')->dateTime()])->recordActions([
             EditAction::make(),
             Action::make('addDependency')->label('Add dependency')->form([Select::make('depends_on_work_order_id')->label('Depends on')->options(function (WorkOrder $record): array {
                 $teamId = (Filament::getTenant() ?? auth()->user()?->currentTeam)?->getKey();

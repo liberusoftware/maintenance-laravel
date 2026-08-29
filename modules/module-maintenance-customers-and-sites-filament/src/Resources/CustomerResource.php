@@ -7,6 +7,8 @@ namespace Liberu\Modules\Maintenance\CustomersAndSites\Filament\Resources;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -29,7 +31,7 @@ class CustomerResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('name')->required()->maxLength(255), TextInput::make('code')->required()->maxLength(64), TextInput::make('email')->email()->maxLength(255), TextInput::make('phone')->maxLength(64)]);
+        return $schema->components([TextInput::make('name')->required()->maxLength(255), TextInput::make('code')->required()->maxLength(64), Select::make('type')->options(['customer' => 'Customer', 'vendor' => 'Vendor', 'supplier' => 'Supplier', 'both' => 'Customer and supplier'])->default('customer')->required(), TextInput::make('email')->email()->maxLength(255), TextInput::make('phone')->maxLength(64), Textarea::make('address')->maxLength(10000), TextInput::make('city')->maxLength(255), TextInput::make('state')->maxLength(255), TextInput::make('zip')->maxLength(32), TextInput::make('website')->url()->maxLength(255), TextInput::make('industry')->maxLength(255), Textarea::make('description')->maxLength(10000), TextInput::make('contact_person')->maxLength(255), TextInput::make('payment_terms')->maxLength(255), Textarea::make('notes')->maxLength(10000)]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -42,7 +44,7 @@ class CustomerResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('email')])->recordActions([
+        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('type')->badge(), TextColumn::make('email')])->recordActions([
             EditAction::make(),
             DeleteAction::make()->action(function (Customer $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();

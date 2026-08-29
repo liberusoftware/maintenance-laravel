@@ -19,15 +19,19 @@ class CustomerList extends Component
 
     public string $email = '';
 
+    public string $type = 'customer';
+
+    public string $phone = '';
+
     public ?int $editingCustomerId = null;
 
     public function save(CreateCustomer $create): void
     {
         $id = auth()->user()?->currentTeam?->getKey();
         abort_if($id === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'email' => 'nullable|email|max:255']);
-        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'email' => $this->email]);
-        $this->reset(['name', 'code', 'email']);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'email' => 'nullable|email|max:255', 'phone' => 'nullable|string|max:64', 'type' => 'required|in:customer,vendor,supplier,both']);
+        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'email' => $this->email, 'phone' => $this->phone, 'type' => $this->type]);
+        $this->reset(['name', 'code', 'email', 'phone', 'type']);
         $this->dispatch('maintenance-customers-and-sites-customer-created');
     }
 
@@ -38,14 +42,16 @@ class CustomerList extends Component
         $this->name = $customer->name;
         $this->code = $customer->code;
         $this->email = (string) ($customer->email ?? '');
+        $this->phone = (string) ($customer->phone ?? '');
+        $this->type = (string) ($customer->type ?? 'customer');
     }
 
     public function update(UpdateCustomer $update): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingCustomerId === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'email' => 'nullable|email|max:255']);
-        $update->handle((int) $teamId, $this->customerForCurrentTeam($this->editingCustomerId), ['name' => $this->name, 'code' => $this->code, 'email' => $this->email]);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'email' => 'nullable|email|max:255', 'phone' => 'nullable|string|max:64', 'type' => 'required|in:customer,vendor,supplier,both']);
+        $update->handle((int) $teamId, $this->customerForCurrentTeam($this->editingCustomerId), ['name' => $this->name, 'code' => $this->code, 'email' => $this->email, 'phone' => $this->phone, 'type' => $this->type]);
         $this->cancelEdit();
     }
 
@@ -58,7 +64,7 @@ class CustomerList extends Component
 
     public function cancelEdit(): void
     {
-        $this->reset(['name', 'code', 'email', 'editingCustomerId']);
+        $this->reset(['name', 'code', 'email', 'phone', 'type', 'editingCustomerId']);
     }
 
     public function render(): View

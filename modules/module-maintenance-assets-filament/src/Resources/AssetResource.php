@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Assets\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
@@ -16,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Assets\Actions\DeleteAsset;
+use Liberu\Modules\Maintenance\Assets\Actions\RecordAssetHistory;
 use Liberu\Modules\Maintenance\Assets\Filament\Resources\AssetResource\Pages\CreateAsset;
 use Liberu\Modules\Maintenance\Assets\Filament\Resources\AssetResource\Pages\EditAsset;
 use Liberu\Modules\Maintenance\Assets\Filament\Resources\AssetResource\Pages\ListAssets;
@@ -46,6 +48,11 @@ class AssetResource extends Resource
     {
         return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('category'), TextColumn::make('condition')->badge(), TextColumn::make('criticality')->badge(), TextColumn::make('status')->badge(), TextColumn::make('warranty_expiry')->date(), TextColumn::make('health_status')->badge()])->recordActions([
             EditAction::make(),
+            Action::make('recordHistory')->label('Record history')->form([TextInput::make('type')->required()->maxLength(64), Textarea::make('note')->required()->maxLength(10000)])->action(function (Asset $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(RecordAssetHistory::class)->handle((int) $teamId, $record, $data['type'], $data['note'], (int) auth()->id());
+            }),
             DeleteAction::make()->action(function (Asset $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);

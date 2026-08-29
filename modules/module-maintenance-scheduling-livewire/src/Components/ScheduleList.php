@@ -16,6 +16,18 @@ class ScheduleList extends Component
 {
     public string $title = '';
 
+    public string $description = '';
+
+    public string $instructions = '';
+
+    public string $equipment_id = '';
+
+    public string $assigned_to = '';
+
+    public string $checklist_id = '';
+
+    public string $estimated_duration = '';
+
     public string $starts_at = '';
 
     public string $ends_at = '';
@@ -30,10 +42,10 @@ class ScheduleList extends Component
     {
         $id = auth()->user()?->currentTeam?->getKey();
         abort_if($id === null, 403);
-        $this->validate(['title' => 'required|string|max:255', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at']);
+        $this->validate(['title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'instructions' => 'nullable|string|max:10000', 'equipment_id' => 'nullable|integer|min:1', 'assigned_to' => 'nullable|integer|min:1', 'checklist_id' => 'nullable|integer|min:1', 'estimated_duration' => 'nullable|integer|min:0', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at']);
         $this->validate(['recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'required|integer|min:1']);
-        $create->handle((int) $id, ['title' => $this->title, 'starts_at' => $this->starts_at, 'ends_at' => $this->ends_at, 'recurrence_type' => $this->recurrence_type ?: null, 'recurrence_value' => $this->recurrence_value]);
-        $this->reset(['title', 'starts_at', 'ends_at', 'recurrence_type', 'recurrence_value']);
+        $create->handle((int) $id, ['title' => $this->title, 'description' => $this->description, 'instructions' => $this->instructions, 'equipment_id' => $this->equipment_id !== '' ? (int) $this->equipment_id : null, 'assigned_to' => $this->assigned_to !== '' ? (int) $this->assigned_to : null, 'checklist_id' => $this->checklist_id !== '' ? (int) $this->checklist_id : null, 'estimated_duration' => $this->estimated_duration !== '' ? (int) $this->estimated_duration : null, 'starts_at' => $this->starts_at, 'ends_at' => $this->ends_at, 'recurrence_type' => $this->recurrence_type ?: null, 'recurrence_value' => $this->recurrence_value]);
+        $this->reset(['title', 'description', 'instructions', 'equipment_id', 'assigned_to', 'checklist_id', 'estimated_duration', 'starts_at', 'ends_at', 'recurrence_type', 'recurrence_value']);
         $this->dispatch('maintenance-schedule-created');
     }
 
@@ -42,6 +54,12 @@ class ScheduleList extends Component
         $entry = $this->entryForCurrentTeam($entryId);
         $this->editingEntryId = $entry->getKey();
         $this->title = $entry->title;
+        $this->description = (string) ($entry->description ?? '');
+        $this->instructions = (string) ($entry->instructions ?? '');
+        $this->equipment_id = $entry->equipment_id === null ? '' : (string) $entry->equipment_id;
+        $this->assigned_to = $entry->assigned_to === null ? '' : (string) $entry->assigned_to;
+        $this->checklist_id = $entry->checklist_id === null ? '' : (string) $entry->checklist_id;
+        $this->estimated_duration = $entry->estimated_duration === null ? '' : (string) $entry->estimated_duration;
         $this->starts_at = $entry->starts_at?->format('Y-m-d\TH:i') ?? '';
         $this->ends_at = $entry->ends_at?->format('Y-m-d\TH:i') ?? '';
         $this->recurrence_type = (string) ($entry->recurrence_type ?? '');
@@ -52,8 +70,8 @@ class ScheduleList extends Component
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingEntryId === null, 403);
-        $this->validate(['title' => 'required|string|max:255', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at', 'recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'required|integer|min:1']);
-        $update->handle((int) $teamId, $this->entryForCurrentTeam($this->editingEntryId), ['title' => $this->title, 'starts_at' => $this->starts_at, 'ends_at' => $this->ends_at, 'recurrence_type' => $this->recurrence_type ?: null, 'recurrence_value' => $this->recurrence_value]);
+        $this->validate(['title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'instructions' => 'nullable|string|max:10000', 'equipment_id' => 'nullable|integer|min:1', 'assigned_to' => 'nullable|integer|min:1', 'checklist_id' => 'nullable|integer|min:1', 'estimated_duration' => 'nullable|integer|min:0', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at', 'recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'required|integer|min:1']);
+        $update->handle((int) $teamId, $this->entryForCurrentTeam($this->editingEntryId), ['title' => $this->title, 'description' => $this->description, 'instructions' => $this->instructions, 'equipment_id' => $this->equipment_id !== '' ? (int) $this->equipment_id : null, 'assigned_to' => $this->assigned_to !== '' ? (int) $this->assigned_to : null, 'checklist_id' => $this->checklist_id !== '' ? (int) $this->checklist_id : null, 'estimated_duration' => $this->estimated_duration !== '' ? (int) $this->estimated_duration : null, 'starts_at' => $this->starts_at, 'ends_at' => $this->ends_at, 'recurrence_type' => $this->recurrence_type ?: null, 'recurrence_value' => $this->recurrence_value]);
         $this->cancelEdit();
     }
 
@@ -73,7 +91,7 @@ class ScheduleList extends Component
 
     public function cancelEdit(): void
     {
-        $this->reset(['title', 'starts_at', 'ends_at', 'recurrence_type', 'recurrence_value', 'editingEntryId']);
+        $this->reset(['title', 'description', 'instructions', 'equipment_id', 'assigned_to', 'checklist_id', 'estimated_duration', 'starts_at', 'ends_at', 'recurrence_type', 'recurrence_value', 'editingEntryId']);
         $this->recurrence_value = 1;
     }
 

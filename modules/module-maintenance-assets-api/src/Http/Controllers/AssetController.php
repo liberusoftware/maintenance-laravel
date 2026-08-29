@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Assets\Actions\CreateAsset;
 use Liberu\Modules\Maintenance\Assets\Actions\DeleteAsset;
+use Liberu\Modules\Maintenance\Assets\Actions\RecordAssetHistory;
 use Liberu\Modules\Maintenance\Assets\Actions\UpdateAsset;
 use Liberu\Modules\Maintenance\Assets\Models\Asset;
 
@@ -25,6 +26,9 @@ class AssetController extends Controller
         }
         if ($request->filled('criticality')) {
             $query->where('criticality', $request->string('criticality')->trim()->toString());
+        }
+        if ($request->filled('condition')) {
+            $query->inCondition($request->string('condition')->trim()->toString());
         }
         if ($request->has('sensor_enabled')) {
             $query->where('sensor_enabled', $request->boolean('sensor_enabled'));
@@ -57,6 +61,16 @@ class AssetController extends Controller
         abort_unless($this->teamId($request) === $asset->team_id && $request->user()->can('view', $asset), 404);
 
         return response()->json(['data' => $this->resource($asset)]);
+    }
+
+    public function history(Request $request, Asset $asset, RecordAssetHistory $recordHistory): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($teamId === (int) $asset->team_id && $request->user()->can('update', $asset), 404);
+        $data = $request->validate(['type' => ['required', 'string', 'max:64'], 'note' => ['required', 'string', 'max:10000']]);
+
+        return response()->json(['data' => $this->resource($recordHistory->handle($teamId, $asset, $data['type'], $data['note'], (int) $request->user()->getKey()))]);
     }
 
     public function update(Request $request, Asset $asset, UpdateAsset $update): JsonResponse
