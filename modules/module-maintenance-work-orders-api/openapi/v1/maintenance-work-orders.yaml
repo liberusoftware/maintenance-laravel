@@ -10,4 +10,9 @@ paths:
     delete: {operationId: maintenance.work.orders.delete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Work order deleted}}}
   /api/v1/maintenance/work-orders/{id}/transitions:
     post: {operationId: maintenance.work.orders.transition, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Work order transitioned}}}
+  /api/v1/maintenance/work-orders/{id}/dependencies:
+    get: {operationId: maintenance.work.orders.dependencies.list, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Work order dependencies}}
+    post: {operationId: maintenance.work.orders.dependencies.create, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Dependency created}}}
+  /api/v1/maintenance/work-orders/{id}/dependencies/{dependency}:
+    delete: {operationId: maintenance.work.orders.dependencies.delete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}, {name: dependency, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Dependency removed}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

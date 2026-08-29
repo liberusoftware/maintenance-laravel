@@ -8,12 +8,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\RemoveWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderComment;
+use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderDependency;
 
 class WorkOrderController extends Controller
 {
@@ -120,6 +123,37 @@ class WorkOrderController extends Controller
         return response()->json(['data' => $this->commentResource($add->handle($id, $workOrder, (int) $r->user()->getAuthIdentifier(), $data['comment'], (bool) ($data['is_internal'] ?? false)))], 201);
     }
 
+    public function dependencies(Request $r, WorkOrder $workOrder): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('view', $workOrder), 404);
+        $items = $workOrder->dependencies()->with('dependsOn')->latest()->get();
+
+        return response()->json(['data' => $items->map(fn (WorkOrderDependency $dependency): array => $this->dependencyResource($dependency))->values()]);
+    }
+
+    public function addDependency(Request $r, WorkOrder $workOrder, AddWorkOrderDependency $add): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('update', $workOrder), 404);
+        $data = $r->validate(['depends_on_work_order_id' => ['required', 'integer', 'min:1']]);
+        $dependsOn = WorkOrder::query()->findOrFail($data['depends_on_work_order_id']);
+
+        return response()->json(['data' => $this->dependencyResource($add->handle($id, $workOrder, $dependsOn))], 201);
+    }
+
+    public function removeDependency(Request $r, WorkOrder $workOrder, WorkOrderDependency $dependency, RemoveWorkOrderDependency $remove): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && (int) $dependency->work_order_id === (int) $workOrder->getKey() && $r->user()->can('update', $workOrder), 404);
+        $remove->handle($id, $dependency);
+
+        return response()->noContent();
+    }
+
     private function teamId(Request $r): ?int
     {
         $id = $r->user()?->currentTeam?->getKey();
@@ -130,6 +164,11 @@ class WorkOrderController extends Controller
     private function resource(WorkOrder $o): array
     {
         return ['id' => (string) $o->getKey(), 'type' => 'maintenance-work-order', 'attributes' => ['number' => $o->number, 'title' => $o->title, 'description' => $o->description, 'location' => $o->location, 'equipment_id' => $o->equipment_id, 'customer_id' => $o->customer_id, 'assigned_to' => $o->assigned_to, 'due_date' => $o->due_date?->toISOString(), 'started_at' => $o->started_at?->toISOString(), 'estimated_minutes' => $o->estimated_minutes, 'actual_minutes' => $o->actual_minutes, 'maintenance_plan_id' => $o->maintenance_plan_id, 'checklist_id' => $o->checklist_id, 'priority' => $o->priority, 'status' => $o->status, 'completed_at' => $o->completed_at?->toISOString(), 'metadata' => $o->metadata, 'created_at' => $o->created_at?->toISOString(), 'updated_at' => $o->updated_at?->toISOString()]];
+    }
+
+    private function dependencyResource(WorkOrderDependency $dependency): array
+    {
+        return ['id' => (string) $dependency->getKey(), 'type' => 'maintenance-work-order-dependency', 'attributes' => ['work_order_id' => (string) $dependency->work_order_id, 'depends_on_work_order_id' => (string) $dependency->depends_on_work_order_id, 'depends_on' => $dependency->dependsOn === null ? null : ['number' => $dependency->dependsOn->number, 'title' => $dependency->dependsOn->title], 'created_at' => $dependency->created_at?->toISOString()]];
     }
 
     /** @return array<string, mixed> */

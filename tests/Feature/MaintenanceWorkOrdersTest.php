@@ -3,6 +3,7 @@
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
@@ -109,4 +110,19 @@ it('provides triaged and blocked work-order scopes', function () {
 
     expect(WorkOrder::query()->where('team_id', $team->id)->triaged()->whereKey($triaged)->exists())->toBeTrue()
         ->and(WorkOrder::query()->where('team_id', $team->id)->blocked()->whereKey($blocked)->exists())->toBeTrue();
+});
+
+it('supports tenant-scoped dependencies without cycles or self-links', function () {
+    $team = Team::factory()->create();
+    $first = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Prepare site']);
+    $second = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    $third = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Verify repair']);
+    $add = app(AddWorkOrderDependency::class);
+
+    $add->handle($team->id, $second, $first);
+    $add->handle($team->id, $third, $second);
+
+    expect($third->dependencies()->with('dependsOn')->first()->dependsOn->is($second))->toBeTrue();
+    expect(fn () => $add->handle($team->id, $first, $third))->toThrow(ValidationException::class);
+    expect(fn () => $add->handle($team->id, $first, $first))->toThrow(ValidationException::class);
 });

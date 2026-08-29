@@ -70,4 +70,14 @@ class WorkOrder extends Model
     {
         return $this->hasMany(WorkOrderComment::class);
     }
+
+    public function dependencies(): HasMany
+    {
+        return $this->hasMany(WorkOrderDependency::class);
+    }
+
+    public function dependents(): HasMany
+    {
+        return $this->hasMany(WorkOrderDependency::class, 'depends_on_work_order_id');
+    }
 }

@@ -6,10 +6,13 @@ namespace Liberu\Modules\Maintenance\WorkOrders\Livewire\Components;
 
 use Illuminate\View\View;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\RemoveWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderDependency;
 use Livewire\Component;
 
 class WorkOrderList extends Component
@@ -23,6 +26,8 @@ class WorkOrderList extends Component
     public string $comment = '';
 
     public bool $commentIsInternal = false;
+
+    public ?int $dependsOnWorkOrderId = null;
 
     public function save(CreateWorkOrder $create): void
     {
@@ -63,6 +68,23 @@ class WorkOrderList extends Component
         $this->reset(['title', 'description', 'editingOrderId']);
     }
 
+    public function addDependency(int $orderId, AddWorkOrderDependency $add): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null || $this->dependsOnWorkOrderId === null, 403);
+        $this->validate(['dependsOnWorkOrderId' => ['required', 'integer', 'min:1']]);
+        $add->handle((int) $teamId, $this->orderForCurrentTeam($orderId), $this->orderForCurrentTeam($this->dependsOnWorkOrderId));
+        $this->reset('dependsOnWorkOrderId');
+    }
+
+    public function removeDependency(int $dependencyId, RemoveWorkOrderDependency $remove): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $dependency = WorkOrderDependency::query()->where('team_id', $teamId)->findOrFail($dependencyId);
+        $remove->handle((int) $teamId, $dependency);
+    }
+
     public function addComment(int $orderId, AddWorkOrderComment $add): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
@@ -76,7 +98,7 @@ class WorkOrderList extends Component
     public function render(): View
     {
         $id = auth()->user()?->currentTeam?->getKey();
-        $orders = $id === null ? collect() : WorkOrder::where('team_id', $id)->latest()->get();
+        $orders = $id === null ? collect() : WorkOrder::where('team_id', $id)->with(['comments', 'dependencies.dependsOn'])->latest()->get();
 
         return view('module-maintenance-work-orders-livewire::livewire.work-order-list', compact('orders'));
     }
