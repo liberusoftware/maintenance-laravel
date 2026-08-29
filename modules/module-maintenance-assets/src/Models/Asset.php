@@ -47,6 +47,26 @@ class Asset extends Model
         return $query->where('sensor_enabled', true);
     }
 
+    public function scopeUnderWarranty(Builder $query): Builder
+    {
+        return $query->whereNotNull('warranty_expiry')->where('warranty_expiry', '>=', now()->toDateString());
+    }
+
+    public function scopeWarrantyExpired(Builder $query): Builder
+    {
+        return $query->whereNotNull('warranty_expiry')->where('warranty_expiry', '<', now()->toDateString());
+    }
+
+    public function isUnderWarranty(): bool
+    {
+        return $this->warranty_expiry !== null && ($this->warranty_expiry->isToday() || $this->warranty_expiry->isFuture());
+    }
+
+    public function warrantyDaysRemaining(): ?int
+    {
+        return $this->warranty_expiry === null ? null : max(0, (int) now()->diffInDays($this->warranty_expiry, false));
+    }
+
     public function scopeWithCriticalReadings(Builder $query): Builder
     {
         return $query->sensorEnabled()->where('metadata->sensor_status', 'critical')->where('last_sensor_reading_at', '>=', now()->subDay());
