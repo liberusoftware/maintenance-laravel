@@ -7,7 +7,7 @@ namespace Liberu\Modules\Maintenance\Inspections\Livewire;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
-class InspectionsLivewireServiceProvider extends ServiceProvider
+final class InspectionsLivewireServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {

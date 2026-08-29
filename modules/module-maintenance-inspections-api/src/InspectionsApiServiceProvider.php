@@ -6,7 +6,7 @@ namespace Liberu\Modules\Maintenance\Inspections\Api;
 
 use Illuminate\Support\ServiceProvider;
 
-class InspectionsApiServiceProvider extends ServiceProvider
+final class InspectionsApiServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {

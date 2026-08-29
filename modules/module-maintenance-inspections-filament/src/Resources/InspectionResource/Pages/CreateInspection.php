@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection as CreateInspectionAction;
 use Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionResource;
 
-class CreateInspection extends CreateRecord
+final class CreateInspection extends CreateRecord
 {
     protected static string $resource = InspectionResource::class;
 
@@ -18,6 +18,6 @@ class CreateInspection extends CreateRecord
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
 
-        return app(CreateInspectionAction::class)->handle((int) $teamId, array_merge($data, ['inspector_id' => auth()->id()]));
+        return app(CreateInspectionAction::class)->handle((int) $teamId, $data);
     }
 }
