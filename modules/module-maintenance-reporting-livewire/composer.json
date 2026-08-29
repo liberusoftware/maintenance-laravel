@@ -1,0 +1,31 @@
+{
+  "name": "liberusoftware/module-maintenance-reporting-livewire",
+  "description": "Report livewire adapter for Liberu Maintenance",
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "require": {
+    "php": "^8.5",
+    "livewire/livewire": "^4.0",
+    "liberusoftware/module-maintenance-reporting": "0.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Reporting\\Livewire\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-reporting-livewire",
+      "provider": "Liberu\\Modules\\Maintenance\\Reporting\\Livewire\\ReportingLivewireServiceProvider"
+    }
+  },
+  "support": {
+    "source": "https://github.com/liberusoftware/module-maintenance-reporting-livewire/tree/main",
+    "issues": "https://github.com/liberusoftware/module-maintenance-reporting-livewire/issues"
+  }
+}

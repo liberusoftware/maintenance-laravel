@@ -1,0 +1,25 @@
+{
+  "name": "module-maintenance-portals-api",
+  "display_name": "Maintenance Portals api",
+  "description": "Portals api presentation adapter.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Portals\\Api\\PortalsApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-maintenance-portals": "0.1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.portals.api"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Customer requests",
+    "Approvals",
+    "Status",
+    "Engineer schedule/work/offline capture"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schemas.liberu.dev/module/v1.json",
+  "name": "maintenance-maintenance-core",
+  "display_name": "Maintenance Core",
+  "description": "Organizations, service settings, statuses, priorities, numbering, and shared events.",
+  "version": "0.1.0",
+  "category": "capability",
+  "provider": "Liberu\\Modules\\Maintenance\\Core\\MaintenanceCoreServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-manager": "^1.0",
+      "liberusoftware/organizations-teams": "^1.0"
+    }
+  },
+  "suggests": {
+    "liberusoftware/module-maintenance-maintenance-core-api": "HTTP API adapter",
+    "liberusoftware/module-maintenance-maintenance-core-filament": "Filament 5 adapter",
+    "liberusoftware/module-maintenance-maintenance-core-livewire": "Livewire 4 adapter"
+  },
+  "capabilities": ["maintenance.core"],
+  "default_enabled": true,
+  "features": ["Organizations", "Service settings", "Statuses", "Priorities", "Numbering", "Shared events"]
+}

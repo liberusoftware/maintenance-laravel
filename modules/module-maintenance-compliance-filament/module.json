@@ -1,0 +1,28 @@
+{
+  "name": "module-maintenance-compliance-filament",
+  "display_name": "Maintenance Compliance filament",
+  "description": "Compliance filament presentation adapter.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Compliance\\Filament\\ComplianceFilamentServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-maintenance-compliance": "0.1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.compliance.filament"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Requirements",
+    "Permits",
+    "Risk assessments",
+    "Incidents",
+    "Corrective actions",
+    "Evidence",
+    "Expiry"
+  ]
+}

@@ -1,6 +1,0 @@
-[10-Apr-2025 00:10:17 UTC] PHP Warning:  PHP Startup: session.gc_divisor must be greater than 0 in Unknown on line 0
-[10-Apr-2025 00:16:00 UTC] PHP Warning:  PHP Startup: session.gc_divisor must be greater than 0 in Unknown on line 0
-[10-Apr-2025 00:16:01 UTC] PHP Warning:  PHP Startup: session.gc_divisor must be greater than 0 in Unknown on line 0
-[10-Apr-2025 00:16:01 UTC] PHP Warning:  PHP Startup: session.gc_divisor must be greater than 0 in Unknown on line 0
-[04-Aug-2025 10:58:18 UTC] PHP Fatal error:  Type of App\Filament\App\Pages\EditProfile::$navigationIcon must be BackedEnum|string|null (as in class Filament\Pages\Page) in /home/liberu/projects/maintenance-laravel/app/Filament/App/Pages/EditProfile.php on line 11
-[24-Aug-2025 13:57:01 UTC] PHP Fatal error:  Type of App\Filament\App\Pages\EditProfile::$navigationIcon must be BackedEnum|string|null (as in class Filament\Pages\Page) in /home/liberu/projects/maintenance-laravel/app/Filament/App/Pages/EditProfile.php on line 11

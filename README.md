@@ -1,191 +1,207 @@
-# Liberu — Maintenance (CMMS)
-[![](https://avatars.githubusercontent.com/u/158830885?s=200&v=4)](https://www.liberu.co.uk)
+# Liberu Boilerplate
 
-![](https://img.shields.io/badge/PHP-8.5-informational?style=flat&logo=php&color=4f5b93)
-![](https://img.shields.io/badge/Laravel-12-informational?style=flat&logo=laravel&color=ef3b2d)
-![](https://img.shields.io/badge/Filament-5-informational?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48cGF0aCBkPSJNMCAwaDQ4djQ4SDBWMHoiIGZpbGw9IiNmNGIyNWUiLz48cGF0aCBkPSJNMjggN2wtMSA2LTMuNDM3LjgxM0wyMCAxNWwtMSAzaDZ2NWgtN2wtMyAxOEg4Yy41MTUtNS44NTMgMS40NTQtMTEuMzMgMy0xN0g4di01bDUtMSAuMjUtMy4yNUMxNCAxMSAxNCAxMSAxNS40MzggOC41NjMgMTkuNDI5IDYuMTI4IDIzLjQ0MiA2LjY4NyAyOCA3eiIgZmlsbD0iIzI4MjQxZSIvPjxwYXRoIGQ9Ik0zMCAxOGg0YzIuMjMzIDUuMzM0IDIuMjMzIDUuMzM0IDEuMTI1IDguNUwzNCAyOWMtLjE2OCAzLjIwOS0uMTY4IDMuMjA5IDAgNmwtMiAxIDEgM2gtNXYyaC0yYy44NzUtNy42MjUuODc1LTcuNjI1IDItMTFoMnYtMmgtMnYtMmwyLTF2LTQtM3oiIGZpbGw9IiMyYTIwMTIiLz48cGF0aCBkPSJNMzUuNTYzIDYuODEzQzM4IDcgMzggNyAzOSA4Yy4xODggMi40MzguMTg4IDIuNDM4IDAgNWwtMiAyYy0yLjYyNS0uMzc1LTIuNjI1LS4zNzUtNS0xLS42MjUtMi4zNzUtLjYyNS0yLjM3NS0xLTUgMi0yIDItMiA0LjU2My0yLjE4N3oiIGZpbGw9IiM0MDM5MzEiLz48cGF0aCBkPSJNMzAgMThoNGMyLjA1NSA1LjMxOSAyLjA1NSA1LjMxOSAxLjgxMyA4LjMxM0wzNSAyOGwtMyAxdi0ybC00IDF2LTJsMi0xdi00LTN6IiBmaWxsPSIjMzEyODFlIi8+PHBhdGggZD0iTTI5IDI3aDN2MmgydjJoLTJ2MmwtNC0xdi0yaDJsLTEtM3oiIGZpbGw9IiMxNTEzMTAiLz48cGF0aCBkPSJNMzAgMThoNHYzaC0ydjJsLTMgMSAxLTZ6IiBmaWxsPSIjNjA0YjMyIi8+PC9zdmc+&&color=fdae4b&link=https://filamentphp.com)
-![](https://img.shields.io/badge/Livewire-4-informational?style=flat&logo=Livewire&color=fb70a9)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Open Source Love](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)
+> Production-ready Laravel foundation for modular, single-tenant and multi-tenant applications.
 
+[Software](https://liberusoftware.com) · [Hosting](https://liberuhosting.com) · [Services](https://liberuservices.com) · [Liberu Group](https://liberugroup.com)
 
-## Liberu Maintenance — open-source CMMS built on Laravel 12, PHP 8.5, Filament 5 and Livewire 4
+[![PHP](https://img.shields.io/badge/PHP-8.5-777BB4?logo=php&logoColor=white)](https://www.php.net/) [![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/) [![Filament](https://img.shields.io/badge/Filament-5-FDAE4B)](https://filamentphp.com/) [![Livewire](https://img.shields.io/badge/Livewire-4-FB70A9)](https://livewire.laravel.com/)
 
-[![Contact us on WhatsApp](https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/+441793200950)
-[![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/@liberusoftware)
-[![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white)](https://www.facebook.com/liberusoftware)
-[![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://www.instagram.com/liberusoftware)
-[![X](https://img.shields.io/badge/X-%23000000.svg?style=for-the-badge&logo=X&logoColor=white)](https://www.x.com/liberusoftware)
-[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/liberugroup)
-[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://www.github.com/liberusoftware)
+[![Install](https://github.com/liberusoftware/boilerplate-laravel/actions/workflows/install.yml/badge.svg?branch=main)](https://github.com/liberusoftware/boilerplate-laravel/actions/workflows/install.yml) [![Tests](https://github.com/liberusoftware/boilerplate-laravel/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/liberusoftware/boilerplate-laravel/actions/workflows/tests.yml) [![Docker](https://github.com/liberusoftware/boilerplate-laravel/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/liberusoftware/boilerplate-laravel/actions/workflows/docker.yml) [![Codecov](https://codecov.io/gh/liberusoftware/boilerplate-laravel/branch/main/graph/badge.svg)](https://codecov.io/gh/liberusoftware/boilerplate-laravel) [![Latest release](https://img.shields.io/github/v/release/liberusoftware/boilerplate-laravel?sort=semver)](https://github.com/liberusoftware/boilerplate-laravel/releases/latest) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 
-[![Install](https://github.com/liberu-maintenance/maintenance-laravel/actions/workflows/install.yml/badge.svg)](https://github.com/liberu-maintenance/maintenance-laravel/actions/workflows/install.yml)
-[![Tests](https://github.com/liberu-maintenance/maintenance-laravel/actions/workflows/tests.yml/badge.svg)](https://github.com/liberu-maintenance/maintenance-laravel/actions/workflows/tests.yml)
-[![Docker](https://github.com/liberu-maintenance/maintenance-laravel/actions/workflows/main.yml/badge.svg)](https://github.com/liberu-maintenance/maintenance-laravel/actions/workflows/main.yml)
-[![Codecov](https://codecov.io/gh/liberu-maintenance/maintenance-laravel/branch/main/graph/badge.svg)](https://codecov.io/gh/liberu-maintenance/maintenance-laravel)
-[![GitHub release](https://img.shields.io/github/v/release/liberu-maintenance/maintenance-laravel)](https://github.com/liberu-maintenance/maintenance-laravel/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Liberu Boilerplate is the deployable reference host for the Liberu Composer ecosystem. It combines independently released capability, presentation, and theme packages while keeping application bootstrapping, environment configuration, panel composition, and cross-package tests in one place.
 
-**Liberu Maintenance** is a free, open-source Computerised Maintenance Management System (CMMS) built with **Laravel 12**, **PHP 8.5**, **Filament 5** and **Livewire 4**. It gives engineering and facilities teams a single place to track assets, plan preventive maintenance, raise work orders, manage documents and measure performance — all through a modern, real-time web interface that requires no proprietary licenses.
+## Key features
 
-Key technologies: PHP 8.5 · Laravel 12 · Filament 5 · Livewire 4 · Jetstream
+- Jetstream authentication, profiles, sessions, two-factor authentication, passkeys, and social login
+- Filament admin and account panels assembled from optional presentation modules
+- Organisations, teams, roles, permissions, audit trails, settings, and feature flags
+- Messaging, notifications, localisation, search, files, webhooks, integrations, analytics, and import/export foundations
+- Queue, scheduler, Horizon, Pulse, Telescope, Octane, Reverb, backup, and observability support
+- Independently versioned modules installed into tracked `/modules` directories
+- Independently versioned themes installed into tracked `/themes` directories with inheritance and safe fallback
+- Architecture tests for manifests, dependency direction, package ownership, and presentation boundaries
 
----
+## Requirements
 
-## Installation
+| Dependency | Supported version |
+|---|---|
+| PHP | 8.5 |
+| Laravel | 13.x |
+| Filament | 5.x |
+| Livewire | 4.x |
+| Composer | 2.x |
+| Node.js | Latest stable release |
+| Database | A Laravel-supported SQL database |
 
-### Minimum requirements
-- PHP ^8.5
-- Composer
-- A database (MySQL, PostgreSQL, SQLite, etc.)
-
-### Option 1 — Command-line installer (recommended)
-
-Run the bundled `install.sh` script from the project root. It installs dependencies, copies `.env.example` to `.env`, generates an application key, and runs the database migrations and seeders in one step:
+## Quick start
 
 ```bash
-# Unix / macOS / WSL
-./install.sh
-```
-
-> **Tip:** Review the `.env` file after the script completes and update any environment-specific values (database credentials, mail settings, etc.) before starting the application.
-
-### Option 2 — Graphical installer
-
-A browser-based graphical installer is included. After cloning the repository, start the development server and navigate to `/install` in your browser to walk through the setup wizard:
-
-```bash
-php artisan serve
-# then open http://localhost:8000/install
-```
-
-### Option 3 — Manual steps
-
-```bash
+git clone https://github.com/liberusoftware/boilerplate-laravel.git
+cd boilerplate-laravel
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan migrate --seed
+npm install
+npm run build
+php artisan migrate
+php artisan serve
 ```
 
-> Seeders install sample data. Skip `--seed` if you prefer an empty database.
+Review `.env` before migrating. Use `php artisan migrate --seed` only when example data is wanted. The optional interactive `install.sh` supports local, Docker, and Kubernetes-oriented setup.
 
----
+## Composable package architecture
 
-## Docker / Local dev
+Each runtime capability is an independent `liberu-module` Composer package with its own GitHub repository, release lifecycle, manifest, provider, documentation, and tests. Each visual package is an independent `liberu-theme`. Shared contract packages and the custom installer are normal Composer dependencies under `/vendor`.
 
-Build and run the image locally:
+```text
+Application composition
+├── modules/       # Composer-installed module releases, tracked in Git
+├── themes/        # Composer-installed theme releases, tracked in Git
+├── app/           # Host-only composition and integration
+├── config/        # Enabled modules and application policy
+└── tests/         # Cross-package and application tests
+```
+
+Composer is the source of installation and version truth:
 
 ```bash
-docker build -t maintenance-laravel .
-docker run -p 8000:8000 maintenance-laravel
+# Update all dependencies, including modules and themes
+composer update --with-all-dependencies
+
+# Update one capability from its tagged GitHub repository
+composer update liberusoftware/search --with-dependencies
 ```
 
-Or use Laravel Sail for local development:
+The trusted [`liberusoftware/composer-installer`](https://github.com/liberusoftware/composer-installer) places packages according to type:
+
+| Composer type | Install path | Repository convention |
+|---|---|---|
+| `liberu-module` | `/modules/{installer-name}` | `liberusoftware/module-{installer-name}` |
+| `liberu-theme` | `/themes/{installer-name}` | `liberusoftware/theme-{installer-name}` |
+| Contract/library | `/vendor` | Package-specific repository |
+
+`modules/` and `themes/` are intentionally kept out of `.gitignore`. Their reproduced contents are committed so deployments and reviews can see the exact installed code, while `composer.lock` pins each release and source commit. Do not edit an installed module only in this host: contribute the generic change to its package repository, release it, and update the Composer dependency here.
+
+Installation, runtime enablement, authorisation, and commercial entitlement are separate concerns. `config/modules.php` selects the enabled capability graph; the module manager validates dependencies and orders providers without scanning application classes manually.
+
+Every module also publishes a validated feature catalog in `module.json`. Hosts can inspect the complete catalog or search it without loading module internals:
 
 ```bash
-./vendor/bin/sail up
+php artisan module:features
+php artisan module:features health
+php artisan module:status search
 ```
 
----
+## Module and theme development
 
-## Features
+A module owns one cohesive capability and communicates through public contracts, actions, events, registries, or stable identifiers. Domain modules do not depend on Filament or themes; optional `*-filament`, `*-api`, and `*-livewire` packages provide presentation adapters.
 
-| Feature | Description |
-|---|---|
-| **Asset management** | Track equipment inventory, location, status and service history in one place. |
-| **Preventive maintenance scheduler** | Automated daily checks with multi-stage reminders (3 days, 1 day, same day) and recurring due-date calculations. |
-| **Work orders & tasks** | Create, assign and track work orders through configurable approval and completion workflows. |
-| **Document management** | Centralised storage for manuals, service records and compliance documents with version control, tagging and expiry tracking (ISO 9001, OSHA, FDA and more). |
-| **Vendor & supplier management** | Manage vendor contracts, SLAs and performance metrics alongside supplier and customer relationships. |
-| **Team & user management** | Role-based access control powered by Laravel Jetstream Teams. |
-| **Notifications & reports** | Email and in-app alerts, customisable reports and dashboards. |
-| **Custom forms** | Build and attach custom data-capture forms to any work order or schedule. |
-| **IoT sensor integration** | Connect condition-monitoring sensors to trigger maintenance events automatically. |
-| **Modular architecture** | Clean separation of concerns makes adding new modules or third-party integrations straightforward. |
+Every module contains:
 
-The codebase uses a modular architecture to make extensions and integrations straightforward.
+```text
+composer.json
+module.json
+README.md
+LICENSE.md
+CHANGELOG.md
+src/
+database/ or resources/ when required
+tests/
+```
 
-### Documentation Management
+Themes contain `composer.json`, `theme.json`, source assets, compatibility metadata, accessibility/fallback expectations, tests, documentation, and asset licensing information. See the [module development guide](docs/MODULE_DEVELOPMENT.md) and [theme architecture](docs/THEME_ARCHITECTURE.md).
 
-A comprehensive system for managing maintenance documentation:
-- Centralized storage for manuals, service records, and compliance documents
-- Document versioning and history tracking
-- Tag-based organization and search capabilities
-- Compliance tracking with expiry dates and review schedules
-- Support for ISO 9001, OSHA, FDA, and other regulatory standards
-- File upload support (PDF, Word, Images)
-- Integration with Equipment, Work Orders, and Maintenance Schedules
+## Testing and quality
 
-See [DOCUMENTATION_MANAGEMENT.md](docs/DOCUMENTATION_MANAGEMENT.md) for detailed documentation.
-### Preventive Maintenance Scheduler
+```bash
+composer validate --strict
+vendor/bin/pest
+vendor/bin/pint --test
+npm run build
+```
 
-The system includes an automated scheduler for preventive maintenance:
-- **Daily automated checks** for overdue and upcoming maintenance
-- **Multi-stage reminders** (3 days, 1 day, same day before due)
-- **Priority-based notifications** with email and in-app alerts
-- **User-friendly Filament interface** for schedule management
-- **Recurring maintenance tracking** with automatic due date calculations
+The test suite exercises application behaviour and every installed module provider. Package architecture tests verify metadata, declared dependencies, host isolation, UI boundaries, and Composer ownership.
 
-See [Preventive Maintenance Scheduler Documentation](docs/PREVENTIVE_MAINTENANCE_SCHEDULER.md) for detailed usage instructions.
+### Publishing the component repositories
 
----
+The publishing helper derives repository names from directory names, using
+`module-` for entries in `modules/` and `theme-` for entries in `themes/`. It
+also handles this complete meta repository as `boilerplate-laravel`.
 
-## Our projects
+```bash
+# Inspect all mappings without changing GitHub
+scripts/publish-components
 
-The Liberu ecosystem contains a number of companion repositories and packages that extend or demonstrate functionality used in this boilerplate. Below is a concise, professional list of those projects with quick descriptions — follow the links to learn more or to contribute.
+# Create any missing public repositories in the organisation
+scripts/publish-components --create
 
-| Project | Repository | Short description |
-|---|---:|---|
-| Accounting | [liberu-accounting/accounting-laravel](https://github.com/liberu-accounting/accounting-laravel) | Accounting and invoicing features tailored for Laravel applications. |
-| Automation | [liberu-automation/automation-laravel](https://github.com/liberu-automation/automation-laravel) | Automation tooling and workflow integrations for Laravel projects. |
-| Billing | [liberu-billing/billing-laravel](https://github.com/liberu-billing/billing-laravel) | Subscription and billing management integrations (payments, invoices). |
-| Boilerplate (core) | [liberusoftware/boilerplate](https://github.com/liberusoftware/boilerplate) | Core starter and shared utilities used across Liberu projects. |
-| Browser Game | [liberu-browser-game/browser-game-laravel](https://github.com/liberu-browser-game/browser-game-laravel) | Example Laravel-based browser game platform and mechanics. |
-| CMS | [liberu-cms/cms-laravel](https://github.com/liberu-cms/cms-laravel) | Content management features and modular page administration. |
-| Control Panel | [liberu-control-panel/control-panel-laravel](https://github.com/liberu-control-panel/control-panel-laravel) | Administration/control-panel components for managing services. |
-| CRM | [liberu-crm/crm-laravel](https://github.com/liberu-crm/crm-laravel) | Customer relationship management features and integrations. |
-| E‑commerce | [liberu-ecommerce/ecommerce-laravel](https://github.com/liberu-ecommerce/ecommerce-laravel) | E‑commerce storefront, product and order management. |
-| Genealogy | [liberu-genealogy/genealogy-laravel](https://github.com/liberu-genealogy/genealogy-laravel) | Family tree and genealogy features built on Laravel. |
-| Maintenance | [liberu-maintenance/maintenance-laravel](https://github.com/liberu-maintenance/maintenance-laravel) | Scheduling, tracking and reporting for maintenance tasks. |
-| Real Estate | [liberu-real-estate/real-estate-laravel](https://github.com/liberu-real-estate/real-estate-laravel) | Property listings and real-estate management features. |
-| Social Network | [liberu-social-network/social-network-laravel](https://github.com/liberu-social-network/social-network-laravel) | Social features, profiles, feeds and messaging for Laravel apps. |
+# After committing the complete worktree, split and push every component plus the meta repository
+scripts/publish-components --push
+```
 
-If you maintain or use one of these projects and would like a more detailed description or a different categorisation, open an issue or submit a pull request and we'll update the list. Contributions and cross-repo collaboration are warmly encouraged.
+Publishing requires authenticated `gh` and `git` access to the organisation.
+Push mode deliberately refuses a dirty worktree because subtree splits can only
+publish committed content. Existing repositories are updated without force, so
+non-fast-forward histories must be reconciled explicitly rather than overwritten.
 
----
+After the repositories are public, register every Composer package on Packagist:
 
-## Contributing
+```bash
+# Verify all package-to-repository mappings without submitting
+php scripts/submit-packagist.php --dry-run
 
-Contributions are welcome and warmly encouraged! Here is the process:
+# Obtain the MAIN API token from packagist.org/profile, then bulk register the packages
+export PACKAGIST_USERNAME='your-packagist-username'
+export PACKAGIST_API_TOKEN='your-packagist-api-token'
+php scripts/submit-packagist.php
+unset PACKAGIST_API_TOKEN
+```
 
-1. **Open an issue first** for any significant change (new feature, breaking refactor, architectural change) so the maintainers can give early feedback and help you avoid wasted effort.
-2. **Fork** the repository and create a descriptively named branch (`feature/my-feature` or `fix/my-bug`).
-3. Write or update **tests** to cover your change. The project uses PHPUnit via `php artisan test`.
-4. Make sure all existing tests pass before submitting.
-5. **Open a pull request** against the `main` branch with a clear description of what changed and why.
-6. A maintainer will review the PR, request changes if needed, and merge once approved.
+The submitter skips packages that are already registered and reports individual
+API failures without printing the configured token.
 
-Bug reports, documentation improvements and small fixes can be submitted as pull requests without a prior issue.
+## Documentation
+
+- [Module development](docs/MODULE_DEVELOPMENT.md)
+- [Foundation compliance](docs/FOUNDATION_COMPLIANCE.md)
+- [Foundation module matrix](docs/FOUNDATION_MODULE_MATRIX.md)
+- [Theme architecture](docs/THEME_ARCHITECTURE.md)
+- [Theme system](docs/THEME_SYSTEM.md)
+- [Messaging architecture](docs/MESSAGING_ARCHITECTURE.md)
+- [Search architecture](docs/SEARCH_ARCHITECTURE.md)
+- [Localisation](docs/MULTI_LANGUAGE.md)
+- [Notifications](docs/NOTIFICATIONS.md)
+
+## Related Liberu projects
+
+| Project | Repository | Scope |
+|---|---|---|
+| Accounting | [liberusoftware/accounting-erp-laravel](https://github.com/liberusoftware/accounting-erp-laravel) | Ledgers, banking, tax, expenses, close, and reporting |
+| Automation | [liberusoftware/automation-laravel](https://github.com/liberusoftware/automation-laravel) | Governed workflows, provider-neutral AI, approvals, and connectors |
+| Billing | [liberusoftware/billing-laravel](https://github.com/liberusoftware/billing-laravel) | Billing, subscriptions, payments, invoices, and revenue operations |
+| Boilerplate | [liberusoftware/boilerplate-laravel](https://github.com/liberusoftware/boilerplate-laravel) | Modular Laravel foundation and reference implementation |
+| Browser game | [liberusoftware/browser-game-laravel](https://github.com/liberusoftware/browser-game-laravel) | Browser-based game platform and domain capabilities |
+| CMS | [liberusoftware/cms-laravel](https://github.com/liberusoftware/cms-laravel) | Content, publishing, pages, media, search, and delivery |
+| Control panel | [liberusoftware/control-panel-laravel](https://github.com/liberusoftware/control-panel-laravel) | Hosting, infrastructure, DNS, mail, backups, and operations |
+| CRM | [liberusoftware/crm-laravel](https://github.com/liberusoftware/crm-laravel) | Customers, leads, opportunities, sales, and service |
+| Ecommerce | [liberusoftware/ecommerce-laravel](https://github.com/liberusoftware/ecommerce-laravel) | Catalogues, checkout, orders, fulfilment, and returns |
+| Genealogy | [liberusoftware/genealogy-laravel](https://github.com/liberusoftware/genealogy-laravel) | Genealogy records, relationships, sources, and research |
+| Maintenance | [liberusoftware/maintenance-laravel](https://github.com/liberusoftware/maintenance-laravel) | Maintenance planning, assets, work orders, and operations |
+| Real estate | [liberusoftware/real-estate-laravel](https://github.com/liberusoftware/real-estate-laravel) | Property, listing, tenancy, and transaction workflows |
+| Social network | [liberusoftware/social-network-laravel](https://github.com/liberusoftware/social-network-laravel) | Social profiles, groups, content, messaging, and discovery |
+
+## Security
+
+Do not report security vulnerabilities through public GitHub issues. Email `security@liberusoftware.com` with reproduction details and the affected version so the report can be handled privately.
 
 ## License
 
-This project is released under the **MIT License** — see the [`LICENSE`](LICENSE) file for the full text.
+This project is open-source software available under the [MIT License](LICENSE.md). The linked licence text is authoritative; this summary is not legal advice.
 
-**What MIT means for you:**
+## Feedback and contributing
 
-- ✅ **Free to use** — use the software in personal, commercial or enterprise projects at no cost.
-- ✅ **Free to modify** — adapt the source code to your specific requirements.
-- ✅ **Free to distribute** — share the software or your modified versions with others.
-- ✅ **Free to sublicense** — include it in a proprietary product without being forced to open-source your own code.
-- ℹ️ **Attribution required** — keep the original copyright notice and license text in any copy or substantial portion of the software.
-
-Being MIT-licensed means there are no usage fees, no GPL-style "copyleft" obligations and no vendor lock-in. You own the stack.
-
----
+Feedback and contributions are welcome. Report reproducible bugs, propose focused enhancements, improve documentation or translations, and submit tested changes. Search existing issues first. Pull requests should explain the problem and approach, remain focused, pass the required checks, and document user-visible or breaking changes. Security reports must follow the private route above.
 
 ## Contributors
 
-<a href="https://github.com/liberu-maintenance/maintenance-laravel/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=liberu-maintenance/maintenance-laravel" alt="contributors"/>
-</a>
+Thank you to everyone who helps improve Liberu. [View the contributors graph](https://github.com/liberusoftware/boilerplate-laravel/graphs/contributors).

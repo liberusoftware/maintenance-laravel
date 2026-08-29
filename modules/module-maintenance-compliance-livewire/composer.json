@@ -1,0 +1,31 @@
+{
+  "name": "liberusoftware/module-maintenance-compliance-livewire",
+  "description": "Compliance livewire adapter for Liberu Maintenance",
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "require": {
+    "php": "^8.5",
+    "livewire/livewire": "^4.0",
+    "liberusoftware/module-maintenance-compliance": "0.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Compliance\\Livewire\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-compliance-livewire",
+      "provider": "Liberu\\Modules\\Maintenance\\Compliance\\Livewire\\ComplianceLivewireServiceProvider"
+    }
+  },
+  "support": {
+    "source": "https://github.com/liberusoftware/module-maintenance-compliance-livewire/tree/main",
+    "issues": "https://github.com/liberusoftware/module-maintenance-compliance-livewire/issues"
+  }
+}

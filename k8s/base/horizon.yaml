@@ -1,57 +1,57 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: maintenance-horizon
-  namespace: liberu-maintenance
+  name: boilerplate-horizon
+  namespace: boilerplate-laravel
   labels:
-    app: liberu-maintenance
+    app: boilerplate-laravel
     component: horizon
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: liberu-maintenance
+      app: boilerplate-laravel
       component: horizon
   template:
     metadata:
       labels:
-        app: liberu-maintenance
+        app: boilerplate-laravel
         component: horizon
     spec:
       containers:
-        - name: horizon
-          image: ghcr.io/liberu-maintenance/maintenance-laravel:latest
-          command: ["php", "artisan", "horizon"]
-          envFrom:
-            - configMapRef:
-                name: maintenance-config
-            - secretRef:
-                name: maintenance-secrets
-          volumeMounts:
-            - name: storage
-              mountPath: /var/www/html/storage
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-          livenessProbe:
-            exec:
-              command: ["php", "artisan", "horizon:status"]
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            failureThreshold: 3
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop: [ALL]
-      volumes:
+      - name: horizon
+        image: ghcr.io/liberusoftware/boilerplate-laravel:latest
+        command: ["php", "artisan", "horizon"]
+        envFrom:
+        - configMapRef:
+            name: boilerplate-config
+        - secretRef:
+            name: boilerplate-secrets
+        volumeMounts:
         - name: storage
-          persistentVolumeClaim:
-            claimName: maintenance-storage
+          mountPath: /var/www/html/storage
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command: ["php", "artisan", "horizon:status"]
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: boilerplate-storage
       securityContext:
         fsGroup: 1000

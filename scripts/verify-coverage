@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+$file = $argv[1] ?? 'coverage.xml';
+if (! is_file($file)) {
+    fwrite(STDERR, "Coverage report not found: {$file}\n");
+    exit(1);
+}
+
+$coverage = simplexml_load_file($file);
+if ($coverage === false || ! isset($coverage->project->metrics)) {
+    fwrite(STDERR, "Invalid Clover coverage report: {$file}\n");
+    exit(1);
+}
+
+$metrics = $coverage->project->metrics;
+$statements = (int) ($metrics['statements'] ?? 0);
+$covered = (int) ($metrics['coveredstatements'] ?? 0);
+
+printf("Coverage: %d/%d executable statements\n", $covered, $statements);
+if ($statements === 0 || $covered !== $statements) {
+    fwrite(STDERR, "Coverage gate failed: release scope must be 100%.\n");
+    exit(1);
+}
+
+printf("Coverage gate passed: 100%%.\n");

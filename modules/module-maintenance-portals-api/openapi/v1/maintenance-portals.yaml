@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info:
+  title: maintenance portals API
+  version: 1.0.0
+paths:
+  /api/v1/maintenance/portals:
+    get:
+      operationId: maintenance.portals.list
+      security:
+        - sanctum: []
+      responses:
+        "200":
+          description: Authorized portals records
+    post:
+      operationId: maintenance.portals.create
+      security:
+        - sanctum: []
+      responses:
+        "201":
+          description: Created portals record
+components:
+  securitySchemes:
+    sanctum:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+

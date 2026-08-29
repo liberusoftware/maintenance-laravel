@@ -1,0 +1,33 @@
+{
+  "name": "liberusoftware/module-maintenance-commercial-api",
+  "description": "Commercial api adapter for Liberu Maintenance",
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "require": {
+    "php": "^8.5",
+    "illuminate/http": "^13.0",
+    "illuminate/routing": "^13.0",
+    "liberusoftware/module-maintenance-commercial": "0.1.0",
+    "laravel/sanctum": "^4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Commercial\\Api\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-commercial-api",
+      "provider": "Liberu\\Modules\\Maintenance\\Commercial\\Api\\CommercialApiServiceProvider"
+    }
+  },
+  "support": {
+    "source": "https://github.com/liberusoftware/module-maintenance-commercial-api/tree/main",
+    "issues": "https://github.com/liberusoftware/module-maintenance-commercial-api/issues"
+  }
+}

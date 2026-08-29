@@ -1,0 +1,31 @@
+{
+  "name": "module-maintenance-reporting",
+  "display_name": "Maintenance Reporting",
+  "description": "Tenant-scoped reporting records and workflows.",
+  "version": "0.1.0",
+  "category": "capability",
+  "provider": "Liberu\\Modules\\Maintenance\\Report\\ReportServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-manager": "^1.0",
+      "liberusoftware/organizations-teams": "^1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.reporting"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Backlog",
+    "Response",
+    "First-time fix",
+    "Downtime",
+    "Cost",
+    "Utilization",
+    "Stock",
+    "SLA",
+    "Compliance metrics"
+  ]
+}

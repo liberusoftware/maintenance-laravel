@@ -1,0 +1,28 @@
+{
+  "name": "module-maintenance-commercial-livewire",
+  "display_name": "Maintenance Commercial livewire",
+  "description": "Commercial livewire presentation adapter.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Commercial\\Livewire\\CommercialLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-maintenance-commercial": "0.1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.commercial.livewire"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Quotes",
+    "Contracts",
+    "Covered assets/services",
+    "Rates",
+    "Renewals",
+    "SLA",
+    "Billable lines"
+  ]
+}

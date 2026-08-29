@@ -1,0 +1,30 @@
+{
+  "name": "module-maintenance-reporting-livewire",
+  "display_name": "Maintenance Reporting livewire",
+  "description": "Reporting livewire presentation adapter.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Reporting\\Livewire\\ReportingLivewireServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-maintenance-reporting": "0.1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.reporting.livewire"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Backlog",
+    "Response",
+    "First-time fix",
+    "Downtime",
+    "Cost",
+    "Utilization",
+    "Stock",
+    "SLA",
+    "Compliance metrics"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "module-maintenance-commercial-api",
+  "display_name": "Maintenance Commercial api",
+  "description": "Commercial api presentation adapter.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Commercial\\Api\\CommercialApiServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-maintenance-commercial": "0.1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.commercial.api"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Quotes",
+    "Contracts",
+    "Covered assets/services",
+    "Rates",
+    "Renewals",
+    "SLA",
+    "Billable lines"
+  ]
+}

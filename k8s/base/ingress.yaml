@@ -1,21 +1,21 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: liberu-maintenance
-  namespace: liberu-maintenance
+  name: boilerplate-laravel
+  namespace: boilerplate-laravel
   labels:
-    app: liberu-maintenance
+    app: boilerplate-laravel
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-buffering: "on"
     nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
     nginx.ingress.kubernetes.io/affinity: "cookie"
-    nginx.ingress.kubernetes.io/session-cookie-name: "liberu_maintenance_route"
+    nginx.ingress.kubernetes.io/session-cookie-name: "INGRESSCOOKIE"
     nginx.ingress.kubernetes.io/session-cookie-max-age: "10800"
     nginx.ingress.kubernetes.io/session-cookie-secure: "true"
     nginx.ingress.kubernetes.io/session-cookie-samesite: "Lax"
@@ -24,34 +24,35 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts:
-        - maintenance.example.com  # REPLACE WITH YOUR DOMAIN
-      secretName: liberu-maintenance-tls
+  - hosts:
+    - boilerplate.example.com  # REPLACE WITH YOUR DOMAIN
+    secretName: boilerplate-tls
   rules:
-    - host: maintenance.example.com  # REPLACE WITH YOUR DOMAIN
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: liberu-maintenance
-                port:
-                  number: 80
+  - host: boilerplate.example.com  # REPLACE WITH YOUR DOMAIN
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: boilerplate-laravel
+            port:
+              number: 80
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: liberu-maintenance-reverb
-  namespace: liberu-maintenance
+  name: boilerplate-reverb
+  namespace: boilerplate-laravel
   labels:
-    app: liberu-maintenance
+    app: boilerplate-laravel
     component: reverb
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header Upgrade $http_upgrade;
@@ -59,17 +60,17 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-    - hosts:
-        - ws.maintenance.example.com  # REPLACE WITH YOUR DOMAIN
-      secretName: liberu-maintenance-reverb-tls
+  - hosts:
+    - ws.boilerplate.example.com  # REPLACE WITH YOUR WS DOMAIN
+    secretName: boilerplate-reverb-tls
   rules:
-    - host: ws.maintenance.example.com  # REPLACE WITH YOUR DOMAIN
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: maintenance-reverb
-                port:
-                  number: 6001
+  - host: ws.boilerplate.example.com  # REPLACE WITH YOUR WS DOMAIN
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: boilerplate-reverb
+            port:
+              number: 6001

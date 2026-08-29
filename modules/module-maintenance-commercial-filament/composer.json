@@ -1,0 +1,31 @@
+{
+  "name": "liberusoftware/module-maintenance-commercial-filament",
+  "description": "Commercial filament adapter for Liberu Maintenance",
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "require": {
+    "php": "^8.5",
+    "filament/filament": "~5.1",
+    "liberusoftware/module-maintenance-commercial": "0.1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Liberu\\Modules\\Maintenance\\Commercial\\Filament\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-commercial-filament",
+      "provider": "Liberu\\Modules\\Maintenance\\Commercial\\Filament\\CommercialFilamentServiceProvider"
+    }
+  },
+  "support": {
+    "source": "https://github.com/liberusoftware/module-maintenance-commercial-filament/tree/main",
+    "issues": "https://github.com/liberusoftware/module-maintenance-commercial-filament/issues"
+  }
+}

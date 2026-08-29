@@ -1,0 +1,14 @@
+{
+  "$schema": "https://schemas.liberu.dev/module/v1.json",
+  "name": "module-maintenance-core-filament",
+  "display_name": "Maintenance Core Filament",
+  "description": "Filament 5 organization administration for Maintenance Core.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Core\\Filament\\MaintenanceCoreFilamentServiceProvider",
+  "requires": { "php": "^8.5", "laravel": "^13.0", "packages": { "liberusoftware/module-maintenance-maintenance-core": "0.1.0" } },
+  "presentation": { "filament": { "admin": ["Liberu\\Modules\\Maintenance\\Core\\Filament\\MaintenanceCoreFilamentPlugin"], "app": ["Liberu\\Modules\\Maintenance\\Core\\Filament\\MaintenanceCoreFilamentPlugin"] } },
+  "capabilities": ["maintenance.core.filament"],
+  "default_enabled": true,
+  "features": ["Organization resource"]
+}

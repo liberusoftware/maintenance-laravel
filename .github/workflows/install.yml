@@ -6,53 +6,67 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: install-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   install:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
         with:
           php-version: '8.5'
-          extensions: mbstring, bcmath, pdo, pdo_sqlite, dom, curl
+          extensions: mbstring, bcmath, pdo, pdo_sqlite, sqlite3, mysql, dom, curl, intl, gd
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
-          node-version: '20'
-          cache: npm
+          node-version: 'latest'
+          cache: 'npm'
 
       - name: Get Composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Install PHP dependencies
-        run: composer install --no-interaction --no-progress --prefer-dist
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Configure environment
+      # §6.2: modules/ and themes/ are Composer output that happens to be tracked. A
+      # clean install must reproduce them byte for byte — a diff here means someone
+      # edited an installed package instead of its repository, and the next install
+      # would silently discard the change.
+      - name: Installed packages match the tracked source
         run: |
-          cp .env.example .env
-          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
-          sed -i '/^DB_HOST=/d; /^DB_PORT=/d; /^DB_USERNAME=/d; /^DB_PASSWORD=/d' .env
-          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=database\/database.sqlite/' .env
-          php artisan key:generate
-          touch database/database.sqlite
+          if ! git diff --exit-code --stat -- modules themes; then
+            echo "::error::A clean install rewrote tracked files under modules/ or themes/."
+            echo "Edit the package repository and release it; do not edit installed files here."
+            exit 1
+          fi
 
-      - name: Run database migrations
+      - name: Copy environment file
+        run: cp .env.testing .env
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Run database migrations (SQLite)
         run: php artisan migrate --force
-
-      - name: Seed database
-        run: php artisan db:seed --force
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
 
       - name: Install npm dependencies
         run: npm ci

@@ -1,0 +1,26 @@
+{
+  "name": "module-maintenance-portals",
+  "display_name": "Maintenance Portals",
+  "description": "Tenant-scoped portals records and workflows.",
+  "version": "0.1.0",
+  "category": "capability",
+  "provider": "Liberu\\Modules\\Maintenance\\Portal\\PortalServiceProvider",
+  "requires": {
+    "php": "^8.5",
+    "laravel": "^13.0",
+    "packages": {
+      "liberusoftware/module-manager": "^1.0",
+      "liberusoftware/organizations-teams": "^1.0"
+    }
+  },
+  "capabilities": [
+    "maintenance.portals"
+  ],
+  "default_enabled": true,
+  "features": [
+    "Customer requests",
+    "Approvals",
+    "Status",
+    "Engineer schedule/work/offline capture"
+  ]
+}

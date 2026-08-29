@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info:
+  title: maintenance compliance API
+  version: 1.0.0
+paths:
+  /api/v1/maintenance/compliance:
+    get:
+      operationId: maintenance.compliance.list
+      security:
+        - sanctum: []
+      responses:
+        "200":
+          description: Authorized compliance records
+    post:
+      operationId: maintenance.compliance.create
+      security:
+        - sanctum: []
+      responses:
+        "201":
+          description: Created compliance record
+components:
+  securitySchemes:
+    sanctum:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+
