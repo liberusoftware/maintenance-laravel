@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\Assets\Actions\DeleteAsset;
 use Liberu\Modules\Maintenance\Assets\Filament\Resources\AssetResource\Pages\CreateAsset;
 use Liberu\Modules\Maintenance\Assets\Filament\Resources\AssetResource\Pages\EditAsset;
 use Liberu\Modules\Maintenance\Assets\Filament\Resources\AssetResource\Pages\ListAssets;
@@ -41,7 +42,14 @@ class AssetResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('category'), TextColumn::make('condition')->badge(), TextColumn::make('status')->badge()])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('category'), TextColumn::make('condition')->badge(), TextColumn::make('status')->badge()])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (Asset $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteAsset::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array
