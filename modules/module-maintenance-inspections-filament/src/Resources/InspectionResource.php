@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\Inspections\Actions\DeleteInspection;
 use Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionResource\Pages\CreateInspection;
 use Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionResource\Pages\EditInspection;
 use Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionResource\Pages\ListInspections;
@@ -42,7 +43,14 @@ class InspectionResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('status')->badge(), TextColumn::make('outcome')->badge(), TextColumn::make('inspected_at')->dateTime()])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('status')->badge(), TextColumn::make('outcome')->badge(), TextColumn::make('inspected_at')->dateTime()])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (Inspection $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteInspection::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array

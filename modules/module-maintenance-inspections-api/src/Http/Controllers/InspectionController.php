@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection;
+use Liberu\Modules\Maintenance\Inspections\Actions\DeleteInspection;
+use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspection;
 use Liberu\Modules\Maintenance\Inspections\Models\Inspection;
 
 class InspectionController extends Controller
@@ -49,6 +51,26 @@ class InspectionController extends Controller
         $data = $r->validate(['outcome' => ['required', 'in:pass,fail,conditional']]);
 
         return response()->json(['data' => $this->resource($complete->handle($id, $inspection, $data['outcome']))]);
+    }
+
+    public function update(Request $r, Inspection $inspection, UpdateInspection $update): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $inspection->team_id && $r->user()->can('update', $inspection), 404);
+        $data = $r->validate(['title' => 'sometimes|required|string|max:255', 'template_key' => 'sometimes|nullable|string|max:255', 'readings' => 'sometimes|nullable|array', 'failures' => 'sometimes|nullable|array', 'follow_up' => 'sometimes|nullable|array']);
+
+        return response()->json(['data' => $this->resource($update->handle($id, $inspection, $data))]);
+    }
+
+    public function destroy(Request $r, Inspection $inspection, DeleteInspection $delete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $inspection->team_id && $r->user()->can('delete', $inspection), 404);
+        $delete->handle($id, $inspection);
+
+        return response()->json(null, 204);
     }
 
     private function teamId(Request $r): ?int
