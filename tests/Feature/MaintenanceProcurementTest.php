@@ -41,3 +41,15 @@ it('rejects pending purchase requests and records the reason', function () {
     expect($rejected->status)->toBe('rejected')
         ->and($rejected->metadata['rejection_reason'])->toBe('Budget unavailable');
 });
+
+it('provides procurement status query scopes', function () {
+    $team = Team::factory()->create();
+    $create = app(CreatePurchaseRequest::class);
+    $pending = $create->handle($team->id, ['title' => 'Pending order', 'amount' => 100]);
+    $approved = $create->handle($team->id, ['title' => 'Approved order', 'amount' => 200]);
+    $approver = User::factory()->create(['current_team_id' => $team->id]);
+    app(ApprovePurchaseRequest::class)->handle($team->id, $approved, $approver->id);
+
+    expect(PurchaseRequest::query()->where('team_id', $team->id)->pending()->whereKey($pending)->exists())->toBeTrue()
+        ->and(PurchaseRequest::query()->where('team_id', $team->id)->approved()->whereKey($approved)->exists())->toBeTrue();
+});

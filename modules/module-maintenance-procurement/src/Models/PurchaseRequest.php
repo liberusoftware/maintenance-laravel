@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Procurement\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Liberu\Modules\OrganizationsTeams\Models\Team;
@@ -19,5 +20,20 @@ class PurchaseRequest extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function scopePending(Builder $query): Builder
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved(Builder $query): Builder
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRejected(Builder $query): Builder
+    {
+        return $query->where('status', 'rejected');
     }
 }

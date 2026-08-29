@@ -21,7 +21,14 @@ class PurchaseRequestController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('viewAny', PurchaseRequest::class), 403);
-        $items = PurchaseRequest::where('team_id', $id)->latest()->paginate(min($r->integer('per_page', 25), 100));
+        $query = PurchaseRequest::query()->where('team_id', $id);
+        if ($r->filled('status')) {
+            $query->where('status', $r->string('status')->toString());
+        }
+        if ($r->filled('requested_by')) {
+            $query->where('requested_by', $r->integer('requested_by'));
+        }
+        $items = $query->latest()->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (PurchaseRequest $p) => $this->resource($p))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }
