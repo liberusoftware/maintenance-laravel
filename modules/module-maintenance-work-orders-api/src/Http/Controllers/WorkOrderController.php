@@ -22,7 +22,16 @@ class WorkOrderController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('viewAny', WorkOrder::class), 403);
-        $items = WorkOrder::where('team_id', $id)->latest()->paginate(min($r->integer('per_page', 25), 100));
+        $query = WorkOrder::where('team_id', $id);
+        $query = match ($r->string('window')->toString()) {
+            'overdue' => $query->overdue(),
+            'due_within' => $query->dueWithin(max(1, min($r->integer('days', 7), 365))),
+            default => $query,
+        };
+        if ($r->filled('assigned_to')) {
+            $query->assignedToUser($r->integer('assigned_to'));
+        }
+        $items = $query->latest()->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (WorkOrder $o) => $this->resource($o))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }

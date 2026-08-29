@@ -70,3 +70,18 @@ it('stores comments within the work order tenant boundary', function () {
         ->and($comment->is_internal)->toBeTrue();
     $this->assertDatabaseHas('maintenance_work_order_comments', ['id' => $comment->id, 'comment' => 'Technician dispatched']);
 });
+
+it('finds overdue and assigned work orders through domain scopes', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateWorkOrder::class);
+    $overdue = $create->handle($team->id, ['title' => 'Late repair', 'assigned_to' => 12, 'due_date' => now()->subDay()]);
+    $upcoming = $create->handle($team->id, ['title' => 'Upcoming repair', 'assigned_to' => 12, 'due_date' => now()->addDays(2)]);
+    $completed = $create->handle($team->id, ['title' => 'Finished repair', 'due_date' => now()->subDay()]);
+    app(TransitionWorkOrder::class)->handle($team->id, $completed, 'triaged');
+    app(TransitionWorkOrder::class)->handle($team->id, $completed, 'in_progress');
+    app(TransitionWorkOrder::class)->handle($team->id, $completed, 'completed');
+
+    expect(WorkOrder::query()->where('team_id', $team->id)->overdue()->pluck('id')->all())->toBe([$overdue->id])
+        ->and(WorkOrder::query()->where('team_id', $team->id)->dueWithin(7)->pluck('id')->all())->toBe([$upcoming->id])
+        ->and(WorkOrder::query()->where('team_id', $team->id)->assignedToUser(12)->count())->toBe(2);
+});
