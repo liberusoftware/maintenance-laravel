@@ -126,3 +126,20 @@ it('supports tenant-scoped dependencies without cycles or self-links', function 
     expect(fn () => $add->handle($team->id, $first, $third))->toThrow(ValidationException::class);
     expect(fn () => $add->handle($team->id, $first, $first))->toThrow(ValidationException::class);
 });
+
+it('requires prerequisite work orders to be completed first', function () {
+    $team = Team::factory()->create();
+    $prerequisite = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Prepare site']);
+    $dependent = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    app(AddWorkOrderDependency::class)->handle($team->id, $dependent, $prerequisite);
+    $transition = app(TransitionWorkOrder::class);
+    $transition->handle($team->id, $dependent, 'triaged');
+    $transition->handle($team->id, $dependent, 'in_progress');
+
+    expect(fn () => $transition->handle($team->id, $dependent, 'completed'))->toThrow(ValidationException::class);
+
+    $transition->handle($team->id, $prerequisite, 'triaged');
+    $transition->handle($team->id, $prerequisite, 'in_progress');
+    $transition->handle($team->id, $prerequisite, 'completed');
+    expect($transition->handle($team->id, $dependent, 'completed')->status)->toBe('completed');
+});
