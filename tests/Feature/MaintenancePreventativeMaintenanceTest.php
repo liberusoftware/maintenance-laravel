@@ -5,6 +5,7 @@ use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CompleteMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CreateMaintenancePlan;
+use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\UpdateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Models\MaintenancePlan;
 
 it('creates a tenant-scoped preventative maintenance plan', function () {
@@ -61,4 +62,16 @@ it('rejects duplicate preventative plan codes within a team', function () {
 
     expect(fn () => $action->handle($team->id, ['name' => 'Other', 'code' => 'pump', 'frequency_value' => 60]))
         ->toThrow(ValidationException::class);
+});
+
+it('persists preventative frequency unit changes through the update action', function () {
+    $team = Team::factory()->create();
+    $plan = app(CreateMaintenancePlan::class)->handle($team->id, [
+        'name' => 'Pump service', 'code' => 'PUMP-1', 'frequency_unit' => 'days', 'frequency_value' => 7,
+    ]);
+
+    $updated = app(UpdateMaintenancePlan::class)->handle($team->id, $plan, ['frequency_unit' => 'weeks', 'frequency_value' => 2]);
+
+    expect($updated->frequency_unit)->toBe('weeks')
+        ->and($updated->frequency_value)->toBe(2);
 });
