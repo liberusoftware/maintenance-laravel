@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\Scheduling\Livewire\Components;
 use Illuminate\View\View;
 use Liberu\Modules\Maintenance\Scheduling\Actions\CreateScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Actions\DeleteScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\TransitionScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Actions\UpdateScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Models\ScheduleEntry;
 use Livewire\Component;
@@ -54,6 +55,13 @@ class ScheduleList extends Component
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         $delete->handle((int) $teamId, $this->entryForCurrentTeam($entryId));
+    }
+
+    public function transition(int $entryId, string $status, TransitionScheduleEntry $transition): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $transition->handle((int) $teamId, $this->entryForCurrentTeam($entryId), $status);
     }
 
     public function cancelEdit(): void

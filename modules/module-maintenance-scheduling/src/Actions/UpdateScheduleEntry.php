@@ -20,6 +20,10 @@ final class UpdateScheduleEntry
             throw ValidationException::withMessages(['ends_at' => 'The end must be after the start.']);
         }
         $resourceKey = array_key_exists('resource_key', $attributes) ? $attributes['resource_key'] : $entry->resource_key;
+        $status = array_key_exists('status', $attributes) ? (string) $attributes['status'] : $entry->status;
+        if (! in_array($status, ['scheduled', 'in_progress', 'completed', 'cancelled'], true)) {
+            throw ValidationException::withMessages(['status' => 'The schedule status is invalid.']);
+        }
         $conflict = ScheduleEntry::query()
             ->where('team_id', $teamId)
             ->where('resource_key', $resourceKey)

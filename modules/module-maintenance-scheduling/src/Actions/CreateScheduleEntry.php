@@ -15,7 +15,8 @@ class CreateScheduleEntry
         $title = trim((string) ($attributes['title'] ?? ''));
         $start = $attributes['starts_at'] ?? null;
         $end = $attributes['ends_at'] ?? null;
-        if ($title === '' || $start === null || $end === null) {
+        $status = (string) ($attributes['status'] ?? 'scheduled');
+        if ($title === '' || $start === null || $end === null || ! in_array($status, ['scheduled', 'in_progress', 'completed', 'cancelled'], true)) {
             throw ValidationException::withMessages(['title' => 'Title, start, and end are required.']);
         }
         if (strtotime((string) $end) <= strtotime((string) $start)) {
@@ -26,6 +27,6 @@ class CreateScheduleEntry
             throw ValidationException::withMessages(['starts_at' => 'The schedule conflicts with an existing entry.']);
         }
 
-        return DB::transaction(fn () => ScheduleEntry::create(array_merge($attributes, ['team_id' => $teamId, 'title' => $title, 'status' => $attributes['status'] ?? 'scheduled'])));
+        return DB::transaction(fn () => ScheduleEntry::create(array_merge($attributes, ['team_id' => $teamId, 'title' => $title, 'status' => $status])));
     }
 }

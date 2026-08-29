@@ -6,4 +6,6 @@ paths:
     post: {operationId: maintenance.scheduling.create, security: [{sanctum: []}], responses: {'201': {description: Schedule entry created}}}
   /api/v1/maintenance/scheduling/{id}:
     get: {operationId: maintenance.scheduling.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Schedule entry}}}
+  /api/v1/maintenance/scheduling/{id}/transitions:
+    post: {operationId: maintenance.scheduling.transition, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Schedule entry transitioned}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}
