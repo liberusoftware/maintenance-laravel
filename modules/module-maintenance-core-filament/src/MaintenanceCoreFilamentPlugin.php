@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\Core\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Liberu\Modules\Maintenance\Core\Filament\Resources\OrganizationResource;
+use Liberu\Modules\Maintenance\Core\Filament\Resources\PriorityResource;
 use Liberu\Modules\Maintenance\Core\Filament\Resources\StatusResource;
 
 final class MaintenanceCoreFilamentPlugin implements Plugin
@@ -23,7 +24,7 @@ final class MaintenanceCoreFilamentPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel->resources([OrganizationResource::class, StatusResource::class]);
+        $panel->resources([OrganizationResource::class, StatusResource::class, PriorityResource::class]);
     }
 
     public function boot(Panel $panel): void {}
