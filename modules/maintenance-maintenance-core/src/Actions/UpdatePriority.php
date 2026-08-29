@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Modules\Maintenance\Core\Actions;
 
 use Illuminate\Validation\ValidationException;
+use Liberu\Modules\Maintenance\Core\Events\PriorityUpdated;
 use Liberu\Modules\Maintenance\Core\Models\Priority;
 
 final class UpdatePriority
@@ -30,6 +31,9 @@ final class UpdatePriority
             'is_active' => (bool) ($attributes['is_active'] ?? $priority->is_active),
         ]);
 
-        return $priority->refresh();
+        $priority = $priority->refresh();
+        PriorityUpdated::dispatch($priority->getKey(), $priority->team_id);
+
+        return $priority;
     }
 }

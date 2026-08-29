@@ -6,6 +6,7 @@ namespace Liberu\Modules\Maintenance\Core\Actions;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Liberu\Modules\Maintenance\Core\Events\StatusCreated;
 use Liberu\Modules\Maintenance\Core\Models\Status;
 
 final class CreateStatus
@@ -17,7 +18,7 @@ final class CreateStatus
         $code = strtoupper(trim($attributes['code']));
         $this->validate($name, $code, $teamId);
 
-        return DB::transaction(function () use ($teamId, $attributes, $name, $code): Status {
+        $status = DB::transaction(function () use ($teamId, $attributes, $name, $code): Status {
             if (($attributes['is_default'] ?? false) === true) {
                 Status::query()->where('team_id', $teamId)->update(['is_default' => false]);
             }
@@ -28,6 +29,9 @@ final class CreateStatus
                 'is_default' => (bool) ($attributes['is_default'] ?? false), 'is_active' => (bool) ($attributes['is_active'] ?? true),
             ])->refresh();
         });
+        StatusCreated::dispatch($status->getKey(), $teamId);
+
+        return $status;
     }
 
     private function validate(string $name, string $code, int $teamId): void

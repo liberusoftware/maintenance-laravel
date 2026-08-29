@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Modules\Maintenance\Core\Actions;
 
 use Illuminate\Validation\ValidationException;
+use Liberu\Modules\Maintenance\Core\Events\PriorityCreated;
 use Liberu\Modules\Maintenance\Core\Models\Priority;
 
 final class CreatePriority
@@ -24,10 +25,13 @@ final class CreatePriority
             Priority::query()->where('team_id', $teamId)->update(['is_default' => false]);
         }
 
-        return Priority::query()->create([
+        $priority = Priority::query()->create([
             'team_id' => $teamId, 'name' => $name, 'code' => $code,
             'color' => $attributes['color'] ?? null, 'sort_order' => (int) ($attributes['sort_order'] ?? 0),
             'is_default' => (bool) ($attributes['is_default'] ?? false), 'is_active' => (bool) ($attributes['is_active'] ?? true),
         ])->refresh();
+        PriorityCreated::dispatch($priority->getKey(), $teamId);
+
+        return $priority;
     }
 }

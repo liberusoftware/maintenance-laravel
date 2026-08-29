@@ -6,6 +6,7 @@ namespace Liberu\Modules\Maintenance\Core\Actions;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Liberu\Modules\Maintenance\Core\Events\StatusUpdated;
 use Liberu\Modules\Maintenance\Core\Models\Status;
 
 final class UpdateStatus
@@ -22,7 +23,7 @@ final class UpdateStatus
             throw ValidationException::withMessages(['code' => 'The status code is already in use.']);
         }
 
-        return DB::transaction(function () use ($status, $attributes, $name, $code): Status {
+        $status = DB::transaction(function () use ($status, $attributes, $name, $code): Status {
             if (($attributes['is_default'] ?? $status->is_default) === true) {
                 Status::query()->where('team_id', $status->team_id)->whereKeyNot($status->getKey())->update(['is_default' => false]);
             }
@@ -36,5 +37,8 @@ final class UpdateStatus
 
             return $status->refresh();
         });
+        StatusUpdated::dispatch($status->getKey(), $status->team_id);
+
+        return $status;
     }
 }
