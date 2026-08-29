@@ -14,9 +14,9 @@ class StockItem extends Model
 {
     protected $table = 'maintenance_stock_items';
 
-    protected $fillable = ['team_id', 'part_number', 'name', 'location', 'quantity', 'reorder_level', 'unit'];
+    protected $fillable = ['team_id', 'part_number', 'name', 'description', 'category', 'location', 'supplier_name', 'lead_time_days', 'notes', 'quantity', 'reorder_level', 'reorder_quantity', 'unit', 'unit_cost'];
 
-    protected $casts = ['team_id' => 'integer', 'quantity' => 'integer', 'reserved_quantity' => 'integer', 'reorder_level' => 'integer'];
+    protected $casts = ['team_id' => 'integer', 'quantity' => 'integer', 'reserved_quantity' => 'integer', 'reorder_level' => 'integer', 'reorder_quantity' => 'integer', 'lead_time_days' => 'integer', 'unit_cost' => 'decimal:2'];
 
     public function availableQuantity(): int
     {

@@ -40,7 +40,7 @@ class StockItemController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('create', StockItem::class), 403);
-        $data = $r->validate(['part_number' => 'required|string|max:96', 'name' => 'required|string|max:255', 'location' => 'nullable|string|max:255', 'quantity' => 'nullable|integer|min:0', 'reorder_level' => 'nullable|integer|min:0', 'unit' => 'nullable|string|max:32']);
+        $data = $r->validate(['part_number' => 'required|string|max:96', 'name' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'category' => 'nullable|string|max:255', 'location' => 'nullable|string|max:255', 'supplier_name' => 'nullable|string|max:255', 'lead_time_days' => 'nullable|integer|min:0', 'notes' => 'nullable|string|max:10000', 'quantity' => 'nullable|integer|min:0', 'reorder_level' => 'nullable|integer|min:0', 'reorder_quantity' => 'nullable|integer|min:0', 'unit' => 'nullable|string|max:32', 'unit_cost' => 'nullable|numeric|min:0']);
 
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
     }
@@ -107,7 +107,7 @@ class StockItemController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
-        $data = $r->validate(['part_number' => 'sometimes|required|string|max:96', 'name' => 'sometimes|required|string|max:255', 'location' => 'sometimes|nullable|string|max:255', 'reorder_level' => 'sometimes|integer|min:0', 'unit' => 'sometimes|nullable|string|max:32']);
+        $data = $r->validate(['part_number' => 'sometimes|required|string|max:96', 'name' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'category' => 'sometimes|nullable|string|max:255', 'location' => 'sometimes|nullable|string|max:255', 'supplier_name' => 'sometimes|nullable|string|max:255', 'lead_time_days' => 'sometimes|integer|min:0', 'notes' => 'sometimes|nullable|string|max:10000', 'reorder_level' => 'sometimes|integer|min:0', 'reorder_quantity' => 'sometimes|integer|min:0', 'unit' => 'sometimes|nullable|string|max:32', 'unit_cost' => 'sometimes|nullable|numeric|min:0']);
 
         return response()->json(['data' => $this->resource($update->handle($id, $stockItem, $data))]);
     }
@@ -131,7 +131,7 @@ class StockItemController extends Controller
 
     private function resource(StockItem $i): array
     {
-        return ['id' => (string) $i->getKey(), 'type' => 'maintenance-stock-item', 'attributes' => ['part_number' => $i->part_number, 'name' => $i->name, 'location' => $i->location, 'quantity' => $i->quantity, 'reserved_quantity' => $i->reserved_quantity, 'available_quantity' => $i->availableQuantity(), 'reorder_level' => $i->reorder_level, 'unit' => $i->unit]];
+        return ['id' => (string) $i->getKey(), 'type' => 'maintenance-stock-item', 'attributes' => ['part_number' => $i->part_number, 'name' => $i->name, 'description' => $i->description, 'category' => $i->category, 'location' => $i->location, 'supplier_name' => $i->supplier_name, 'lead_time_days' => $i->lead_time_days, 'notes' => $i->notes, 'quantity' => $i->quantity, 'reserved_quantity' => $i->reserved_quantity, 'available_quantity' => $i->availableQuantity(), 'reorder_level' => $i->reorder_level, 'reorder_quantity' => $i->reorder_quantity, 'unit' => $i->unit, 'unit_cost' => $i->unit_cost]];
     }
 
     public function movements(Request $r, StockItem $stockItem): JsonResponse

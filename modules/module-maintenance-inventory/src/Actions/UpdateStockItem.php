@@ -19,6 +19,9 @@ final class UpdateStockItem
         if ($partNumber === '' || $name === '') {
             throw ValidationException::withMessages(['part_number' => 'Part number and name are required.']);
         }
+        if (isset($attributes['unit_cost']) && (float) $attributes['unit_cost'] < 0) {
+            throw ValidationException::withMessages(['unit_cost' => 'Unit cost cannot be negative.']);
+        }
         if (StockItem::query()->where('team_id', $teamId)->where('part_number', $partNumber)->whereKeyNot($item->getKey())->exists()) {
             throw ValidationException::withMessages(['part_number' => 'The part number is already in use.']);
         }
