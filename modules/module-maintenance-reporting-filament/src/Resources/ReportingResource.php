@@ -31,7 +31,7 @@ class ReportingResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('kind')->required(), TextInput::make('title')->required(), TextInput::make('status')->default('draft')]);
+        return $schema->components([TextInput::make('kind')->required(), TextInput::make('title')->required()]);
     }
 
     public static function getEloquentQuery(): Builder

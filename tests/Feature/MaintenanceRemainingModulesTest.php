@@ -12,6 +12,7 @@ use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
+use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
 it('creates tenant-scoped records for the remaining maintenance capabilities', function () {
@@ -62,6 +63,14 @@ it('publishes a draft reporting record through its domain action', function () {
 
     expect($published->status)->toBe('published')
         ->and(ReportRecord::query()->published()->whereKey($record->id)->exists())->toBeTrue();
+});
+
+it('requires the publish action for report status changes', function () {
+    $team = Team::factory()->create();
+    $record = app(CreateReportRecord::class)->handle($team->id, ['kind' => 'backlog', 'title' => 'August backlog']);
+
+    expect(fn () => app(UpdateReportRecord::class)->handle($team->id, $record, ['status' => 'published']))
+        ->toThrow(ValidationException::class);
 });
 
 it('scopes compliance records by expiry', function () {

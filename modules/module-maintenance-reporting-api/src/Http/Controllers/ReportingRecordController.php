@@ -62,7 +62,7 @@ class ReportingRecordController extends Controller
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         abort_unless((int) $teamId === (int) $record->team_id && $request->user()->can('update', $record), 404);
-        $data = $request->validate(['kind' => 'sometimes|required|string|max:80', 'title' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'metric_value' => 'sometimes|nullable|numeric', 'period_start' => 'sometimes|nullable|date', 'period_end' => 'sometimes|nullable|date|after_or_equal:period_start', 'status' => 'sometimes|in:draft,published', 'metadata' => 'sometimes|nullable|array']);
+        $data = $request->validate(['kind' => 'sometimes|required|string|max:80', 'title' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'metric_value' => 'sometimes|nullable|numeric', 'period_start' => 'sometimes|nullable|date', 'period_end' => 'sometimes|nullable|date|after_or_equal:period_start', 'metadata' => 'sometimes|nullable|array']);
 
         return response()->json(['data' => $this->resource($update->handle((int) $teamId, $record, $data))]);
     }

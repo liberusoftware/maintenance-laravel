@@ -14,6 +14,9 @@ final class UpdateReportRecord
     public function handle(int $teamId, ReportRecord $record, array $attributes): ReportRecord
     {
         abort_unless((int) $record->team_id === $teamId, 404);
+        if (array_key_exists('status', $attributes) && $attributes['status'] !== $record->status) {
+            throw ValidationException::withMessages(['status' => 'Use the publish action to change report status.']);
+        }
         $kind = array_key_exists('kind', $attributes) ? trim((string) $attributes['kind']) : $record->kind;
         $title = array_key_exists('title', $attributes) ? trim((string) $attributes['title']) : $record->title;
         if ($kind === '' || $title === '') {
