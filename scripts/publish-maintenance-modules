@@ -12,7 +12,7 @@ declare -a requested_packages=()
 
 usage() {
     printf 'Usage: %s [--merge] [package ...]\n' "$(basename "$0")"
-    printf 'Packages default to every modules/module-maintenance-* package.\n'
+    printf 'Packages default to every maintenance package under modules/.\n'
 }
 
 while (($#)); do
@@ -36,7 +36,7 @@ package_is_requested() {
     ((${#requested_packages[@]} == 0)) || printf '%s\n' "${requested_packages[@]}" | grep -Fxq "$package"
 }
 
-for package_dir in "$root_dir"/modules/module-maintenance-*; do
+while IFS= read -r package_dir; do
     [[ -d "$package_dir" && -f "$package_dir/composer.json" ]] || continue
     package=$(basename "$package_dir")
     package_is_requested "$package" || continue
@@ -76,6 +76,6 @@ for package_dir in "$root_dir"/modules/module-maintenance-*; do
             --subject 'Synchronize maintenance module' \
             --body 'Merge the verified maintenance module synchronization.'
     fi
-done
+done < <(find "$root_dir/modules" -mindepth 1 -maxdepth 1 -type d -name '*maintenance-*' -print | sort)
 
 printf 'Temporary package checkouts: %s\n' "$workspace_dir"
