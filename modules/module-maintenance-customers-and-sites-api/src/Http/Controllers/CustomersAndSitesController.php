@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\CustomersAndSites\Actions\CreateCustomer;
+use Liberu\Modules\Maintenance\CustomersAndSites\Actions\DeleteCustomer;
+use Liberu\Modules\Maintenance\CustomersAndSites\Actions\UpdateCustomer;
 use Liberu\Modules\Maintenance\CustomersAndSites\Models\Customer;
 
 class CustomersAndSitesController extends Controller
@@ -37,6 +39,26 @@ class CustomersAndSitesController extends Controller
         abort_unless($this->teamId($request) === $customer->team_id && $request->user()->can('view', $customer), 404);
 
         return response()->json(['data' => $this->resource($customer)]);
+    }
+
+    public function update(Request $request, Customer $customer, UpdateCustomer $update): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($teamId === (int) $customer->team_id && $request->user()->can('update', $customer), 404);
+        $data = $request->validate(['name' => 'sometimes|required|string|max:255', 'code' => 'sometimes|required|string|max:64', 'email' => 'sometimes|nullable|email|max:255', 'phone' => 'sometimes|nullable|string|max:64', 'notes' => 'sometimes|nullable|string|max:10000', 'is_active' => 'sometimes|boolean']);
+
+        return response()->json(['data' => $this->resource($update->handle($teamId, $customer, $data))]);
+    }
+
+    public function destroy(Request $request, Customer $customer, DeleteCustomer $delete): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($teamId === (int) $customer->team_id && $request->user()->can('delete', $customer), 404);
+        $delete->handle($teamId, $customer);
+
+        return response()->json(null, 204);
     }
 
     private function teamId(Request $request): ?int

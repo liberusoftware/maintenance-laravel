@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\EditWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\ListWorkOrders;
@@ -30,7 +31,7 @@ class WorkOrderResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('title')->required()->maxLength(255), Textarea::make('description')->maxLength(10000), Select::make('priority')->options(['low' => 'Low', 'normal' => 'Normal', 'high' => 'High', 'urgent' => 'Urgent'])->default('normal')->required(), Select::make('status')->options(['requested' => 'Requested', 'triaged' => 'Triaged', 'in_progress' => 'In progress', 'blocked' => 'Blocked', 'completed' => 'Completed', 'cancelled' => 'Cancelled'])->default('requested')->required()]);
+        return $schema->components([TextInput::make('title')->required()->maxLength(255), Textarea::make('description')->maxLength(10000), TextInput::make('location')->maxLength(255), TextInput::make('equipment_id')->numeric()->minValue(1), TextInput::make('customer_id')->numeric()->minValue(1), TextInput::make('assigned_to')->numeric()->minValue(1), TextInput::make('due_date')->type('datetime-local'), TextInput::make('estimated_minutes')->numeric()->minValue(0), TextInput::make('actual_minutes')->numeric()->minValue(0), Select::make('priority')->options(['low' => 'Low', 'normal' => 'Normal', 'high' => 'High', 'urgent' => 'Urgent'])->default('normal')->required(), Select::make('status')->options(['requested' => 'Requested', 'triaged' => 'Triaged', 'in_progress' => 'In progress', 'blocked' => 'Blocked', 'completed' => 'Completed', 'cancelled' => 'Cancelled'])->default('requested')->required()]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -43,7 +44,14 @@ class WorkOrderResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('number')->sortable(), TextColumn::make('title')->searchable(), TextColumn::make('priority')->badge(), TextColumn::make('status')->badge(), TextColumn::make('created_at')->dateTime()])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('number')->sortable(), TextColumn::make('title')->searchable(), TextColumn::make('priority')->badge(), TextColumn::make('status')->badge(), TextColumn::make('created_at')->dateTime()])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (WorkOrder $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteWorkOrder::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array

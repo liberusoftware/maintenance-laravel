@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\DeleteMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Filament\Resources\MaintenancePlanResource\Pages\CreateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Filament\Resources\MaintenancePlanResource\Pages\EditMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Filament\Resources\MaintenancePlanResource\Pages\ListMaintenancePlans;
@@ -42,7 +43,14 @@ class MaintenancePlanResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable(), TextColumn::make('code'), TextColumn::make('frequency_value'), TextColumn::make('frequency_unit'), TextColumn::make('next_due_at')->dateTime()])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('name')->searchable(), TextColumn::make('code'), TextColumn::make('frequency_value'), TextColumn::make('frequency_unit'), TextColumn::make('next_due_at')->dateTime()])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (MaintenancePlan $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteMaintenancePlan::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array

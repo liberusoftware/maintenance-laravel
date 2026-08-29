@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\Procurement\Actions\DeletePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\PurchaseRequestResource\Pages\CreatePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\PurchaseRequestResource\Pages\EditPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\PurchaseRequestResource\Pages\ListPurchaseRequests;
@@ -42,7 +43,14 @@ class PurchaseRequestResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('supplier_name'), TextColumn::make('amount'), TextColumn::make('currency'), TextColumn::make('status')->badge()])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('supplier_name'), TextColumn::make('amount'), TextColumn::make('currency'), TextColumn::make('status')->badge()])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (PurchaseRequest $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeletePurchaseRequest::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array

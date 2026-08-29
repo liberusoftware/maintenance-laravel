@@ -17,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\Core\Actions\DeleteOrganization;
 use Liberu\Modules\Maintenance\Core\Filament\Resources\OrganizationResource\Pages\CreateOrganization;
 use Liberu\Modules\Maintenance\Core\Filament\Resources\OrganizationResource\Pages\EditOrganization;
 use Liberu\Modules\Maintenance\Core\Filament\Resources\OrganizationResource\Pages\ListOrganizations;
@@ -56,7 +57,7 @@ final class OrganizationResource extends Resource
             TextColumn::make('created_at')->dateTime()->sortable(),
         ])->recordActions([
             EditAction::make(),
-            DeleteAction::make(),
+            DeleteAction::make()->action(fn (Organization $record) => app(DeleteOrganization::class)->execute($record)),
         ])->toolbarActions([
             BulkActionGroup::make([DeleteBulkAction::make()]),
         ]);

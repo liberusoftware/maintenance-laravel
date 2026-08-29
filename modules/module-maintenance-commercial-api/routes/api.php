@@ -11,4 +11,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/commercial')->grou
     Route::get('/{record}', [CommercialRecordController::class, 'show']);
     Route::patch('/{record}', [CommercialRecordController::class, 'update']);
     Route::delete('/{record}', [CommercialRecordController::class, 'destroy']);
+    Route::patch('/{record}', [CommercialRecordController::class, 'update']);
+    Route::delete('/{record}', [CommercialRecordController::class, 'destroy']);
 });

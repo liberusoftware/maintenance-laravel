@@ -28,6 +28,27 @@ paths:
       responses:
         '200': { description: Authorized organization }
         '404': { description: Concealed or missing resource }
+    patch:
+      operationId: maintenance.core.organizations.update
+      security: [{ sanctum: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OrganizationPatch' }
+      responses:
+        '200': { description: Organization updated }
+        '404': { description: Concealed or missing resource }
+    delete:
+      operationId: maintenance.core.organizations.delete
+      security: [{ sanctum: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '204': { description: Organization deleted }
+        '404': { description: Concealed or missing resource }
 components:
   securitySchemes:
     sanctum: { type: http, scheme: bearer, bearerFormat: Sanctum }
@@ -39,3 +60,10 @@ components:
         name: { type: string, maxLength: 255 }
         code: { type: string, maxLength: 32 }
         description: { type: [string, 'null'] }
+    OrganizationPatch:
+      type: object
+      properties:
+        name: { type: string, maxLength: 255 }
+        code: { type: string, maxLength: 32 }
+        description: { type: [string, 'null'] }
+        state: { type: string, enum: [active, inactive] }

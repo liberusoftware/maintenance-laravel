@@ -7,4 +7,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/customers-and-site
     Route::get('/', [CustomersAndSitesController::class, 'index']);
     Route::post('/', [CustomersAndSitesController::class, 'store']);
     Route::get('/{customer}', [CustomersAndSitesController::class, 'show']);
+    Route::patch('/{customer}', [CustomersAndSitesController::class, 'update']);
+    Route::delete('/{customer}', [CustomersAndSitesController::class, 'destroy']);
 });

@@ -6,6 +6,7 @@ namespace Liberu\Modules\Maintenance\Reporting\Filament;
 
 use Filament\Panel;
 use Filament\PanelPlugin;
+use Liberu\Modules\Maintenance\Report\Filament\Resources\ReportingResource;
 
 class ReportingFilamentPlugin implements PanelPlugin
 {
@@ -14,7 +15,10 @@ class ReportingFilamentPlugin implements PanelPlugin
         return 'module-maintenance-reporting-filament';
     }
 
-    public function register(Panel $panel): void {}
+    public function register(Panel $panel): void
+    {
+        $panel->resources([ReportingResource::class]);
+    }
 
     public function boot(Panel $panel): void {}
 }

@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\Scheduling\Actions\DeleteScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Filament\Resources\ScheduleEntryResource\Pages\CreateScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Filament\Resources\ScheduleEntryResource\Pages\EditScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Filament\Resources\ScheduleEntryResource\Pages\ListScheduleEntries;
@@ -42,7 +43,14 @@ class ScheduleEntryResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('starts_at')->dateTime()->sortable(), TextColumn::make('ends_at')->dateTime(), TextColumn::make('status')->badge()])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('starts_at')->dateTime()->sortable(), TextColumn::make('ends_at')->dateTime(), TextColumn::make('status')->badge()])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (ScheduleEntry $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteScheduleEntry::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array

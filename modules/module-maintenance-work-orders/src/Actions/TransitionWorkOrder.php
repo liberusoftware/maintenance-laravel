@@ -18,6 +18,9 @@ class TransitionWorkOrder
             throw ValidationException::withMessages(['status' => 'That work-order transition is not allowed.']);
         }
         $workOrder->status = $status;
+        if ($status === 'in_progress' && $workOrder->started_at === null) {
+            $workOrder->started_at = now();
+        }
         if ($status === 'completed') {
             $workOrder->completed_at = now();
         } $workOrder->save();

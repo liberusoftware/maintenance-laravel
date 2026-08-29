@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CreateMaintenancePlan;
+use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\DeleteMaintenancePlan;
+use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\UpdateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Models\MaintenancePlan;
 
 class MaintenancePlanController extends Controller
@@ -37,6 +39,26 @@ class MaintenancePlanController extends Controller
         abort_unless($this->teamId($r) === $maintenancePlan->team_id && $r->user()->can('view', $maintenancePlan), 404);
 
         return response()->json(['data' => $this->resource($maintenancePlan)]);
+    }
+
+    public function update(Request $r, MaintenancePlan $maintenancePlan, UpdateMaintenancePlan $update): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $maintenancePlan->team_id && $r->user()->can('update', $maintenancePlan), 404);
+        $data = $r->validate(['name' => 'sometimes|required|string|max:255', 'code' => 'sometimes|required|string|max:64', 'frequency_unit' => 'sometimes|in:days,weeks,months,meters', 'frequency_value' => 'sometimes|required|integer|min:1', 'next_due_at' => 'sometimes|nullable|date', 'is_active' => 'sometimes|boolean', 'rules' => 'sometimes|nullable|array']);
+
+        return response()->json(['data' => $this->resource($update->handle($id, $maintenancePlan, $data))]);
+    }
+
+    public function destroy(Request $r, MaintenancePlan $maintenancePlan, DeleteMaintenancePlan $delete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $maintenancePlan->team_id && $r->user()->can('delete', $maintenancePlan), 404);
+        $delete->handle($id, $maintenancePlan);
+
+        return response()->json(null, 204);
     }
 
     private function teamId(Request $r): ?int

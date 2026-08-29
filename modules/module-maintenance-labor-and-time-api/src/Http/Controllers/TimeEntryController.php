@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\ApproveTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateTimeEntry;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\DeleteTimeEntry;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\UpdateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Models\TimeEntry;
 
 class TimeEntryController extends Controller
@@ -48,6 +50,26 @@ class TimeEntryController extends Controller
         abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('update', $timeEntry), 404);
 
         return response()->json(['data' => $this->resource($approve->handle($id, $timeEntry, (int) $r->user()->getKey()))]);
+    }
+
+    public function update(Request $r, TimeEntry $timeEntry, UpdateTimeEntry $update): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('update', $timeEntry), 404);
+        $data = $r->validate(['description' => 'sometimes|nullable|string|max:255', 'minutes' => 'sometimes|required|integer|min:1', 'rate' => 'sometimes|nullable|numeric|min:0', 'expense_amount' => 'sometimes|nullable|numeric|min:0', 'currency' => 'sometimes|string|size:3', 'started_at' => 'sometimes|nullable|date', 'ended_at' => 'sometimes|nullable|date']);
+
+        return response()->json(['data' => $this->resource($update->handle($id, $timeEntry, $data))]);
+    }
+
+    public function destroy(Request $r, TimeEntry $timeEntry, DeleteTimeEntry $delete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('delete', $timeEntry), 404);
+        $delete->handle($id, $timeEntry);
+
+        return response()->json(null, 204);
     }
 
     private function teamId(Request $r): ?int

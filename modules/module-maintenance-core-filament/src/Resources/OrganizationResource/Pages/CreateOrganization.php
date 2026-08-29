@@ -6,6 +6,8 @@ namespace Liberu\Modules\Maintenance\Core\Filament\Resources\OrganizationResourc
 
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
+use Liberu\Modules\Maintenance\Core\Actions\CreateOrganization as CreateOrganizationAction;
 use Liberu\Modules\Maintenance\Core\Filament\Resources\OrganizationResource;
 
 final class CreateOrganization extends CreateRecord
@@ -20,5 +22,11 @@ final class CreateOrganization extends CreateRecord
         $data['team_id'] = $tenant->getKey();
 
         return $data;
+    }
+
+    /** @param array<string, mixed> $data */
+    protected function handleRecordCreation(array $data): Model
+    {
+        return app(CreateOrganizationAction::class)->execute((int) $data['team_id'], (string) $data['name'], (string) $data['code'], $data['description'] ?? null);
     }
 }
