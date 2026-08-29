@@ -8,8 +8,10 @@ use Illuminate\View\View;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\IssueStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReturnStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\UpdateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
 use Livewire\Component;
@@ -23,6 +25,8 @@ class StockList extends Component
     public int $quantity = 0;
 
     public int $reservationQuantity = 1;
+
+    public int $movementQuantity = 1;
 
     public ?int $editingItemId = null;
 
@@ -79,6 +83,24 @@ class StockList extends Component
         abort_if($teamId === null, 403);
         $this->validate(['reservationQuantity' => 'required|integer|min:1']);
         $release->handle((int) $teamId, $this->itemForCurrentTeam($itemId), $this->reservationQuantity);
+    }
+
+    public function issue(int $itemId, IssueStock $issue): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['movementQuantity' => 'required|integer|min:1']);
+        $issue->handle((int) $teamId, $this->itemForCurrentTeam($itemId), $this->movementQuantity, auth()->id());
+        $this->reset('movementQuantity');
+    }
+
+    public function return(int $itemId, ReturnStock $returnStock): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['movementQuantity' => 'required|integer|min:1']);
+        $returnStock->handle((int) $teamId, $this->itemForCurrentTeam($itemId), $this->movementQuantity, auth()->id());
+        $this->reset('movementQuantity');
     }
 
     public function cancelEdit(): void
