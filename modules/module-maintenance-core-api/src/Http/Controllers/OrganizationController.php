@@ -6,8 +6,11 @@ namespace Liberu\Modules\Maintenance\Core\Api\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Core\Actions\CreateOrganization;
+use Liberu\Modules\Maintenance\Core\Actions\DeleteOrganization;
+use Liberu\Modules\Maintenance\Core\Actions\UpdateOrganization;
 use Liberu\Modules\Maintenance\Core\Models\Organization;
 
 final class OrganizationController extends Controller
@@ -60,6 +63,27 @@ final class OrganizationController extends Controller
         abort_unless($this->teamId($request) === $organization->team_id && $request->user()->can('view', $organization), 404);
 
         return response()->json(['data' => $this->resource($organization)]);
+    }
+
+    public function update(Request $request, Organization $organization, UpdateOrganization $update): JsonResponse
+    {
+        abort_unless($this->teamId($request) === $organization->team_id && $request->user()->can('update', $organization), 404);
+        $attributes = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'code' => ['sometimes', 'string', 'max:32'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
+            'state' => ['sometimes', 'in:active,inactive'],
+        ]);
+
+        return response()->json(['data' => $this->resource($update->execute($organization, $attributes))]);
+    }
+
+    public function destroy(Request $request, Organization $organization, DeleteOrganization $delete): Response
+    {
+        abort_unless($this->teamId($request) === $organization->team_id && $request->user()->can('delete', $organization), 404);
+        $delete->execute($organization);
+
+        return response()->noContent();
     }
 
     private function teamId(Request $request): ?int

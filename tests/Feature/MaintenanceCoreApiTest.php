@@ -46,3 +46,22 @@ it('conceals an organization belonging to another team', function () {
         ->getJson("/api/v1/maintenance/maintenance-core/organizations/{$organization->id}")
         ->assertNotFound();
 });
+
+it('updates and deletes an organization through the API within the current team', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $organization = app(CreateOrganization::class)->execute($team->id, 'Old Name', 'OLD');
+    $token = $user->createToken('maintenance-test')->plainTextToken;
+
+    $this->withToken($token)
+        ->patchJson("/api/v1/maintenance/maintenance-core/organizations/{$organization->id}", ['name' => 'New Name', 'code' => 'NEW'])
+        ->assertOk()
+        ->assertJsonPath('data.attributes.name', 'New Name')
+        ->assertJsonPath('data.attributes.code', 'NEW');
+
+    $this->withToken($token)
+        ->deleteJson("/api/v1/maintenance/maintenance-core/organizations/{$organization->id}")
+        ->assertNoContent();
+    $this->assertDatabaseMissing('maintenance_organizations', ['id' => $organization->id]);
+});
