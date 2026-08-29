@@ -6,4 +6,6 @@ paths:
     post: {operationId: maintenance.inventory.create, security: [{sanctum: []}], responses: {'201': {description: Stock item created}}}
   /api/v1/maintenance/inventory/{id}:
     get: {operationId: maintenance.inventory.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock item}}}
+  /api/v1/maintenance/inventory/{id}/adjust:
+    post: {operationId: maintenance.inventory.adjust, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock adjusted}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

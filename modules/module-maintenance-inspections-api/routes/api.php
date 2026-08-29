@@ -7,4 +7,5 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/inspections')->gro
     Route::get('/', [InspectionController::class, 'index']);
     Route::post('/', [InspectionController::class, 'store']);
     Route::get('/{inspection}', [InspectionController::class, 'show']);
+    Route::post('/{inspection}/complete', [InspectionController::class, 'complete']);
 });

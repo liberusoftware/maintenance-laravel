@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
 
 class StockItemController extends Controller
@@ -37,6 +38,16 @@ class StockItemController extends Controller
         abort_unless($this->teamId($r) === $stockItem->team_id && $r->user()->can('view', $stockItem), 404);
 
         return response()->json(['data' => $this->resource($stockItem)]);
+    }
+
+    public function adjust(Request $r, StockItem $stockItem, AdjustStock $adjust): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['delta' => ['required', 'integer', 'between:-1000000,1000000']]);
+
+        return response()->json(['data' => $this->resource($adjust->handle($id, $stockItem, $data['delta']))]);
     }
 
     private function teamId(Request $r): ?int

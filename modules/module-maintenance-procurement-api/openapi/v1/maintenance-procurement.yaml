@@ -6,4 +6,6 @@ paths:
     post: {operationId: maintenance.procurement.create, security: [{sanctum: []}], responses: {'201': {description: Purchase request created}}}
   /api/v1/maintenance/procurement/{id}:
     get: {operationId: maintenance.procurement.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase request}}}
+  /api/v1/maintenance/procurement/{id}/approve:
+    post: {operationId: maintenance.procurement.approve, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase request approved}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

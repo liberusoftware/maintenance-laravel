@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\ApprovePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
 
 class PurchaseRequestController extends Controller
@@ -38,6 +39,15 @@ class PurchaseRequestController extends Controller
         abort_unless($this->teamId($r) === $purchaseRequest->team_id && $r->user()->can('view', $purchaseRequest), 404);
 
         return response()->json(['data' => $this->resource($purchaseRequest)]);
+    }
+
+    public function approve(Request $r, PurchaseRequest $purchaseRequest, ApprovePurchaseRequest $approve): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $purchaseRequest->team_id && $r->user()->can('update', $purchaseRequest), 404);
+
+        return response()->json(['data' => $this->resource($approve->handle($id, $purchaseRequest, (int) $r->user()->getKey()))]);
     }
 
     private function teamId(Request $r): ?int
