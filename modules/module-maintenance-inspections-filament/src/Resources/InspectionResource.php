@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Inspections\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
@@ -14,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\DeleteInspection;
 use Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionResource\Pages\CreateInspection;
 use Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionResource\Pages\EditInspection;
@@ -45,6 +47,11 @@ class InspectionResource extends Resource
     {
         return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('status')->badge(), TextColumn::make('outcome')->badge(), TextColumn::make('inspected_at')->dateTime()])->recordActions([
             EditAction::make(),
+            Action::make('complete')->label('Complete')->visible(fn (Inspection $record): bool => $record->status === 'draft')->form([Select::make('outcome')->options(['pass' => 'Pass', 'fail' => 'Fail', 'conditional' => 'Conditional'])->required()])->action(function (Inspection $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(CompleteInspection::class)->handle((int) $teamId, $record, $data['outcome']);
+            }),
             DeleteAction::make()->action(function (Inspection $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);

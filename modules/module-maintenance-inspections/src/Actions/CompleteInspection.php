@@ -13,9 +13,14 @@ class CompleteInspection
     {
         if ((int) $inspection->team_id !== $teamId) {
             abort(404);
-        }if (! in_array($outcome, ['pass', 'fail', 'conditional'], true)) {
+        }
+        if ($inspection->status !== 'draft') {
+            throw ValidationException::withMessages(['status' => 'Only draft inspections can be completed.']);
+        }
+        if (! in_array($outcome, ['pass', 'fail', 'conditional'], true)) {
             throw ValidationException::withMessages(['outcome' => 'The inspection outcome is invalid.']);
-        }$inspection->status = 'completed';
+        }
+        $inspection->status = 'completed';
         $inspection->outcome = $outcome;
         $inspection->inspected_at = $inspection->inspected_at ?? now();
         $inspection->save();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Modules\Maintenance\Inspections\Livewire\Components;
 
 use Illuminate\View\View;
+use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\DeleteInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspection;
@@ -51,6 +52,14 @@ class InspectionList extends Component
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         $delete->handle((int) $teamId, $this->inspectionForCurrentTeam($inspectionId));
+    }
+
+    public function complete(int $inspectionId, string $outcome, CompleteInspection $complete): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['outcome' => 'required|in:pass,fail,conditional']);
+        $complete->handle((int) $teamId, $this->inspectionForCurrentTeam($inspectionId), $outcome);
     }
 
     public function cancelEdit(): void
