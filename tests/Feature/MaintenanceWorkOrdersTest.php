@@ -4,6 +4,7 @@ use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
 
 it('creates and transitions a tenant-scoped work order', function () {
@@ -24,5 +25,15 @@ it('rejects invalid work-order status transitions', function () {
     $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
 
     expect(fn () => app(TransitionWorkOrder::class)->handle($team->id, $order, 'completed'))
+        ->toThrow(ValidationException::class);
+});
+
+it('updates work-order details but requires the transition action for status changes', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+
+    $updated = app(UpdateWorkOrder::class)->handle($team->id, $order, ['title' => 'Repair main pump']);
+    expect($updated->title)->toBe('Repair main pump');
+    expect(fn () => app(UpdateWorkOrder::class)->handle($team->id, $order, ['status' => 'completed']))
         ->toThrow(ValidationException::class);
 });

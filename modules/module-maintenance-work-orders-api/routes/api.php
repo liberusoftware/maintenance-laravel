@@ -7,4 +7,7 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/work-orders')->gro
     Route::get('/', [WorkOrderController::class, 'index']);
     Route::post('/', [WorkOrderController::class, 'store']);
     Route::get('/{workOrder}', [WorkOrderController::class, 'show']);
+    Route::patch('/{workOrder}', [WorkOrderController::class, 'update']);
+    Route::delete('/{workOrder}', [WorkOrderController::class, 'destroy']);
+    Route::post('/{workOrder}/transitions', [WorkOrderController::class, 'transition']);
 });
