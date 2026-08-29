@@ -65,3 +65,25 @@ it('updates and deletes an organization through the API within the current team'
         ->assertNoContent();
     $this->assertDatabaseMissing('maintenance_organizations', ['id' => $organization->id]);
 });
+
+it('manages statuses, priorities, and settings through tenant-scoped API endpoints', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('maintenance-test')->plainTextToken;
+
+    $this->withToken($token)->postJson('/api/v1/maintenance/maintenance-core/statuses', [
+        'name' => 'Open', 'code' => 'open', 'is_default' => true,
+    ])->assertCreated()->assertJsonPath('data.attributes.code', 'OPEN');
+
+    $this->withToken($token)->postJson('/api/v1/maintenance/maintenance-core/priorities', [
+        'name' => 'Urgent', 'code' => 'urgent', 'is_default' => true,
+    ])->assertCreated()->assertJsonPath('data.attributes.code', 'URGENT');
+
+    $this->withToken($token)->postJson('/api/v1/maintenance/maintenance-core/settings', [
+        'key' => 'reminder_days', 'value' => '7',
+    ])->assertCreated()->assertJsonPath('data.attributes.key', 'reminder_days');
+
+    $this->withToken($token)->getJson('/api/v1/maintenance/maintenance-core/statuses')
+        ->assertOk()->assertJsonPath('data.0.attributes.code', 'OPEN');
+});
