@@ -78,6 +78,7 @@ it('publishes a draft reporting record through its domain action', function () {
     $published = app(PublishReport::class)->execute($team->id, $record);
 
     expect($published->status)->toBe('published')
+        ->and($published->metadata['status_history'][0]['to'])->toBe('published')
         ->and(ReportRecord::query()->published()->whereKey($record->id)->exists())->toBeTrue();
 });
 
