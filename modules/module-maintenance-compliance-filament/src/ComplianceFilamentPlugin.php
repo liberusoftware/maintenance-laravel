@@ -6,6 +6,7 @@ namespace Liberu\Modules\Maintenance\Compliance\Filament;
 
 use Filament\Panel;
 use Filament\PanelPlugin;
+use Liberu\Modules\Maintenance\Compliance\Filament\Resources\ComplianceResource;
 
 class ComplianceFilamentPlugin implements PanelPlugin
 {
@@ -14,7 +15,10 @@ class ComplianceFilamentPlugin implements PanelPlugin
         return 'module-maintenance-compliance-filament';
     }
 
-    public function register(Panel $panel): void {}
+    public function register(Panel $panel): void
+    {
+        $panel->resources([ComplianceResource::class]);
+    }
 
     public function boot(Panel $panel): void {}
 }
