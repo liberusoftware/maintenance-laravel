@@ -11,6 +11,4 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/reporting')->group
     Route::get('/{record}', [ReportingRecordController::class, 'show']);
     Route::patch('/{record}', [ReportingRecordController::class, 'update']);
     Route::delete('/{record}', [ReportingRecordController::class, 'destroy']);
-    Route::patch('/{record}', [ReportingRecordController::class, 'update']);
-    Route::delete('/{record}', [ReportingRecordController::class, 'destroy']);
 });

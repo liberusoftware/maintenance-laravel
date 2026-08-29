@@ -19,7 +19,13 @@ class ReportingRecordController extends Controller
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('viewAny', ReportRecord::class), 403);
-        $items = ReportRecord::where('team_id', $teamId)->latest()->paginate(min($request->integer('per_page', 25), 100));
+        $query = ReportRecord::where('team_id', $teamId);
+        if ($request->filled('kind')) {
+            $query->ofKind($request->string('kind')->trim()->toString());
+        }
+        $period = $request->validate(['period_start' => 'sometimes|date', 'period_end' => 'sometimes|date|after_or_equal:period_start']);
+        $query->forPeriod($period['period_start'] ?? null, $period['period_end'] ?? null);
+        $items = $query->latest()->paginate(min($request->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (ReportRecord $record) => $this->resource($record))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }

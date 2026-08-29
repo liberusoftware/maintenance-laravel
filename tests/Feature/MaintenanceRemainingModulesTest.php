@@ -33,3 +33,20 @@ it('rejects incomplete remaining capability records', function () {
     expect(fn () => app(CreateCommercialRecord::class)->handle($team->id, ['kind' => 'quote']))
         ->toThrow(ValidationException::class);
 });
+
+it('filters reporting records by kind and overlapping period', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateReportRecord::class);
+    $backlog = $create->handle($team->id, [
+        'kind' => 'backlog', 'title' => 'August backlog',
+        'period_start' => '2026-08-01 00:00:00', 'period_end' => '2026-08-31 23:59:59',
+    ]);
+    $create->handle($team->id, [
+        'kind' => 'cost', 'title' => 'July costs',
+        'period_start' => '2026-07-01 00:00:00', 'period_end' => '2026-07-31 23:59:59',
+    ]);
+
+    expect(ReportRecord::query()
+        ->where('team_id', $team->id)->ofKind('backlog')->forPeriod('2026-08-15', '2026-08-20')->pluck('id')->all())
+        ->toBe([$backlog->id]);
+});
