@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Assets\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Liberu\Modules\OrganizationsTeams\Models\Team;
@@ -12,9 +13,57 @@ class Asset extends Model
 {
     protected $table = 'maintenance_assets';
 
-    protected $fillable = ['team_id', 'name', 'code', 'category', 'serial_number', 'condition', 'status', 'qr_code', 'barcode', 'metadata'];
+    protected $fillable = ['team_id', 'name', 'code', 'category', 'serial_number', 'condition', 'criticality', 'status', 'qr_code', 'barcode', 'sensor_enabled', 'sensor_type', 'sensor_id', 'sensor_config', 'last_sensor_reading_at', 'metadata'];
 
-    protected $casts = ['team_id' => 'integer', 'metadata' => 'array'];
+    protected $casts = ['team_id' => 'integer', 'sensor_enabled' => 'boolean', 'sensor_config' => 'array', 'last_sensor_reading_at' => 'datetime', 'metadata' => 'array'];
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeInactive(Builder $query): Builder
+    {
+        return $query->where('status', 'inactive');
+    }
+
+    public function scopeUnderMaintenance(Builder $query): Builder
+    {
+        return $query->where('status', 'under_maintenance');
+    }
+
+    public function scopeCritical(Builder $query): Builder
+    {
+        return $query->where('criticality', 'critical');
+    }
+
+    public function scopeHigh(Builder $query): Builder
+    {
+        return $query->where('criticality', 'high');
+    }
+
+    public function scopeSensorEnabled(Builder $query): Builder
+    {
+        return $query->where('sensor_enabled', true);
+    }
+
+    public function scopeWithCriticalReadings(Builder $query): Builder
+    {
+        return $query->sensorEnabled()->where('metadata->sensor_status', 'critical')->where('last_sensor_reading_at', '>=', now()->subDay());
+    }
+
+    public function getHealthStatusAttribute(): string
+    {
+        if (! $this->sensor_enabled) {
+            return 'unknown';
+        }
+
+        return match ($this->metadata['sensor_status'] ?? null) {
+            'critical' => 'critical',
+            'warning' => 'warning',
+            default => 'healthy',
+        };
+    }
 
     public function team(): BelongsTo
     {

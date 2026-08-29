@@ -3,12 +3,15 @@
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Commercial\Actions\CreateCommercialRecord;
+use Liberu\Modules\Maintenance\Commercial\Actions\TransitionCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
 use Liberu\Modules\Maintenance\Compliance\Actions\CreateComplianceRecord;
 use Liberu\Modules\Maintenance\Compliance\Models\ComplianceRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\CreatePortalRecord;
+use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
+use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
 it('creates tenant-scoped records for the remaining maintenance capabilities', function () {
@@ -32,4 +35,61 @@ it('rejects incomplete remaining capability records', function () {
 
     expect(fn () => app(CreateCommercialRecord::class)->handle($team->id, ['kind' => 'quote']))
         ->toThrow(ValidationException::class);
+});
+
+it('filters reporting records by kind and overlapping period', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateReportRecord::class);
+    $backlog = $create->handle($team->id, [
+        'kind' => 'backlog', 'title' => 'August backlog',
+        'period_start' => '2026-08-01 00:00:00', 'period_end' => '2026-08-31 23:59:59',
+    ]);
+    $create->handle($team->id, [
+        'kind' => 'cost', 'title' => 'July costs',
+        'period_start' => '2026-07-01 00:00:00', 'period_end' => '2026-07-31 23:59:59',
+    ]);
+
+    expect(ReportRecord::query()
+        ->where('team_id', $team->id)->ofKind('backlog')->forPeriod('2026-08-15', '2026-08-20')->pluck('id')->all())
+        ->toBe([$backlog->id]);
+});
+
+it('publishes a draft reporting record through its domain action', function () {
+    $team = Team::factory()->create();
+    $record = app(CreateReportRecord::class)->handle($team->id, ['kind' => 'backlog', 'title' => 'August backlog']);
+
+    $published = app(PublishReport::class)->execute($team->id, $record);
+
+    expect($published->status)->toBe('published')
+        ->and(ReportRecord::query()->published()->whereKey($record->id)->exists())->toBeTrue();
+});
+
+it('scopes compliance records by expiry', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateComplianceRecord::class);
+    $expired = $create->handle($team->id, ['kind' => 'permit', 'title' => 'Expired permit', 'expires_at' => '2026-01-01']);
+    $current = $create->handle($team->id, ['kind' => 'permit', 'title' => 'Current permit', 'expires_at' => '2027-01-01']);
+
+    expect(ComplianceRecord::query()->where('team_id', $team->id)->expired()->whereKey($expired)->exists())->toBeTrue()
+        ->and(ComplianceRecord::query()->where('team_id', $team->id)->current()->whereKey($current)->exists())->toBeTrue();
+});
+
+it('enforces portal request status transitions', function () {
+    $team = Team::factory()->create();
+    $record = app(CreatePortalRecord::class)->handle($team->id, ['kind' => 'request', 'title' => 'Visit request']);
+    $transition = app(TransitionPortalRecord::class);
+
+    $submitted = $transition->handle($team->id, $record, 'submitted');
+    expect($submitted->status)->toBe('submitted');
+    expect(fn () => $transition->handle($team->id, $submitted, 'resolved'))->toThrow(ValidationException::class);
+});
+
+it('enforces commercial record status transitions', function () {
+    $team = Team::factory()->create();
+    $record = app(CreateCommercialRecord::class)->handle($team->id, ['kind' => 'quote', 'title' => 'Annual contract']);
+    $transition = app(TransitionCommercialRecord::class);
+
+    $proposed = $transition->handle($team->id, $record, 'proposed');
+    expect($proposed->status)->toBe('proposed');
+    expect(fn () => $transition->handle($team->id, $proposed, 'fulfilled'))->toThrow(ValidationException::class);
 });

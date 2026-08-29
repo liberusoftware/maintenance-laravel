@@ -10,4 +10,5 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/labor-and-time')->
     Route::patch('/{timeEntry}', [TimeEntryController::class, 'update']);
     Route::delete('/{timeEntry}', [TimeEntryController::class, 'destroy']);
     Route::post('/{timeEntry}/approve', [TimeEntryController::class, 'approve']);
+    Route::post('/{timeEntry}/reject', [TimeEntryController::class, 'reject']);
 });

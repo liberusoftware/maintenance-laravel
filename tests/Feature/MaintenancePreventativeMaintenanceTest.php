@@ -41,6 +41,19 @@ it('finds overdue and upcoming active plans through scopes', function () {
         ->and(MaintenancePlan::query()->where('team_id', $team->id)->upcoming(7)->count())->toBe(1);
 });
 
+it('supports hourly and yearly recurrence when completing a plan', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateMaintenancePlan::class);
+    $hourly = $create->handle($team->id, ['name' => 'Hourly check', 'code' => 'hourly', 'frequency_unit' => 'hours', 'frequency_value' => 6]);
+    $yearly = $create->handle($team->id, ['name' => 'Yearly check', 'code' => 'yearly', 'frequency_unit' => 'years', 'frequency_value' => 1]);
+
+    $hourly = app(CompleteMaintenancePlan::class)->handle($team->id, $hourly, Carbon::parse('2026-08-10 09:00:00'));
+    $yearly = app(CompleteMaintenancePlan::class)->handle($team->id, $yearly, Carbon::parse('2026-08-10 09:00:00'));
+
+    expect($hourly->next_due_at->toDateTimeString())->toBe('2026-08-10 15:00:00')
+        ->and($yearly->next_due_at->toDateTimeString())->toBe('2027-08-10 09:00:00');
+});
+
 it('rejects duplicate preventative plan codes within a team', function () {
     $team = Team::factory()->create();
     $action = app(CreateMaintenancePlan::class);

@@ -39,3 +39,25 @@ it('updates assets without allowing a tenant escape or duplicate code', function
     expect(fn () => app(UpdateAsset::class)->handle($other->id, $asset, ['name' => 'Nope']))->toThrow(NotFoundHttpException::class);
     expect(fn () => app(UpdateAsset::class)->handle($team->id, $otherAsset, ['code' => 'ah-02']))->toThrow(ValidationException::class);
 });
+
+it('provides reusable asset status and criticality scopes', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateAsset::class);
+    $critical = $create->handle($team->id, ['name' => 'Boiler', 'code' => 'B-01', 'criticality' => 'critical']);
+    $maintenance = $create->handle($team->id, ['name' => 'Pump', 'code' => 'P-01', 'status' => 'under_maintenance']);
+
+    expect(Asset::query()->where('team_id', $team->id)->critical()->pluck('id')->all())->toBe([$critical->id])
+        ->and(Asset::query()->where('team_id', $team->id)->underMaintenance()->pluck('id')->all())->toBe([$maintenance->id]);
+});
+
+it('carries sensor configuration and derives asset health', function () {
+    $team = Team::factory()->create();
+    $asset = app(CreateAsset::class)->handle($team->id, [
+        'name' => 'Boiler', 'code' => 'B-02', 'sensor_enabled' => true,
+        'sensor_type' => 'temperature', 'last_sensor_reading_at' => now(),
+        'metadata' => ['sensor_status' => 'critical'],
+    ]);
+
+    expect($asset->health_status)->toBe('critical')
+        ->and(Asset::query()->sensorEnabled()->withCriticalReadings()->whereKey($asset)->exists())->toBeTrue();
+});

@@ -4,6 +4,7 @@ use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
@@ -69,4 +70,29 @@ it('stores comments within the work order tenant boundary', function () {
         ->and($comment->team_id)->toBe($team->id)
         ->and($comment->is_internal)->toBeTrue();
     $this->assertDatabaseHas('maintenance_work_order_comments', ['id' => $comment->id, 'comment' => 'Technician dispatched']);
+});
+
+it('finds overdue and assigned work orders through domain scopes', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateWorkOrder::class);
+    $overdue = $create->handle($team->id, ['title' => 'Late repair', 'assigned_to' => 12, 'due_date' => now()->subDay()]);
+    $upcoming = $create->handle($team->id, ['title' => 'Upcoming repair', 'assigned_to' => 12, 'due_date' => now()->addDays(2)]);
+    $completed = $create->handle($team->id, ['title' => 'Finished repair', 'due_date' => now()->subDay()]);
+    app(TransitionWorkOrder::class)->handle($team->id, $completed, 'triaged');
+    app(TransitionWorkOrder::class)->handle($team->id, $completed, 'in_progress');
+    app(TransitionWorkOrder::class)->handle($team->id, $completed, 'completed');
+
+    expect(WorkOrder::query()->where('team_id', $team->id)->overdue()->pluck('id')->all())->toBe([$overdue->id])
+        ->and(WorkOrder::query()->where('team_id', $team->id)->dueWithin(7)->pluck('id')->all())->toBe([$upcoming->id])
+        ->and(WorkOrder::query()->where('team_id', $team->id)->assignedToUser(12)->count())->toBe(2);
+});
+
+it('soft deletes work orders while keeping them recoverable', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+
+    app(DeleteWorkOrder::class)->handle($team->id, $order);
+
+    expect(WorkOrder::query()->whereKey($order->id)->exists())->toBeFalse()
+        ->and(WorkOrder::withTrashed()->whereKey($order->id)->first()->deleted_at)->not->toBeNull();
 });

@@ -21,7 +21,12 @@ final class PriorityController extends Controller
         abort_if($teamId === null, 403, 'A current team context is required.');
         abort_unless($request->user()->can('viewAny', Priority::class), 403);
 
-        return response()->json(['data' => Priority::query()->where('team_id', $teamId)->orderBy('sort_order')->orderBy('name')->get()->map(fn (Priority $priority): array => $this->resource($priority))->values()]);
+        $query = Priority::query()->where('team_id', $teamId);
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        return response()->json(['data' => $query->orderBy('sort_order')->orderBy('name')->get()->map(fn (Priority $priority): array => $this->resource($priority))->values()]);
     }
 
     public function store(Request $request, CreatePriority $create): JsonResponse

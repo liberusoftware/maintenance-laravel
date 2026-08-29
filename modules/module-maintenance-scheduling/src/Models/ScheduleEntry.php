@@ -35,4 +35,19 @@ class ScheduleEntry extends Model
             ->where('ends_at', '<', now())
             ->orderBy('ends_at');
     }
+
+    public function scopeForResource(Builder $query, string $resourceKey): Builder
+    {
+        return $query->where('resource_key', $resourceKey);
+    }
+
+    public function scopeInTerritory(Builder $query, string $territory): Builder
+    {
+        return $query->where('territory', $territory);
+    }
+
+    public function scopeWithStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', $status);
+    }
 }

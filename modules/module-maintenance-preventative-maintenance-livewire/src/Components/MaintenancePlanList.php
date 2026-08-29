@@ -19,15 +19,17 @@ class MaintenancePlanList extends Component
 
     public int $frequency_value = 1;
 
+    public string $frequency_unit = 'days';
+
     public ?int $editingPlanId = null;
 
     public function save(CreateMaintenancePlan $create): void
     {
         $id = auth()->user()?->currentTeam?->getKey();
         abort_if($id === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'frequency_value' => 'required|integer|min:1']);
-        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'frequency_value' => $this->frequency_value]);
-        $this->reset(['name', 'code']);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'frequency_value' => 'required|integer|min:1', 'frequency_unit' => 'required|in:hours,days,weeks,months,years,meters']);
+        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'frequency_value' => $this->frequency_value, 'frequency_unit' => $this->frequency_unit]);
+        $this->reset(['name', 'code', 'frequency_value', 'frequency_unit']);
         $this->dispatch('maintenance-plan-created');
     }
 
@@ -38,14 +40,15 @@ class MaintenancePlanList extends Component
         $this->name = $plan->name;
         $this->code = $plan->code;
         $this->frequency_value = (int) $plan->frequency_value;
+        $this->frequency_unit = $plan->frequency_unit;
     }
 
     public function update(UpdateMaintenancePlan $update): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingPlanId === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'frequency_value' => 'required|integer|min:1']);
-        $update->handle((int) $teamId, $this->planForCurrentTeam($this->editingPlanId), ['name' => $this->name, 'code' => $this->code, 'frequency_value' => $this->frequency_value]);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'frequency_value' => 'required|integer|min:1', 'frequency_unit' => 'required|in:hours,days,weeks,months,years,meters']);
+        $update->handle((int) $teamId, $this->planForCurrentTeam($this->editingPlanId), ['name' => $this->name, 'code' => $this->code, 'frequency_value' => $this->frequency_value, 'frequency_unit' => $this->frequency_unit]);
         $this->cancelEdit();
     }
 
@@ -58,7 +61,7 @@ class MaintenancePlanList extends Component
 
     public function cancelEdit(): void
     {
-        $this->reset(['name', 'code', 'frequency_value', 'editingPlanId']);
+        $this->reset(['name', 'code', 'frequency_value', 'frequency_unit', 'editingPlanId']);
         $this->frequency_value = 1;
     }
 

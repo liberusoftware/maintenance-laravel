@@ -10,6 +10,7 @@ use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\ApproveTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\DeleteTimeEntry;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\RejectTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\UpdateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Models\TimeEntry;
 
@@ -50,6 +51,16 @@ class TimeEntryController extends Controller
         abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('update', $timeEntry), 404);
 
         return response()->json(['data' => $this->resource($approve->handle($id, $timeEntry, (int) $r->user()->getKey()))]);
+    }
+
+    public function reject(Request $r, TimeEntry $timeEntry, RejectTimeEntry $reject): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('update', $timeEntry), 404);
+        $data = $r->validate(['reason' => 'sometimes|nullable|string|max:2000']);
+
+        return response()->json(['data' => $this->resource($reject->handle($id, $timeEntry, (int) $r->user()->getKey(), $data['reason'] ?? null))]);
     }
 
     public function update(Request $r, TimeEntry $timeEntry, UpdateTimeEntry $update): JsonResponse

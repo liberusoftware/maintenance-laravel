@@ -24,3 +24,12 @@ it('rejects an invalid inspection outcome', function () {
     expect(fn () => app(CompleteInspection::class)->handle($team->id, $inspection, 'unknown'))
         ->toThrow(ValidationException::class);
 });
+
+it('does not allow a completed inspection to be completed again', function () {
+    $team = Team::factory()->create();
+    $inspection = app(CreateInspection::class)->handle($team->id, ['title' => 'Pump safety check']);
+    $inspection = app(CompleteInspection::class)->handle($team->id, $inspection, 'pass');
+
+    expect(fn () => app(CompleteInspection::class)->handle($team->id, $inspection, 'fail'))
+        ->toThrow(ValidationException::class);
+});

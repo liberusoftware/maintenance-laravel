@@ -8,6 +8,10 @@ paths:
       operationId: maintenance.reporting.list
       security:
         - sanctum: []
+      parameters:
+        - {name: kind, in: query, schema: {type: string}}
+        - {name: period_start, in: query, schema: {type: string, format: date-time}}
+        - {name: period_end, in: query, schema: {type: string, format: date-time}}
       responses:
         "200":
           description: Authorized reporting records
@@ -18,10 +22,19 @@ paths:
       responses:
         "201":
           description: Created reporting record
+  /api/v1/maintenance/reporting/{id}/publish:
+    post:
+      operationId: maintenance.reporting.publish
+      security:
+        - sanctum: []
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Published reporting record
 components:
   securitySchemes:
     sanctum:
       type: http
       scheme: bearer
       bearerFormat: Sanctum
-

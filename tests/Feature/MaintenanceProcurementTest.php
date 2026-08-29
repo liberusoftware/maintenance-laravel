@@ -5,6 +5,7 @@ use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Procurement\Actions\ApprovePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\RejectPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
 
 it('creates and approves a tenant-scoped purchase request', function () {
@@ -27,4 +28,28 @@ it('prevents self-approval of purchase requests', function () {
 
     expect(fn () => app(ApprovePurchaseRequest::class)->handle($team->id, $request, $requester->id))
         ->toThrow(ValidationException::class);
+});
+
+it('rejects pending purchase requests and records the reason', function () {
+    $team = Team::factory()->create();
+    $requester = User::factory()->create(['current_team_id' => $team->id]);
+    $approver = User::factory()->create(['current_team_id' => $team->id]);
+    $request = app(CreatePurchaseRequest::class)->handle($team->id, ['title' => 'Pump seal', 'amount' => 10, 'requested_by' => $requester->id]);
+
+    $rejected = app(RejectPurchaseRequest::class)->handle($team->id, $request, $approver->id, 'Budget unavailable');
+
+    expect($rejected->status)->toBe('rejected')
+        ->and($rejected->metadata['rejection_reason'])->toBe('Budget unavailable');
+});
+
+it('provides procurement status query scopes', function () {
+    $team = Team::factory()->create();
+    $create = app(CreatePurchaseRequest::class);
+    $pending = $create->handle($team->id, ['title' => 'Pending order', 'amount' => 100]);
+    $approved = $create->handle($team->id, ['title' => 'Approved order', 'amount' => 200]);
+    $approver = User::factory()->create(['current_team_id' => $team->id]);
+    app(ApprovePurchaseRequest::class)->handle($team->id, $approved, $approver->id);
+
+    expect(PurchaseRequest::query()->where('team_id', $team->id)->pending()->whereKey($pending)->exists())->toBeTrue()
+        ->and(PurchaseRequest::query()->where('team_id', $team->id)->approved()->whereKey($approved)->exists())->toBeTrue();
 });

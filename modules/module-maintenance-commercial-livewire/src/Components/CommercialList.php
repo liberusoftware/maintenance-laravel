@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\Commercial\Livewire\Components;
 use Illuminate\View\View;
 use Liberu\Modules\Maintenance\Commercial\Actions\CreateCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Actions\DeleteCommercialRecord;
+use Liberu\Modules\Maintenance\Commercial\Actions\TransitionCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Actions\UpdateCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
 use Livewire\Component;
@@ -50,6 +51,14 @@ class CommercialList extends Component
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         $delete->handle((int) $teamId, $this->recordForCurrentTeam($recordId));
+    }
+
+    public function transition(int $recordId, string $status, TransitionCommercialRecord $transition): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['status' => 'required|in:proposed,approved,rejected,fulfilled,cancelled']);
+        $transition->handle((int) $teamId, $this->recordForCurrentTeam($recordId), $status);
     }
 
     public function cancelEdit(): void

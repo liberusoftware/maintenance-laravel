@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\DeleteReportRecord;
+use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
@@ -19,7 +20,13 @@ class ReportingRecordController extends Controller
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('viewAny', ReportRecord::class), 403);
-        $items = ReportRecord::where('team_id', $teamId)->latest()->paginate(min($request->integer('per_page', 25), 100));
+        $query = ReportRecord::where('team_id', $teamId);
+        if ($request->filled('kind')) {
+            $query->ofKind($request->string('kind')->trim()->toString());
+        }
+        $period = $request->validate(['period_start' => 'sometimes|date', 'period_end' => 'sometimes|date|after_or_equal:period_start']);
+        $query->forPeriod($period['period_start'] ?? null, $period['period_end'] ?? null);
+        $items = $query->latest()->paginate(min($request->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (ReportRecord $record) => $this->resource($record))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }
@@ -29,9 +36,18 @@ class ReportingRecordController extends Controller
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('create', ReportRecord::class), 403);
-        $data = $request->validate(['kind' => 'required|string|max:80', 'title' => 'required|string|max:255']);
+        $data = $request->validate(['kind' => 'required|string|max:80', 'title' => 'required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'metric_value' => 'sometimes|nullable|numeric', 'period_start' => 'sometimes|nullable|date', 'period_end' => 'sometimes|nullable|date|after_or_equal:period_start', 'metadata' => 'sometimes|nullable|array']);
 
         return response()->json(['data' => $this->resource($create->handle((int) $teamId, $data))], 201);
+    }
+
+    public function publish(Request $request, ReportRecord $record, PublishReport $publish): JsonResponse
+    {
+        $teamId = $request->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        abort_unless((int) $teamId === (int) $record->team_id && $request->user()->can('update', $record), 404);
+
+        return response()->json(['data' => $this->resource($publish->execute((int) $teamId, $record))]);
     }
 
     public function show(Request $request, ReportRecord $record): JsonResponse
@@ -46,7 +62,7 @@ class ReportingRecordController extends Controller
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         abort_unless((int) $teamId === (int) $record->team_id && $request->user()->can('update', $record), 404);
-        $data = $request->validate(['kind' => 'sometimes|required|string|max:80', 'title' => 'sometimes|required|string|max:255', 'metric_value' => 'sometimes|nullable|numeric', 'period_start' => 'sometimes|nullable|date', 'period_end' => 'sometimes|nullable|date', 'metadata' => 'sometimes|nullable|array']);
+        $data = $request->validate(['kind' => 'sometimes|required|string|max:80', 'title' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'metric_value' => 'sometimes|nullable|numeric', 'period_start' => 'sometimes|nullable|date', 'period_end' => 'sometimes|nullable|date|after_or_equal:period_start', 'status' => 'sometimes|in:draft,published', 'metadata' => 'sometimes|nullable|array']);
 
         return response()->json(['data' => $this->resource($update->handle((int) $teamId, $record, $data))]);
     }
@@ -63,6 +79,6 @@ class ReportingRecordController extends Controller
 
     private function resource(ReportRecord $record): array
     {
-        return ['id' => (string) $record->getKey(), 'type' => 'maintenance-report', 'attributes' => ['kind' => $record->kind, 'title' => $record->title, 'metric_value' => $record->metric_value, 'period_start' => $record->period_start?->toISOString(), 'period_end' => $record->period_end?->toISOString(), 'metadata' => $record->metadata, 'created_at' => $record->created_at?->toISOString(), 'updated_at' => $record->updated_at?->toISOString()]];
+        return ['id' => (string) $record->getKey(), 'type' => 'maintenance-report', 'attributes' => ['kind' => $record->kind, 'title' => $record->title, 'description' => $record->description, 'metric_value' => $record->metric_value, 'period_start' => $record->period_start?->toISOString(), 'period_end' => $record->period_end?->toISOString(), 'status' => $record->status, 'metadata' => $record->metadata, 'created_at' => $record->created_at?->toISOString(), 'updated_at' => $record->updated_at?->toISOString()]];
     }
 }

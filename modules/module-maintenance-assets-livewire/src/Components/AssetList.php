@@ -19,15 +19,19 @@ class AssetList extends Component
 
     public string $category = '';
 
+    public string $criticality = 'normal';
+
+    public string $sensor_type = '';
+
     public ?int $editingAssetId = null;
 
     public function save(CreateAsset $create): void
     {
         $id = auth()->user()?->currentTeam?->getKey();
         abort_if($id === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255']);
-        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'category' => $this->category]);
-        $this->reset(['name', 'code', 'category']);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'criticality' => 'required|in:normal,high,critical', 'sensor_type' => 'nullable|string|max:80']);
+        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'category' => $this->category, 'criticality' => $this->criticality, 'sensor_type' => $this->sensor_type, 'sensor_enabled' => $this->sensor_type !== '']);
+        $this->reset(['name', 'code', 'category', 'criticality', 'sensor_type']);
         $this->dispatch('maintenance-assets-created');
     }
 
@@ -38,14 +42,16 @@ class AssetList extends Component
         $this->name = $asset->name;
         $this->code = $asset->code;
         $this->category = (string) ($asset->category ?? '');
+        $this->criticality = (string) ($asset->criticality ?? 'normal');
+        $this->sensor_type = (string) ($asset->sensor_type ?? '');
     }
 
     public function update(UpdateAsset $update): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingAssetId === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255']);
-        $update->handle((int) $teamId, $this->assetForCurrentTeam($this->editingAssetId), ['name' => $this->name, 'code' => $this->code, 'category' => $this->category]);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'criticality' => 'required|in:normal,high,critical', 'sensor_type' => 'nullable|string|max:80']);
+        $update->handle((int) $teamId, $this->assetForCurrentTeam($this->editingAssetId), ['name' => $this->name, 'code' => $this->code, 'category' => $this->category, 'criticality' => $this->criticality, 'sensor_type' => $this->sensor_type, 'sensor_enabled' => $this->sensor_type !== '']);
         $this->cancelEdit();
         $this->dispatch('maintenance-assets-updated');
     }
@@ -60,7 +66,7 @@ class AssetList extends Component
 
     public function cancelEdit(): void
     {
-        $this->reset(['name', 'code', 'category', 'editingAssetId']);
+        $this->reset(['name', 'code', 'category', 'criticality', 'sensor_type', 'editingAssetId']);
     }
 
     public function render(): View

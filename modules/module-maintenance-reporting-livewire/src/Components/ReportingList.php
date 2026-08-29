@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\Reporting\Livewire\Components;
 use Illuminate\View\View;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\DeleteReportRecord;
+use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 use Livewire\Component;
@@ -50,6 +51,13 @@ class ReportingList extends Component
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         $delete->handle((int) $teamId, $this->recordForCurrentTeam($recordId));
+    }
+
+    public function publish(int $recordId, PublishReport $publish): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $publish->execute((int) $teamId, $this->recordForCurrentTeam($recordId));
     }
 
     public function cancelEdit(): void

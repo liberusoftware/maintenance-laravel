@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Procurement\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
@@ -15,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Procurement\Actions\DeletePurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\RejectPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\PurchaseRequestResource\Pages\CreatePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\PurchaseRequestResource\Pages\EditPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\PurchaseRequestResource\Pages\ListPurchaseRequests;
@@ -45,6 +47,11 @@ class PurchaseRequestResource extends Resource
     {
         return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('supplier_name'), TextColumn::make('amount'), TextColumn::make('currency'), TextColumn::make('status')->badge()])->recordActions([
             EditAction::make(),
+            Action::make('reject')->label('Reject')->visible(fn (PurchaseRequest $record): bool => $record->status === 'pending')->form([Textarea::make('reason')->maxLength(2000)])->action(function (PurchaseRequest $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(RejectPurchaseRequest::class)->handle((int) $teamId, $record, (int) auth()->id(), $data['reason'] ?? null);
+            }),
             DeleteAction::make()->action(function (PurchaseRequest $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);

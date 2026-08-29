@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Scheduling\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
@@ -15,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Scheduling\Actions\DeleteScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\TransitionScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Filament\Resources\ScheduleEntryResource\Pages\CreateScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Filament\Resources\ScheduleEntryResource\Pages\EditScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Filament\Resources\ScheduleEntryResource\Pages\ListScheduleEntries;
@@ -45,6 +47,8 @@ class ScheduleEntryResource extends Resource
     {
         return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('starts_at')->dateTime()->sortable(), TextColumn::make('ends_at')->dateTime(), TextColumn::make('status')->badge()])->recordActions([
             EditAction::make(),
+            Action::make('start')->label('Start')->visible(fn (ScheduleEntry $record): bool => $record->status === 'scheduled')->action(fn (ScheduleEntry $record): ScheduleEntry => app(TransitionScheduleEntry::class)->handle((int) (Filament::getTenant() ?? auth()->user()?->currentTeam)->getKey(), $record, 'in_progress')),
+            Action::make('complete')->label('Complete')->visible(fn (ScheduleEntry $record): bool => $record->status === 'in_progress')->action(fn (ScheduleEntry $record): ScheduleEntry => app(TransitionScheduleEntry::class)->handle((int) (Filament::getTenant() ?? auth()->user()?->currentTeam)->getKey(), $record, 'completed')),
             DeleteAction::make()->action(function (ScheduleEntry $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);

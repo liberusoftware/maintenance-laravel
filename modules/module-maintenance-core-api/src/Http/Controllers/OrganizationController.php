@@ -21,8 +21,11 @@ final class OrganizationController extends Controller
         abort_if($teamId === null, 403, 'A current team context is required.');
         abort_unless($request->user()->can('viewAny', Organization::class), 403);
 
-        $organizations = Organization::query()
-            ->where('team_id', $teamId)
+        $query = Organization::query()->where('team_id', $teamId);
+        if ($request->filled('state')) {
+            $query->where('state', $request->string('state')->toString());
+        }
+        $organizations = $query
             ->orderBy('name')
             ->paginate(min((int) $request->integer('per_page', 25), 100));
 

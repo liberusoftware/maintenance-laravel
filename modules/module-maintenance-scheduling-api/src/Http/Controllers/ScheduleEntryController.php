@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Scheduling\Actions\CreateScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Actions\DeleteScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\TransitionScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Actions\UpdateScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Models\ScheduleEntry;
 
@@ -27,6 +28,15 @@ class ScheduleEntryController extends Controller
         } else {
             $query->orderBy('starts_at');
         }
+        if ($r->filled('resource_key')) {
+            $query->forResource($r->string('resource_key')->trim()->toString());
+        }
+        if ($r->filled('territory')) {
+            $query->inTerritory($r->string('territory')->trim()->toString());
+        }
+        if ($r->filled('status')) {
+            $query->withStatus($r->string('status')->trim()->toString());
+        }
         $items = $query->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (ScheduleEntry $e) => $this->resource($e))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
@@ -37,9 +47,19 @@ class ScheduleEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('create', ScheduleEntry::class), 403);
-        $data = $r->validate(['title' => 'required|string|max:255', 'resource_key' => 'nullable|string|max:255', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at', 'status' => 'nullable|string|max:64', 'territory' => 'nullable|string|max:255', 'metadata' => 'nullable|array']);
+        $data = $r->validate(['title' => 'required|string|max:255', 'resource_key' => 'nullable|string|max:255', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at', 'status' => 'nullable|in:scheduled,in_progress,completed,cancelled', 'territory' => 'nullable|string|max:255', 'metadata' => 'nullable|array']);
 
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
+    }
+
+    public function transition(Request $r, ScheduleEntry $scheduleEntry, TransitionScheduleEntry $transition): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $scheduleEntry->team_id && $r->user()->can('update', $scheduleEntry), 404);
+        $data = $r->validate(['status' => 'required|in:scheduled,in_progress,completed,cancelled']);
+
+        return response()->json(['data' => $this->resource($transition->handle($id, $scheduleEntry, $data['status']))]);
     }
 
     public function show(Request $r, ScheduleEntry $scheduleEntry): JsonResponse
