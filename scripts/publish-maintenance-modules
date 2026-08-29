@@ -35,18 +35,20 @@ merge_pull_request() {
     local repository="$1"
     local pull_request="$2"
     local protection_file="$workspace_dir/${repository}.protection.json"
+    local protection_put_file="$workspace_dir/${repository}.protection.put.json"
 
     if gh api "repos/liberusoftware/${repository}/branches/main/protection" >"$protection_file" 2>/dev/null; then
+        jq '{required_status_checks: (if .required_status_checks == null then null else {strict: .required_status_checks.strict, contexts: .required_status_checks.contexts} end), enforce_admins: (if .enforce_admins == null then false else .enforce_admins.enabled end), required_pull_request_reviews: (if .required_pull_request_reviews == null then null else {dismiss_stale_reviews: .required_pull_request_reviews.dismiss_stale_reviews, require_code_owner_reviews: .required_pull_request_reviews.require_code_owner_reviews, required_approving_review_count: .required_pull_request_reviews.required_approving_review_count, require_last_push_approval: .required_pull_request_reviews.require_last_push_approval, dismissal_restrictions: {users: .required_pull_request_reviews.dismissal_restrictions.users, teams: .required_pull_request_reviews.dismissal_restrictions.teams, apps: .required_pull_request_reviews.dismissal_restrictions.apps}} end), restrictions: .restrictions, required_linear_history: (.required_linear_history.enabled // false), allow_force_pushes: (.allow_force_pushes.enabled // false), allow_deletions: (.allow_deletions.enabled // false), block_creations: (.block_creations.enabled // false), required_conversation_resolution: (.required_conversation_resolution.enabled // false), lock_branch: (.lock_branch.enabled // false), allow_fork_syncing: (.allow_fork_syncing.enabled // false)}' "$protection_file" >"$protection_put_file"
         gh api --method DELETE "repos/liberusoftware/${repository}/branches/main/protection" >/dev/null
         if ! gh pr merge "$pull_request" --repo "liberusoftware/${repository}" --squash --admin \
             --subject 'Synchronize maintenance module' \
             --body 'Merge the verified maintenance module synchronization.'; then
             gh api --method PUT "repos/liberusoftware/${repository}/branches/main/protection" \
-                --input "$protection_file" >/dev/null
+                --input "$protection_put_file" >/dev/null
             return 1
         fi
         gh api --method PUT "repos/liberusoftware/${repository}/branches/main/protection" \
-            --input "$protection_file" >/dev/null
+            --input "$protection_put_file" >/dev/null
     else
         gh pr merge "$pull_request" --repo "liberusoftware/${repository}" --squash --admin \
             --subject 'Synchronize maintenance module' \
