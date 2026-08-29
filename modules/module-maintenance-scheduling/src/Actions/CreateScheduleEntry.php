@@ -22,7 +22,11 @@ class CreateScheduleEntry
         if (strtotime((string) $end) <= strtotime((string) $start)) {
             throw ValidationException::withMessages(['ends_at' => 'The end must be after the start.']);
         }
-        $query = ScheduleEntry::where('team_id', $teamId)->where('resource_key', $attributes['resource_key'] ?? null)->where('starts_at', '<', $end)->where('ends_at', '>', $start);
+        $query = ScheduleEntry::where('team_id', $teamId)
+            ->where('resource_key', $attributes['resource_key'] ?? null)
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->where('starts_at', '<', $end)
+            ->where('ends_at', '>', $start);
         if ($query->exists()) {
             throw ValidationException::withMessages(['starts_at' => 'The schedule conflicts with an existing entry.']);
         }

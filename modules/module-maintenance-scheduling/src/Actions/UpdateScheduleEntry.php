@@ -28,6 +28,7 @@ final class UpdateScheduleEntry
             ->where('team_id', $teamId)
             ->where('resource_key', $resourceKey)
             ->whereKeyNot($entry->getKey())
+            ->whereNotIn('status', ['completed', 'cancelled'])
             ->where('starts_at', '<', $end)
             ->where('ends_at', '>', $start)
             ->exists();
