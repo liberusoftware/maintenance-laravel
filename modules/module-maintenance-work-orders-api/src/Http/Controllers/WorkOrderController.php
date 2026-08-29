@@ -75,7 +75,15 @@ class WorkOrderController extends Controller
             'location' => ['sometimes', 'nullable', 'string', 'max:255'],
             'equipment_id' => ['sometimes', 'nullable', 'integer', 'min:1'],
             'customer_id' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'vendor_id' => ['sometimes', 'nullable', 'integer', 'min:1'],
             'assigned_to' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'guest_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'guest_email' => ['sometimes', 'nullable', 'email', 'max:255'],
+            'guest_phone' => ['sometimes', 'nullable', 'string', 'max:64'],
+            'submitted_at' => ['sometimes', 'nullable', 'date'],
+            'reviewed_by' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'reviewed_at' => ['sometimes', 'nullable', 'date'],
+            'notes' => ['sometimes', 'nullable', 'string', 'max:10000'],
             'due_date' => ['sometimes', 'nullable', 'date'],
             'started_at' => ['sometimes', 'nullable', 'date'],
             'estimated_minutes' => ['sometimes', 'nullable', 'integer', 'min:0'],
@@ -196,7 +204,7 @@ class WorkOrderController extends Controller
 
     private function resource(WorkOrder $o): array
     {
-        return ['id' => (string) $o->getKey(), 'type' => 'maintenance-work-order', 'attributes' => ['number' => $o->number, 'title' => $o->title, 'description' => $o->description, 'location' => $o->location, 'equipment_id' => $o->equipment_id, 'customer_id' => $o->customer_id, 'assigned_to' => $o->assigned_to, 'due_date' => $o->due_date?->toISOString(), 'started_at' => $o->started_at?->toISOString(), 'estimated_minutes' => $o->estimated_minutes, 'actual_minutes' => $o->actual_minutes, 'maintenance_plan_id' => $o->maintenance_plan_id, 'checklist_id' => $o->checklist_id, 'priority' => $o->priority, 'status' => $o->status, 'completed_at' => $o->completed_at?->toISOString(), 'metadata' => $o->metadata, 'created_at' => $o->created_at?->toISOString(), 'updated_at' => $o->updated_at?->toISOString()]];
+        return ['id' => (string) $o->getKey(), 'type' => 'maintenance-work-order', 'attributes' => ['number' => $o->number, 'title' => $o->title, 'description' => $o->description, 'location' => $o->location, 'equipment_id' => $o->equipment_id, 'customer_id' => $o->customer_id, 'vendor_id' => $o->vendor_id, 'assigned_to' => $o->assigned_to, 'guest_name' => $o->guest_name, 'guest_email' => $o->guest_email, 'guest_phone' => $o->guest_phone, 'submitted_at' => $o->submitted_at?->toISOString(), 'reviewed_by' => $o->reviewed_by, 'reviewed_at' => $o->reviewed_at?->toISOString(), 'due_date' => $o->due_date?->toISOString(), 'started_at' => $o->started_at?->toISOString(), 'estimated_minutes' => $o->estimated_minutes, 'actual_minutes' => $o->actual_minutes, 'maintenance_plan_id' => $o->maintenance_plan_id, 'checklist_id' => $o->checklist_id, 'priority' => $o->priority, 'status' => $o->status, 'completed_at' => $o->completed_at?->toISOString(), 'notes' => $o->notes, 'metadata' => $o->metadata, 'created_at' => $o->created_at?->toISOString(), 'updated_at' => $o->updated_at?->toISOString()]];
     }
 
     private function dependencyResource(WorkOrderDependency $dependency): array
@@ -218,6 +226,6 @@ class WorkOrderController extends Controller
     /** @return array<string, array<int, string>> */
     private function rules(): array
     {
-        return ['title' => ['required', 'string', 'max:255'], 'description' => ['nullable', 'string', 'max:10000'], 'priority' => ['nullable', 'string', 'max:64'], 'metadata' => ['nullable', 'array'], 'location' => ['nullable', 'string', 'max:255'], 'equipment_id' => ['nullable', 'integer', 'min:1'], 'customer_id' => ['nullable', 'integer', 'min:1'], 'assigned_to' => ['nullable', 'integer', 'min:1'], 'due_date' => ['nullable', 'date'], 'started_at' => ['nullable', 'date'], 'estimated_minutes' => ['nullable', 'integer', 'min:0'], 'actual_minutes' => ['nullable', 'integer', 'min:0'], 'maintenance_plan_id' => ['nullable', 'integer', 'min:1'], 'checklist_id' => ['nullable', 'integer', 'min:1']];
+        return ['title' => ['required', 'string', 'max:255'], 'description' => ['nullable', 'string', 'max:10000'], 'priority' => ['nullable', 'string', 'max:64'], 'metadata' => ['nullable', 'array'], 'location' => ['nullable', 'string', 'max:255'], 'equipment_id' => ['nullable', 'integer', 'min:1'], 'customer_id' => ['nullable', 'integer', 'min:1'], 'vendor_id' => ['nullable', 'integer', 'min:1'], 'assigned_to' => ['nullable', 'integer', 'min:1'], 'guest_name' => ['nullable', 'string', 'max:255'], 'guest_email' => ['nullable', 'email', 'max:255'], 'guest_phone' => ['nullable', 'string', 'max:64'], 'submitted_at' => ['nullable', 'date'], 'reviewed_by' => ['nullable', 'integer', 'min:1'], 'reviewed_at' => ['nullable', 'date'], 'notes' => ['nullable', 'string', 'max:10000'], 'due_date' => ['nullable', 'date'], 'started_at' => ['nullable', 'date'], 'estimated_minutes' => ['nullable', 'integer', 'min:0'], 'actual_minutes' => ['nullable', 'integer', 'min:0'], 'maintenance_plan_id' => ['nullable', 'integer', 'min:1'], 'checklist_id' => ['nullable', 'integer', 'min:1']];
     }
 }

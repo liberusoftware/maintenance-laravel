@@ -17,15 +17,21 @@ class ComplianceList extends Component
 
     public string $title = '';
 
+    public string $description = '';
+
+    public string $status = 'draft';
+
+    public ?string $expiresAt = null;
+
     public ?int $editingRecordId = null;
 
     public function save(CreateComplianceRecord $create): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
-        $this->validate(['kind' => 'required|string|max:80', 'title' => 'required|string|max:255']);
-        $create->handle((int) $teamId, ['kind' => $this->kind, 'title' => $this->title]);
-        $this->reset(['kind', 'title']);
+        $this->validate($this->rules());
+        $create->handle((int) $teamId, $this->attributes());
+        $this->resetForm();
     }
 
     public function edit(int $recordId): void
@@ -34,14 +40,17 @@ class ComplianceList extends Component
         $this->editingRecordId = $record->getKey();
         $this->kind = $record->kind;
         $this->title = $record->title;
+        $this->description = (string) ($record->description ?? '');
+        $this->status = $record->status;
+        $this->expiresAt = $record->expires_at?->format('Y-m-d\\TH:i');
     }
 
     public function update(UpdateComplianceRecord $update): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingRecordId === null, 403);
-        $this->validate(['kind' => 'required|string|max:80', 'title' => 'required|string|max:255']);
-        $update->handle((int) $teamId, $this->recordForCurrentTeam($this->editingRecordId), ['kind' => $this->kind, 'title' => $this->title]);
+        $this->validate($this->rules());
+        $update->handle((int) $teamId, $this->recordForCurrentTeam($this->editingRecordId), $this->attributes());
         $this->cancelEdit();
     }
 
@@ -54,7 +63,7 @@ class ComplianceList extends Component
 
     public function cancelEdit(): void
     {
-        $this->reset(['kind', 'title', 'editingRecordId']);
+        $this->resetForm();
     }
 
     public function render(): View
@@ -71,5 +80,21 @@ class ComplianceList extends Component
         abort_if($teamId === null, 403);
 
         return ComplianceRecord::query()->where('team_id', $teamId)->findOrFail($recordId);
+    }
+
+    private function attributes(): array
+    {
+        return ['kind' => $this->kind, 'title' => $this->title, 'description' => $this->description ?: null, 'status' => $this->status, 'expires_at' => $this->expiresAt ?: null];
+    }
+
+    private function rules(): array
+    {
+        return ['kind' => 'required|string|max:80', 'title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'status' => 'required|string|max:40', 'expiresAt' => 'nullable|date'];
+    }
+
+    private function resetForm(): void
+    {
+        $this->reset(['kind', 'title', 'description', 'status', 'expiresAt', 'editingRecordId']);
+        $this->status = 'draft';
     }
 }

@@ -8,12 +8,22 @@ use Liberu\Modules\Maintenance\Core\Actions\CreateOrganization;
 use Liberu\Modules\Maintenance\Core\Actions\CreatePriority;
 use Liberu\Modules\Maintenance\Core\Actions\CreateStatus;
 use Liberu\Modules\Maintenance\Core\Actions\DeleteOrganization;
+use Liberu\Modules\Maintenance\Core\Actions\DeletePriority;
+use Liberu\Modules\Maintenance\Core\Actions\DeleteStatus;
 use Liberu\Modules\Maintenance\Core\Actions\IssueNumber;
 use Liberu\Modules\Maintenance\Core\Actions\SetServiceSetting;
 use Liberu\Modules\Maintenance\Core\Actions\UpdateOrganization;
+use Liberu\Modules\Maintenance\Core\Actions\UpdatePriority;
+use Liberu\Modules\Maintenance\Core\Actions\UpdateStatus;
 use Liberu\Modules\Maintenance\Core\Events\OrganizationCreated;
 use Liberu\Modules\Maintenance\Core\Events\OrganizationDeleted;
 use Liberu\Modules\Maintenance\Core\Events\OrganizationUpdated;
+use Liberu\Modules\Maintenance\Core\Events\PriorityCreated;
+use Liberu\Modules\Maintenance\Core\Events\PriorityDeleted;
+use Liberu\Modules\Maintenance\Core\Events\PriorityUpdated;
+use Liberu\Modules\Maintenance\Core\Events\StatusCreated;
+use Liberu\Modules\Maintenance\Core\Events\StatusDeleted;
+use Liberu\Modules\Maintenance\Core\Events\StatusUpdated;
 use Liberu\Modules\Maintenance\Core\Models\Organization;
 use Liberu\Modules\Maintenance\Core\Models\Priority;
 use Liberu\Modules\Maintenance\Core\Models\Status;
@@ -87,6 +97,25 @@ it('keeps statuses and priorities tenant scoped with one default each', function
     expect($secondStatus->fresh()->is_default)->toBeTrue()
         ->and(Status::query()->where('team_id', $team->id)->where('is_default', true)->count())->toBe(1)
         ->and(Priority::query()->where('team_id', $otherTeam->id)->count())->toBe(1);
+});
+
+it('emits shared lifecycle events for statuses and priorities', function () {
+    $team = Team::factory()->create();
+    Event::fake([StatusCreated::class, StatusUpdated::class, StatusDeleted::class, PriorityCreated::class, PriorityUpdated::class, PriorityDeleted::class]);
+
+    $status = app(CreateStatus::class)->execute($team->id, ['name' => 'Open', 'code' => 'open']);
+    $status = app(UpdateStatus::class)->execute($status, ['name' => 'Ready']);
+    app(DeleteStatus::class)->execute($status);
+    $priority = app(CreatePriority::class)->execute($team->id, ['name' => 'High', 'code' => 'high']);
+    $priority = app(UpdatePriority::class)->execute($priority, ['name' => 'Urgent']);
+    app(DeletePriority::class)->execute($priority);
+
+    Event::assertDispatched(StatusCreated::class);
+    Event::assertDispatched(StatusUpdated::class);
+    Event::assertDispatched(StatusDeleted::class);
+    Event::assertDispatched(PriorityCreated::class);
+    Event::assertDispatched(PriorityUpdated::class);
+    Event::assertDispatched(PriorityDeleted::class);
 });
 
 it('upserts settings and numbering configuration per team', function () {

@@ -41,7 +41,7 @@ class ComplianceRecordController extends Controller
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('create', ComplianceRecord::class), 403);
-        $data = $request->validate(['kind' => 'required|string|max:255', 'title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'status' => 'nullable|string|max:40', 'expires_at' => 'nullable|date']);
+        $data = $request->validate(['kind' => 'required|string|max:255', 'title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'status' => 'nullable|string|max:40', 'expires_at' => 'nullable|date', 'metadata' => 'nullable|array']);
 
         return response()->json(['data' => $this->resource($create->handle((int) $teamId, $data))], 201);
     }
@@ -75,6 +75,6 @@ class ComplianceRecordController extends Controller
 
     private function resource(ComplianceRecord $record): array
     {
-        return ['id' => (string) $record->getKey(), 'type' => 'maintenance-compliance', 'attributes' => ['kind' => $record->kind, 'title' => $record->title, 'description' => $record->description, 'status' => $record->status, 'expires_at' => $record->expires_at]];
+        return ['id' => (string) $record->getKey(), 'type' => 'maintenance-compliance', 'attributes' => ['kind' => $record->kind, 'title' => $record->title, 'description' => $record->description, 'status' => $record->status, 'expires_at' => $record->expires_at?->toISOString(), 'metadata' => $record->metadata]];
     }
 }

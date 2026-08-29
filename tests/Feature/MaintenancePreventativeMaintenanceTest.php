@@ -75,3 +75,19 @@ it('persists preventative frequency unit changes through the update action', fun
     expect($updated->frequency_unit)->toBe('weeks')
         ->and($updated->frequency_value)->toBe(2);
 });
+
+it('retains legacy preventative schedule details in the modular plan', function () {
+    $team = Team::factory()->create();
+    $plan = app(CreateMaintenancePlan::class)->handle($team->id, [
+        'name' => 'Pump service', 'code' => 'pump-details', 'description' => 'Monthly pump inspection',
+        'equipment_id' => 41, 'assigned_to' => 52, 'checklist_id' => 63, 'instructions' => 'Lock out before inspection.',
+        'estimated_duration' => 90, 'frequency_value' => 30,
+    ]);
+
+    expect($plan->description)->toBe('Monthly pump inspection')
+        ->and($plan->equipment_id)->toBe(41)
+        ->and($plan->assigned_to)->toBe(52)
+        ->and($plan->checklist_id)->toBe(63)
+        ->and($plan->instructions)->toBe('Lock out before inspection.')
+        ->and($plan->estimated_duration)->toBe(90);
+});

@@ -7,7 +7,7 @@ namespace Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionRe
 use Filament\Resources\Pages\ListRecords;
 use Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionResource;
 
-class ListInspections extends ListRecords
+final class ListInspections extends ListRecords
 {
     protected static string $resource = InspectionResource::class;
 }

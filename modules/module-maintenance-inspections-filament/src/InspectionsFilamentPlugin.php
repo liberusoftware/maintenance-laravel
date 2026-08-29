@@ -8,11 +8,11 @@ use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionResource;
 
-class InspectionsFilamentPlugin implements Plugin
+final class InspectionsFilamentPlugin implements Plugin
 {
     public function getId(): string
     {
-        return 'maintenance-inspections';
+        return 'module-maintenance-inspections';
     }
 
     public function register(Panel $panel): void

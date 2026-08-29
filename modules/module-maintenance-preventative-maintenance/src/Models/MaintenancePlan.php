@@ -14,9 +14,9 @@ class MaintenancePlan extends Model
 {
     protected $table = 'maintenance_preventative_plans';
 
-    protected $fillable = ['team_id', 'name', 'code', 'frequency_unit', 'frequency_value', 'next_due_at', 'last_completed_at', 'is_active', 'rules'];
+    protected $fillable = ['team_id', 'name', 'code', 'description', 'equipment_id', 'assigned_to', 'checklist_id', 'instructions', 'estimated_duration', 'frequency_unit', 'frequency_value', 'next_due_at', 'last_completed_at', 'is_active', 'rules'];
 
-    protected $casts = ['team_id' => 'integer', 'frequency_value' => 'integer', 'next_due_at' => 'datetime', 'last_completed_at' => 'datetime', 'is_active' => 'boolean', 'rules' => 'array'];
+    protected $casts = ['team_id' => 'integer', 'equipment_id' => 'integer', 'assigned_to' => 'integer', 'checklist_id' => 'integer', 'estimated_duration' => 'integer', 'frequency_value' => 'integer', 'next_due_at' => 'datetime', 'last_completed_at' => 'datetime', 'is_active' => 'boolean', 'rules' => 'array'];
 
     public function scopeActive(Builder $query): Builder
     {

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspection as UpdateInspectionAction;
 use Liberu\Modules\Maintenance\Inspections\Filament\Resources\InspectionResource;
 
-class EditInspection extends EditRecord
+final class EditInspection extends EditRecord
 {
     protected static string $resource = InspectionResource::class;
 
