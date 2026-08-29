@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\EditWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\ListWorkOrders;
@@ -43,7 +44,14 @@ class WorkOrderResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('number')->sortable(), TextColumn::make('title')->searchable(), TextColumn::make('priority')->badge(), TextColumn::make('status')->badge(), TextColumn::make('created_at')->dateTime()])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('number')->sortable(), TextColumn::make('title')->searchable(), TextColumn::make('priority')->badge(), TextColumn::make('status')->badge(), TextColumn::make('created_at')->dateTime()])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (WorkOrder $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteWorkOrder::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array
