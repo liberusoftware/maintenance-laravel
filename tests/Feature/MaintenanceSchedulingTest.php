@@ -28,3 +28,14 @@ it('rejects overlapping entries for the same resource', function () {
     expect(fn () => $action->handle($team->id, $attributes + ['title' => 'Conflict']))
         ->toThrow(ValidationException::class);
 });
+
+it('provides reusable upcoming and overdue schedule scopes', function () {
+    $team = Team::factory()->create();
+    $action = app(CreateScheduleEntry::class);
+    $action->handle($team->id, ['title' => 'Upcoming', 'resource_key' => 'upcoming', 'starts_at' => now()->addDays(2), 'ends_at' => now()->addDays(2)->addHour()]);
+    $action->handle($team->id, ['title' => 'Overdue', 'resource_key' => 'overdue', 'starts_at' => now()->subDays(2), 'ends_at' => now()->subDay(), 'status' => 'scheduled']);
+    $action->handle($team->id, ['title' => 'Cancelled', 'resource_key' => 'cancelled', 'starts_at' => now()->subDays(2), 'ends_at' => now()->subDay(), 'status' => 'cancelled']);
+
+    expect(ScheduleEntry::query()->where('team_id', $team->id)->upcoming()->pluck('title')->all())->toBe(['Upcoming'])
+        ->and(ScheduleEntry::query()->where('team_id', $team->id)->overdue()->pluck('title')->all())->toBe(['Overdue']);
+});

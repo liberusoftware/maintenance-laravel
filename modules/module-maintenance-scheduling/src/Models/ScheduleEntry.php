@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Scheduling\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Liberu\Modules\OrganizationsTeams\Models\Team;
@@ -19,5 +20,19 @@ class ScheduleEntry extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function scopeUpcoming(Builder $query, int $days = 30): Builder
+    {
+        return $query->whereIn('status', ['scheduled', 'in_progress'])
+            ->whereBetween('starts_at', [now(), now()->addDays(max(0, $days))])
+            ->orderBy('starts_at');
+    }
+
+    public function scopeOverdue(Builder $query): Builder
+    {
+        return $query->whereIn('status', ['scheduled', 'in_progress'])
+            ->where('ends_at', '<', now())
+            ->orderBy('ends_at');
     }
 }

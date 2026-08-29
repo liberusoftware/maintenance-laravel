@@ -19,7 +19,15 @@ class ScheduleEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('viewAny', ScheduleEntry::class), 403);
-        $items = ScheduleEntry::where('team_id', $id)->orderBy('starts_at')->paginate(min($r->integer('per_page', 25), 100));
+        $query = ScheduleEntry::where('team_id', $id);
+        if ($r->string('window')->toString() === 'upcoming') {
+            $query->upcoming($r->integer('days', 30));
+        } elseif ($r->string('window')->toString() === 'overdue') {
+            $query->overdue();
+        } else {
+            $query->orderBy('starts_at');
+        }
+        $items = $query->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (ScheduleEntry $e) => $this->resource($e))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }
