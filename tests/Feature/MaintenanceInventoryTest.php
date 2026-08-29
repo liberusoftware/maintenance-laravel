@@ -69,6 +69,26 @@ it('finds low and out of stock items using available quantities', function () {
         ->toBe([$out->id]);
 });
 
+it('exposes low and out of stock status helpers using available quantities', function () {
+    $team = Team::factory()->create();
+    $item = app(CreateStockItem::class)->handle($team->id, ['part_number' => 'status', 'name' => 'Status filter', 'quantity' => 4, 'reorder_level' => 2]);
+
+    expect($item->isLowStock())->toBeFalse()
+        ->and($item->isOutOfStock())->toBeFalse();
+
+    app(ReserveStock::class)->handle($team->id, $item, 2);
+    $item->refresh();
+
+    expect($item->isLowStock())->toBeTrue()
+        ->and($item->isOutOfStock())->toBeFalse();
+
+    app(ReserveStock::class)->handle($team->id, $item, 2);
+    $item->refresh();
+
+    expect($item->isLowStock())->toBeTrue()
+        ->and($item->isOutOfStock())->toBeTrue();
+});
+
 it('does not adjust stock below reserved quantities', function () {
     $team = Team::factory()->create();
     $item = app(CreateStockItem::class)->handle($team->id, ['part_number' => 'reserved', 'name' => 'Reserved filter', 'quantity' => 5]);

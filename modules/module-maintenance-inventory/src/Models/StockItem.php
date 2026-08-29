@@ -23,6 +23,16 @@ class StockItem extends Model
         return (int) $this->quantity - (int) $this->reserved_quantity;
     }
 
+    public function isLowStock(): bool
+    {
+        return $this->availableQuantity() <= (int) $this->reorder_level;
+    }
+
+    public function isOutOfStock(): bool
+    {
+        return $this->availableQuantity() <= 0;
+    }
+
     public function scopeLowStock(Builder $query): Builder
     {
         return $query->whereRaw('(quantity - reserved_quantity) <= reorder_level');

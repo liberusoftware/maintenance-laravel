@@ -47,7 +47,9 @@ class StockItemResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('part_number')->searchable(), TextColumn::make('name')->searchable(), TextColumn::make('category'), TextColumn::make('supplier_name'), TextColumn::make('location'), TextColumn::make('quantity')->sortable(), TextColumn::make('reserved_quantity')->sortable(), TextColumn::make('reorder_level'), TextColumn::make('unit_cost')])->recordActions([
+        return $table->columns([TextColumn::make('part_number')->searchable(), TextColumn::make('name')->searchable(), TextColumn::make('category'), TextColumn::make('supplier_name'), TextColumn::make('location'), TextColumn::make('quantity')->sortable(), TextColumn::make('reserved_quantity')->sortable(), TextColumn::make('reorder_level'), TextColumn::make('stock_status')->label('Stock')->state(fn (StockItem $record): string => $record->isOutOfStock() ? 'Out of stock' : ($record->isLowStock() ? 'Low stock' : 'In stock'))->badge()->color(fn (string $state): string => match ($state) {
+            'Out of stock' => 'danger', 'Low stock' => 'warning', default => 'success',
+        }), TextColumn::make('unit_cost')])->recordActions([
             EditAction::make(),
             Action::make('reserve')->label('Reserve')->form([TextInput::make('quantity')->numeric()->minValue(1)->required()])->action(function (StockItem $record, array $data): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
