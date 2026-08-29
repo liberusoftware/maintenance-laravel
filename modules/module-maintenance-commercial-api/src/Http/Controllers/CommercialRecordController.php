@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Commercial\Actions\CreateCommercialRecord;
+use Liberu\Modules\Maintenance\Commercial\Actions\DeleteCommercialRecord;
+use Liberu\Modules\Maintenance\Commercial\Actions\UpdateCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
 
 class CommercialRecordController extends Controller
@@ -37,6 +39,26 @@ class CommercialRecordController extends Controller
         abort_unless((int) $request->user()?->currentTeam?->getKey() === (int) $record->team_id && $request->user()->can('view', $record), 404);
 
         return response()->json(['data' => $this->resource($record)]);
+    }
+
+    public function update(Request $request, CommercialRecord $record, UpdateCommercialRecord $update): JsonResponse
+    {
+        $teamId = $request->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        abort_unless((int) $teamId === (int) $record->team_id && $request->user()->can('update', $record), 404);
+        $data = $request->validate(['kind' => 'sometimes|required|string|max:80', 'title' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'amount' => 'sometimes|nullable|numeric', 'currency' => 'sometimes|string|size:3', 'status' => 'sometimes|string|max:40']);
+
+        return response()->json(['data' => $this->resource($update->handle((int) $teamId, $record, $data))]);
+    }
+
+    public function destroy(Request $request, CommercialRecord $record, DeleteCommercialRecord $delete): JsonResponse
+    {
+        $teamId = $request->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        abort_unless((int) $teamId === (int) $record->team_id && $request->user()->can('delete', $record), 404);
+        $delete->handle((int) $teamId, $record);
+
+        return response()->json(null, 204);
     }
 
     private function resource(CommercialRecord $record): array
