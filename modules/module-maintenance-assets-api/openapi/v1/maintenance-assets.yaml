@@ -2,7 +2,7 @@ openapi: 3.1.0
 info: {title: maintenance assets API, version: 1.0.0}
 paths:
   /api/v1/maintenance/assets:
-    get: {operationId: maintenance.assets.list, security: [{sanctum: []}], parameters: [{name: status, in: query, schema: {type: string}}, {name: criticality, in: query, schema: {type: string, enum: [normal, high, critical]}}], responses: {'200': {description: Authorized assets}}}
+    get: {operationId: maintenance.assets.list, security: [{sanctum: []}], parameters: [{name: status, in: query, schema: {type: string}}, {name: criticality, in: query, schema: {type: string, enum: [normal, high, critical]}}, {name: under_warranty, in: query, schema: {type: boolean}}, {name: warranty_expired, in: query, schema: {type: boolean}}], responses: {'200': {description: Authorized assets}}}
     post: {operationId: maintenance.assets.create, security: [{sanctum: []}], responses: {'201': {description: Asset created}}}
   /api/v1/maintenance/assets/{id}:
     get: {operationId: maintenance.assets.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Asset}}}
