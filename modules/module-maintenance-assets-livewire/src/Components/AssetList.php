@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\Assets\Livewire\Components;
 use Illuminate\View\View;
 use Liberu\Modules\Maintenance\Assets\Actions\CreateAsset;
 use Liberu\Modules\Maintenance\Assets\Actions\DeleteAsset;
+use Liberu\Modules\Maintenance\Assets\Actions\RecordAssetHistory;
 use Liberu\Modules\Maintenance\Assets\Actions\UpdateAsset;
 use Liberu\Modules\Maintenance\Assets\Models\Asset;
 use Livewire\Component;
@@ -30,6 +31,10 @@ class AssetList extends Component
     public string $sensor_type = '';
 
     public ?int $editingAssetId = null;
+
+    public string $history_type = '';
+
+    public string $history_note = '';
 
     public function save(CreateAsset $create): void
     {
@@ -71,6 +76,16 @@ class AssetList extends Component
         abort_if($teamId === null, 403);
         $delete->handle((int) $teamId, $this->assetForCurrentTeam($assetId));
         $this->dispatch('maintenance-assets-deleted');
+    }
+
+    public function recordHistory(int $assetId, RecordAssetHistory $recordHistory): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['history_type' => 'required|string|max:64', 'history_note' => 'required|string|max:10000']);
+        $recordHistory->handle((int) $teamId, $this->assetForCurrentTeam($assetId), $this->history_type, $this->history_note, (int) auth()->id());
+        $this->reset(['history_type', 'history_note']);
+        $this->dispatch('maintenance-asset-history-recorded');
     }
 
     public function cancelEdit(): void

@@ -12,9 +12,11 @@
     </form>
     @error('name')<p>{{ $message }}</p>@enderror
     @error('code')<p>{{ $message }}</p>@enderror
+    <input wire:model="history_type" placeholder="History type">
+    <input wire:model="history_note" placeholder="History note">
     <ul>
         @forelse($assets as $asset)
-            <li>{{ $asset->name }} ({{ $asset->code }}) <button type="button" wire:click="edit({{ $asset->id }})">Edit</button> <button type="button" wire:click="delete({{ $asset->id }})">Delete</button></li>
+            <li>{{ $asset->name }} ({{ $asset->code }}) <button type="button" wire:click="edit({{ $asset->id }})">Edit</button> <button type="button" wire:click="recordHistory({{ $asset->id }})">Record history</button> <button type="button" wire:click="delete({{ $asset->id }})">Delete</button></li>
         @empty
             <li>No assets yet.</li>
         @endforelse
