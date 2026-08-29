@@ -7,4 +7,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/scheduling')->grou
     Route::get('/', [ScheduleEntryController::class, 'index']);
     Route::post('/', [ScheduleEntryController::class, 'store']);
     Route::get('/{scheduleEntry}', [ScheduleEntryController::class, 'show']);
+    Route::patch('/{scheduleEntry}', [ScheduleEntryController::class, 'update']);
+    Route::delete('/{scheduleEntry}', [ScheduleEntryController::class, 'destroy']);
 });
