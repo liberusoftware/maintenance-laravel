@@ -15,4 +15,9 @@ paths:
     post: {operationId: maintenance.work.orders.dependencies.create, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Dependency created}}}
   /api/v1/maintenance/work-orders/{id}/dependencies/{dependency}:
     delete: {operationId: maintenance.work.orders.dependencies.delete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}, {name: dependency, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Dependency removed}}}
+  /api/v1/maintenance/work-orders/{id}/evidence:
+    get: {operationId: maintenance.work.orders.evidence.list, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Work order evidence}}
+    post: {operationId: maintenance.work.orders.evidence.create, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Evidence created}}}
+  /api/v1/maintenance/work-orders/{id}/evidence/{evidence}:
+    delete: {operationId: maintenance.work.orders.evidence.delete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}, {name: evidence, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Evidence removed}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

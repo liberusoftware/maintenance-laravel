@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderEvidence;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\EditWorkOrder;
@@ -56,6 +57,15 @@ class WorkOrderResource extends Resource
                 $teamId = (Filament::getTenant() ?? auth()->user()?->currentTeam)?->getKey();
                 abort_if($teamId === null, 403);
                 app(AddWorkOrderDependency::class)->handle((int) $teamId, $record, WorkOrder::query()->findOrFail($data['depends_on_work_order_id']));
+            }),
+            Action::make('addEvidence')->label('Add evidence')->form([
+                TextInput::make('kind')->required()->maxLength(64),
+                TextInput::make('label')->required()->maxLength(255),
+                TextInput::make('reference')->required()->maxLength(10000),
+            ])->action(function (WorkOrder $record, array $data): void {
+                $teamId = (Filament::getTenant() ?? auth()->user()?->currentTeam)?->getKey();
+                abort_if($teamId === null, 403);
+                app(AddWorkOrderEvidence::class)->handle((int) $teamId, $record, array_merge($data, ['added_by' => auth()->id()]));
             }),
             DeleteAction::make()->action(function (WorkOrder $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();

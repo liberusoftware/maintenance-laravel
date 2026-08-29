@@ -9,14 +9,17 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderEvidence;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\RemoveWorkOrderDependency;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\RemoveWorkOrderEvidence;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderDependency;
+use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderEvidence;
 
 class WorkOrderController extends Controller
 {
@@ -154,6 +157,36 @@ class WorkOrderController extends Controller
         return response()->noContent();
     }
 
+    public function evidence(Request $r, WorkOrder $workOrder): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('view', $workOrder), 404);
+
+        return response()->json(['data' => $workOrder->evidence()->latest()->get()->map(fn (WorkOrderEvidence $evidence): array => $this->evidenceResource($evidence))->values()]);
+    }
+
+    public function addEvidence(Request $r, WorkOrder $workOrder, AddWorkOrderEvidence $add): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('update', $workOrder), 404);
+        $data = $r->validate(['kind' => ['required', 'string', 'max:64'], 'label' => ['required', 'string', 'max:255'], 'reference' => ['required', 'string', 'max:10000'], 'metadata' => ['sometimes', 'nullable', 'array']]);
+        $data['added_by'] = $r->user()->getAuthIdentifier();
+
+        return response()->json(['data' => $this->evidenceResource($add->handle($id, $workOrder, $data))], 201);
+    }
+
+    public function removeEvidence(Request $r, WorkOrder $workOrder, WorkOrderEvidence $evidence, RemoveWorkOrderEvidence $remove): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && (int) $evidence->work_order_id === (int) $workOrder->getKey() && $r->user()->can('update', $workOrder), 404);
+        $remove->handle($id, $evidence);
+
+        return response()->noContent();
+    }
+
     private function teamId(Request $r): ?int
     {
         $id = $r->user()?->currentTeam?->getKey();
@@ -169,6 +202,11 @@ class WorkOrderController extends Controller
     private function dependencyResource(WorkOrderDependency $dependency): array
     {
         return ['id' => (string) $dependency->getKey(), 'type' => 'maintenance-work-order-dependency', 'attributes' => ['work_order_id' => (string) $dependency->work_order_id, 'depends_on_work_order_id' => (string) $dependency->depends_on_work_order_id, 'depends_on' => $dependency->dependsOn === null ? null : ['number' => $dependency->dependsOn->number, 'title' => $dependency->dependsOn->title], 'created_at' => $dependency->created_at?->toISOString()]];
+    }
+
+    private function evidenceResource(WorkOrderEvidence $evidence): array
+    {
+        return ['id' => (string) $evidence->getKey(), 'type' => 'maintenance-work-order-evidence', 'attributes' => ['work_order_id' => (string) $evidence->work_order_id, 'added_by' => $evidence->added_by, 'kind' => $evidence->kind, 'label' => $evidence->label, 'reference' => $evidence->reference, 'metadata' => $evidence->metadata, 'created_at' => $evidence->created_at?->toISOString()]];
     }
 
     /** @return array<string, mixed> */

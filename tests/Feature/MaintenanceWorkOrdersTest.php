@@ -4,6 +4,7 @@ use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderEvidence;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
@@ -142,4 +143,19 @@ it('requires prerequisite work orders to be completed first', function () {
     $transition->handle($team->id, $prerequisite, 'in_progress');
     $transition->handle($team->id, $prerequisite, 'completed');
     expect($transition->handle($team->id, $dependent, 'completed')->status)->toBe('completed');
+});
+
+it('stores tenant-scoped work order evidence through the domain action', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    $evidence = app(AddWorkOrderEvidence::class)->handle($team->id, $order, [
+        'kind' => 'photo', 'label' => 'Damaged seal', 'reference' => 'files/repair/damaged-seal.jpg',
+        'metadata' => ['captured_at' => '2026-08-29T10:00:00Z'],
+    ]);
+
+    expect($evidence->work_order_id)->toBe($order->id)
+        ->and($evidence->team_id)->toBe($team->id)
+        ->and($order->evidence()->whereKey($evidence)->exists())->toBeTrue();
+    expect(fn () => app(AddWorkOrderEvidence::class)->handle($team->id, $order, ['kind' => 'photo']))
+        ->toThrow(ValidationException::class);
 });
