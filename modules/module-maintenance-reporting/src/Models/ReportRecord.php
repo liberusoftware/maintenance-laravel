@@ -13,13 +13,23 @@ class ReportRecord extends Model
 {
     protected $table = 'maintenance_reporting_records';
 
-    protected $fillable = ['kind', 'title', 'metric_value', 'period_start', 'period_end', 'metadata', 'team_id'];
+    protected $fillable = ['kind', 'title', 'description', 'metric_value', 'period_start', 'period_end', 'status', 'metadata', 'team_id'];
 
     protected $casts = ['metric_value' => 'decimal:2', 'period_start' => 'datetime', 'period_end' => 'datetime', 'metadata' => 'array', 'team_id' => 'integer'];
 
     public function scopeOfKind(Builder $query, string $kind): Builder
     {
         return $query->where('kind', $kind);
+    }
+
+    public function scopeDraft(Builder $query): Builder
+    {
+        return $query->where('status', 'draft');
+    }
+
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('status', 'published');
     }
 
     public function scopeForPeriod(Builder $query, ?string $start = null, ?string $end = null): Builder

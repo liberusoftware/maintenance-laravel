@@ -22,6 +22,16 @@ paths:
       responses:
         "201":
           description: Created reporting record
+  /api/v1/maintenance/reporting/{id}/publish:
+    post:
+      operationId: maintenance.reporting.publish
+      security:
+        - sanctum: []
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Published reporting record
 components:
   securitySchemes:
     sanctum:

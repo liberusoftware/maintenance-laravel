@@ -9,6 +9,7 @@ use Liberu\Modules\Maintenance\Compliance\Models\ComplianceRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\CreatePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
+use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
 it('creates tenant-scoped records for the remaining maintenance capabilities', function () {
@@ -49,4 +50,14 @@ it('filters reporting records by kind and overlapping period', function () {
     expect(ReportRecord::query()
         ->where('team_id', $team->id)->ofKind('backlog')->forPeriod('2026-08-15', '2026-08-20')->pluck('id')->all())
         ->toBe([$backlog->id]);
+});
+
+it('publishes a draft reporting record through its domain action', function () {
+    $team = Team::factory()->create();
+    $record = app(CreateReportRecord::class)->handle($team->id, ['kind' => 'backlog', 'title' => 'August backlog']);
+
+    $published = app(PublishReport::class)->execute($team->id, $record);
+
+    expect($published->status)->toBe('published')
+        ->and(ReportRecord::query()->published()->whereKey($record->id)->exists())->toBeTrue();
 });
