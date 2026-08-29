@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Synchronize the maintenance package trees with their standalone repositories.
+# The temporary checkout is intentionally retained for inspection after a run.
+
+root_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+workspace_dir=$(mktemp -d /tmp/maintenance-module-publish.XXXXXX)
+sync_branch="codex/maintenance-sync-$(date -u +%Y%m%d%H%M%S)"
+merge_pr=false
+declare -a requested_packages=()
+
+usage() {
+    printf 'Usage: %s [--merge] [package ...]\n' "$(basename "$0")"
+    printf 'Packages default to every modules/module-maintenance-* package.\n'
+}
+
+while (($#)); do
+    case "$1" in
+        --merge)
+            merge_pr=true
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            requested_packages+=("$1")
+            ;;
+    esac
+    shift
+done
+
+package_is_requested() {
+    local package="$1"
+    ((${#requested_packages[@]} == 0)) || printf '%s\n' "${requested_packages[@]}" | grep -Fxq "$package"
+}
+
+for package_dir in "$root_dir"/modules/module-maintenance-*; do
+    [[ -d "$package_dir" && -f "$package_dir/composer.json" ]] || continue
+    package=$(basename "$package_dir")
+    package_is_requested "$package" || continue
+    repository=$(jq -er '.name' "$package_dir/composer.json" | sed 's#^.*/##')
+    repository_url="https://github.com/liberusoftware/${repository}.git"
+    target_dir="$workspace_dir/$package"
+
+    printf '%s\n' "--- liberusoftware/${repository}"
+    git clone --quiet --depth 1 "$repository_url" "$target_dir"
+    git -C "$target_dir" switch --create "$sync_branch" --quiet
+    rsync -a --delete \
+        --exclude='.git' \
+        --exclude='vendor' \
+        --exclude='composer.lock' \
+        --exclude='node_modules' \
+        --exclude='.phpunit.result.cache' \
+        "$package_dir/" "$target_dir/"
+
+    git -C "$target_dir" add -A
+    if git -C "$target_dir" diff --cached --quiet; then
+        printf '%s\n' 'No changes.'
+        continue
+    fi
+
+    git -C "$target_dir" commit --quiet -m 'Synchronize maintenance module'
+    git -C "$target_dir" push --quiet --set-upstream origin "$sync_branch"
+    pull_request=$(gh pr create \
+        --repo "liberusoftware/${repository}" \
+        --base main \
+        --head "$sync_branch" \
+        --title 'Synchronize maintenance module' \
+        --body "Synchronize ${package} from maintenance-laravel development.")
+    printf '%s\n' "$pull_request"
+
+    if [[ "$merge_pr" == true ]]; then
+        gh pr merge "$pull_request" --repo "liberusoftware/${repository}" --squash \
+            --subject 'Synchronize maintenance module' \
+            --body 'Merge the verified maintenance module synchronization.'
+    fi
+done
+
+printf 'Temporary package checkouts: %s\n' "$workspace_dir"
