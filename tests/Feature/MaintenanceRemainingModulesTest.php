@@ -10,6 +10,9 @@ use Liberu\Modules\Maintenance\Compliance\Models\ComplianceRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\CreatePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
+use Liberu\Modules\Maintenance\Procurement\Actions\CreateVendorContract;
+use Liberu\Modules\Maintenance\Procurement\Actions\TransitionVendorContract;
+use Liberu\Modules\Maintenance\Procurement\Models\VendorContract;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
@@ -129,4 +132,26 @@ it('enforces commercial record status transitions', function () {
     $proposed = $transition->handle($team->id, $record, 'proposed');
     expect($proposed->status)->toBe('proposed');
     expect(fn () => $transition->handle($team->id, $proposed, 'fulfilled'))->toThrow(ValidationException::class);
+});
+
+it('tracks tenant-scoped vendor contracts and their expiry lifecycle', function () {
+    $team = Team::factory()->create();
+    $contract = app(CreateVendorContract::class)->handle($team->id, [
+        'vendor_name' => 'Acme Services',
+        'contract_number' => 'ACME-2026',
+        'title' => 'Pump maintenance agreement',
+        'start_date' => now()->subDay()->toDateString(),
+        'end_date' => now()->addDays(10)->toDateString(),
+    ]);
+
+    $daysUntilExpiration = $contract->daysUntilExpiration();
+
+    expect($contract)->toBeInstanceOf(VendorContract::class)
+        ->and($contract->team_id)->toBe($team->id)
+        ->and($daysUntilExpiration)->toBeGreaterThanOrEqual(9)
+        ->and($daysUntilExpiration)->toBeLessThanOrEqual(10);
+
+    $active = app(TransitionVendorContract::class)->handle($team->id, $contract, 'active');
+    expect($active->isActive())->toBeTrue()
+        ->and(VendorContract::query()->where('team_id', $team->id)->expiringSoon(30)->whereKey($contract)->exists())->toBeTrue();
 });

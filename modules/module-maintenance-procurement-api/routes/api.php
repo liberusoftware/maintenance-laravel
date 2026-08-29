@@ -2,8 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\PurchaseRequestController;
+use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\VendorContractController;
 
 Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/procurement')->group(function (): void {
+    Route::get('/contracts', [VendorContractController::class, 'index']);
+    Route::post('/contracts', [VendorContractController::class, 'store']);
+    Route::get('/contracts/{vendorContract}', [VendorContractController::class, 'show']);
+    Route::patch('/contracts/{vendorContract}', [VendorContractController::class, 'update']);
+    Route::post('/contracts/{vendorContract}/transition', [VendorContractController::class, 'transition']);
+    Route::delete('/contracts/{vendorContract}', [VendorContractController::class, 'destroy']);
     Route::get('/', [PurchaseRequestController::class, 'index']);
     Route::post('/', [PurchaseRequestController::class, 'store']);
     Route::get('/{purchaseRequest}', [PurchaseRequestController::class, 'show']);

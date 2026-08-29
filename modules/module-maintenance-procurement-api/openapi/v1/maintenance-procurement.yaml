@@ -1,6 +1,15 @@
 openapi: 3.1.0
 info: {title: maintenance procurement API, version: 1.0.0}
 paths:
+  /api/v1/maintenance/procurement/contracts:
+    get: {operationId: maintenance.procurement.contracts.list, security: [{sanctum: []}], responses: {'200': {description: Authorized vendor contracts}}}
+    post: {operationId: maintenance.procurement.contracts.create, security: [{sanctum: []}], responses: {'201': {description: Vendor contract created}}}
+  /api/v1/maintenance/procurement/contracts/{vendorContract}:
+    get: {operationId: maintenance.procurement.contracts.get, security: [{sanctum: []}], responses: {'200': {description: Vendor contract}}}
+    patch: {operationId: maintenance.procurement.contracts.update, security: [{sanctum: []}], responses: {'200': {description: Vendor contract updated}}}
+    delete: {operationId: maintenance.procurement.contracts.delete, security: [{sanctum: []}], responses: {'204': {description: Vendor contract deleted}}}
+  /api/v1/maintenance/procurement/contracts/{vendorContract}/transition:
+    post: {operationId: maintenance.procurement.contracts.transition, security: [{sanctum: []}], responses: {'200': {description: Vendor contract lifecycle transitioned}}}
   /api/v1/maintenance/procurement:
     get: {operationId: maintenance.procurement.list, security: [{sanctum: []}], responses: {'200': {description: Authorized purchase requests}}}
     post: {operationId: maintenance.procurement.create, security: [{sanctum: []}], responses: {'201': {description: Purchase request created}}}
