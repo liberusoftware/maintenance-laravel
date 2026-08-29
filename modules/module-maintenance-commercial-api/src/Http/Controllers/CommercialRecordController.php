@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Commercial\Actions\CreateCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Actions\DeleteCommercialRecord;
+use Liberu\Modules\Maintenance\Commercial\Actions\TransitionCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Actions\UpdateCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
 
@@ -59,6 +60,16 @@ class CommercialRecordController extends Controller
         $delete->handle((int) $teamId, $record);
 
         return response()->json(null, 204);
+    }
+
+    public function transition(Request $request, CommercialRecord $record, TransitionCommercialRecord $transition): JsonResponse
+    {
+        $teamId = $request->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        abort_unless((int) $teamId === (int) $record->team_id && $request->user()->can('update', $record), 404);
+        $data = $request->validate(['status' => 'required|string|in:proposed,approved,rejected,fulfilled,cancelled']);
+
+        return response()->json(['data' => $this->resource($transition->handle((int) $teamId, $record, $data['status']))]);
     }
 
     private function resource(CommercialRecord $record): array

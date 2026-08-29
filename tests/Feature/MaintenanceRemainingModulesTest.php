@@ -3,6 +3,7 @@
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Commercial\Actions\CreateCommercialRecord;
+use Liberu\Modules\Maintenance\Commercial\Actions\TransitionCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
 use Liberu\Modules\Maintenance\Compliance\Actions\CreateComplianceRecord;
 use Liberu\Modules\Maintenance\Compliance\Models\ComplianceRecord;
@@ -81,4 +82,14 @@ it('enforces portal request status transitions', function () {
     $submitted = $transition->handle($team->id, $record, 'submitted');
     expect($submitted->status)->toBe('submitted');
     expect(fn () => $transition->handle($team->id, $submitted, 'resolved'))->toThrow(ValidationException::class);
+});
+
+it('enforces commercial record status transitions', function () {
+    $team = Team::factory()->create();
+    $record = app(CreateCommercialRecord::class)->handle($team->id, ['kind' => 'quote', 'title' => 'Annual contract']);
+    $transition = app(TransitionCommercialRecord::class);
+
+    $proposed = $transition->handle($team->id, $record, 'proposed');
+    expect($proposed->status)->toBe('proposed');
+    expect(fn () => $transition->handle($team->id, $proposed, 'fulfilled'))->toThrow(ValidationException::class);
 });
