@@ -2,6 +2,7 @@
 
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
@@ -57,4 +58,15 @@ it('retains legacy assignment and maintenance tracking fields in the modular mod
         ->and($order->assigned_to)->toBe(63)
         ->and($order->estimated_minutes)->toBe(90)
         ->and($order->maintenance_plan_id)->toBe(74);
+});
+
+it('stores comments within the work order tenant boundary', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    $comment = app(AddWorkOrderComment::class)->handle($team->id, $order, 123, 'Technician dispatched', true);
+
+    expect($comment->work_order_id)->toBe($order->id)
+        ->and($comment->team_id)->toBe($team->id)
+        ->and($comment->is_internal)->toBeTrue();
+    $this->assertDatabaseHas('maintenance_work_order_comments', ['id' => $comment->id, 'comment' => 'Technician dispatched']);
 });
