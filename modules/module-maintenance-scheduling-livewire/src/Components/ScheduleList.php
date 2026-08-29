@@ -44,14 +44,16 @@ class ScheduleList extends Component
         $this->title = $entry->title;
         $this->starts_at = $entry->starts_at?->format('Y-m-d\TH:i') ?? '';
         $this->ends_at = $entry->ends_at?->format('Y-m-d\TH:i') ?? '';
+        $this->recurrence_type = (string) ($entry->recurrence_type ?? '');
+        $this->recurrence_value = (int) $entry->recurrence_value;
     }
 
     public function update(UpdateScheduleEntry $update): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingEntryId === null, 403);
-        $this->validate(['title' => 'required|string|max:255', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at']);
-        $update->handle((int) $teamId, $this->entryForCurrentTeam($this->editingEntryId), ['title' => $this->title, 'starts_at' => $this->starts_at, 'ends_at' => $this->ends_at]);
+        $this->validate(['title' => 'required|string|max:255', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at', 'recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'required|integer|min:1']);
+        $update->handle((int) $teamId, $this->entryForCurrentTeam($this->editingEntryId), ['title' => $this->title, 'starts_at' => $this->starts_at, 'ends_at' => $this->ends_at, 'recurrence_type' => $this->recurrence_type ?: null, 'recurrence_value' => $this->recurrence_value]);
         $this->cancelEdit();
     }
 
@@ -71,7 +73,8 @@ class ScheduleList extends Component
 
     public function cancelEdit(): void
     {
-        $this->reset(['title', 'starts_at', 'ends_at', 'editingEntryId']);
+        $this->reset(['title', 'starts_at', 'ends_at', 'recurrence_type', 'recurrence_value', 'editingEntryId']);
+        $this->recurrence_value = 1;
     }
 
     public function render(): View

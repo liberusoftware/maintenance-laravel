@@ -93,3 +93,16 @@ it('advances recurring maintenance when a schedule entry is completed', function
     expect($completed->last_completed_at)->not->toBeNull()
         ->and($completed->next_due_at->equalTo($completed->last_completed_at->copy()->addWeeks(2)))->toBeTrue();
 });
+
+it('includes recurring due dates in upcoming schedules', function () {
+    $team = Team::factory()->create();
+    $entry = app(CreateScheduleEntry::class)->handle($team->id, [
+        'title' => 'Recurring inspection',
+        'starts_at' => now()->addMonths(2),
+        'ends_at' => now()->addMonths(2)->addHour(),
+        'next_due_at' => now()->addDays(3),
+        'recurrence_type' => 'weekly',
+    ]);
+
+    expect(ScheduleEntry::query()->where('team_id', $team->id)->upcoming(7)->whereKey($entry)->exists())->toBeTrue();
+});
