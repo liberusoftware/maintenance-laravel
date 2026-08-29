@@ -4,6 +4,8 @@ use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
 
 it('creates and adjusts tenant-scoped stock', function () {
@@ -34,4 +36,20 @@ it('records every stock adjustment as an auditable movement', function () {
         ->and($adjusted->movements()->count())->toBe(1)
         ->and($adjusted->movements()->first()->quantity_before)->toBe(3)
         ->and($adjusted->movements()->first()->reason)->toBe('receipt');
+});
+
+it('reserves and releases only available stock', function () {
+    $team = Team::factory()->create();
+    $item = app(CreateStockItem::class)->handle($team->id, ['part_number' => 'filter-1', 'name' => 'Filter', 'quantity' => 5]);
+
+    $item = app(ReserveStock::class)->handle($team->id, $item, 3);
+    expect($item->reserved_quantity)->toBe(3)
+        ->and($item->availableQuantity())->toBe(2);
+
+    $item = app(ReleaseReservedStock::class)->handle($team->id, $item, 1);
+    expect($item->reserved_quantity)->toBe(2)
+        ->and($item->availableQuantity())->toBe(3);
+
+    expect(fn () => app(ReserveStock::class)->handle($team->id, $item, 4))
+        ->toThrow(ValidationException::class);
 });
