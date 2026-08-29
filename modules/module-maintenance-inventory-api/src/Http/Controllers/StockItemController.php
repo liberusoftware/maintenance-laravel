@@ -47,9 +47,9 @@ class StockItemController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
-        $data = $r->validate(['delta' => ['required', 'integer', 'between:-1000000,1000000']]);
+        $data = $r->validate(['delta' => ['required', 'integer', 'between:-1000000,1000000'], 'reason' => ['sometimes', 'string', 'max:64'], 'notes' => ['sometimes', 'nullable', 'string', 'max:10000']]);
 
-        return response()->json(['data' => $this->resource($adjust->handle($id, $stockItem, $data['delta']))]);
+        return response()->json(['data' => $this->resource($adjust->handle($id, $stockItem, $data['delta'], $data['reason'] ?? 'adjustment', $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
     }
 
     public function update(Request $r, StockItem $stockItem, UpdateStockItem $update): JsonResponse
@@ -82,5 +82,14 @@ class StockItemController extends Controller
     private function resource(StockItem $i): array
     {
         return ['id' => (string) $i->getKey(), 'type' => 'maintenance-stock-item', 'attributes' => ['part_number' => $i->part_number, 'name' => $i->name, 'location' => $i->location, 'quantity' => $i->quantity, 'reorder_level' => $i->reorder_level, 'unit' => $i->unit]];
+    }
+
+    public function movements(Request $r, StockItem $stockItem): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('view', $stockItem), 404);
+
+        return response()->json(['data' => $stockItem->movements()->latest()->get()->map(fn ($movement): array => ['id' => (string) $movement->id, 'type' => 'maintenance-stock-movement', 'attributes' => $movement->only(['delta', 'quantity_before', 'quantity_after', 'reason', 'notes', 'user_id', 'created_at'])])->values()]);
     }
 }

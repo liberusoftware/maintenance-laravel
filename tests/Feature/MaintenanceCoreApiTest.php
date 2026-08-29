@@ -87,3 +87,18 @@ it('manages statuses, priorities, and settings through tenant-scoped API endpoin
     $this->withToken($token)->getJson('/api/v1/maintenance/maintenance-core/statuses')
         ->assertOk()->assertJsonPath('data.0.attributes.code', 'OPEN');
 });
+
+it('configures and issues tenant-scoped numbers through the API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('maintenance-test')->plainTextToken;
+
+    $this->withToken($token)->postJson('/api/v1/maintenance/maintenance-core/numbering/configure', [
+        'document_type' => 'invoice', 'prefix' => 'INV-', 'padding' => 4,
+    ])->assertOk()->assertJsonPath('data.attributes.prefix', 'INV-');
+
+    $this->withToken($token)->postJson('/api/v1/maintenance/maintenance-core/numbering/issue', [
+        'document_type' => 'invoice',
+    ])->assertOk()->assertJsonPath('data.attributes.number', 'INV-0001');
+});

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Liberu\Modules\Maintenance\Core\Api\Http\Controllers\NumberingController;
 use Liberu\Modules\Maintenance\Core\Api\Http\Controllers\OrganizationController;
 use Liberu\Modules\Maintenance\Core\Api\Http\Controllers\PriorityController;
 use Liberu\Modules\Maintenance\Core\Api\Http\Controllers\ServiceSettingController;
@@ -28,5 +29,7 @@ Route::middleware('api')
             Route::delete('priorities/{priority}', [PriorityController::class, 'destroy'])->name('priorities.destroy');
             Route::get('settings', [ServiceSettingController::class, 'index'])->name('settings.index');
             Route::post('settings', [ServiceSettingController::class, 'store'])->name('settings.store');
+            Route::post('numbering/configure', [NumberingController::class, 'configure'])->name('numbering.configure');
+            Route::post('numbering/issue', [NumberingController::class, 'issue'])->name('numbering.issue');
         });
     });

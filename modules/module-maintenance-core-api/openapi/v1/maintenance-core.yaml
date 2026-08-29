@@ -19,6 +19,38 @@ paths:
             schema: { $ref: '#/components/schemas/OrganizationInput' }
       responses:
         '201': { description: Organization created }
+  /api/v1/maintenance/maintenance-core/numbering/configure:
+    post:
+      operationId: maintenance.core.numbering.configure
+      security: [{ sanctum: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [document_type, prefix]
+              properties:
+                document_type: { type: string, maxLength: 64 }
+                prefix: { type: string, maxLength: 32 }
+                padding: { type: integer, minimum: 1, maximum: 20, default: 6 }
+      responses:
+        '200': { description: Numbering sequence configured }
+  /api/v1/maintenance/maintenance-core/numbering/issue:
+    post:
+      operationId: maintenance.core.numbering.issue
+      security: [{ sanctum: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [document_type]
+              properties:
+                document_type: { type: string, maxLength: 64 }
+      responses:
+        '200': { description: Number issued }
   /api/v1/maintenance/maintenance-core/organizations/{id}:
     get:
       operationId: maintenance.core.organizations.get
