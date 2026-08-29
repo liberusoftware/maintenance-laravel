@@ -7,6 +7,7 @@ use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
 use Liberu\Modules\Maintenance\Compliance\Actions\CreateComplianceRecord;
 use Liberu\Modules\Maintenance\Compliance\Models\ComplianceRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\CreatePortalRecord;
+use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
@@ -70,4 +71,14 @@ it('scopes compliance records by expiry', function () {
 
     expect(ComplianceRecord::query()->where('team_id', $team->id)->expired()->whereKey($expired)->exists())->toBeTrue()
         ->and(ComplianceRecord::query()->where('team_id', $team->id)->current()->whereKey($current)->exists())->toBeTrue();
+});
+
+it('enforces portal request status transitions', function () {
+    $team = Team::factory()->create();
+    $record = app(CreatePortalRecord::class)->handle($team->id, ['kind' => 'request', 'title' => 'Visit request']);
+    $transition = app(TransitionPortalRecord::class);
+
+    $submitted = $transition->handle($team->id, $record, 'submitted');
+    expect($submitted->status)->toBe('submitted');
+    expect(fn () => $transition->handle($team->id, $submitted, 'resolved'))->toThrow(ValidationException::class);
 });

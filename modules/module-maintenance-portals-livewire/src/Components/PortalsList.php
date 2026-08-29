@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\Portals\Livewire\Components;
 use Illuminate\View\View;
 use Liberu\Modules\Maintenance\Portal\Actions\CreatePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\DeletePortalRecord;
+use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\UpdatePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Livewire\Component;
@@ -50,6 +51,14 @@ class PortalsList extends Component
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         $delete->handle((int) $teamId, $this->recordForCurrentTeam($recordId));
+    }
+
+    public function transition(int $recordId, string $status, TransitionPortalRecord $transition): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $this->validate(['status' => 'required|in:submitted,in_progress,resolved,rejected']);
+        $transition->handle((int) $teamId, $this->recordForCurrentTeam($recordId), $status);
     }
 
     public function cancelEdit(): void

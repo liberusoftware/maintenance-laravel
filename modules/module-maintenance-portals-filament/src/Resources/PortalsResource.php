@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Portals\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
@@ -14,10 +15,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Portal\Actions\DeletePortalRecord;
+use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource\Pages\CreatePortal;
 use Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource\Pages\EditPortal;
 use Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource\Pages\ListPortals;
-use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 
 class PortalsResource extends Resource
@@ -44,6 +45,11 @@ class PortalsResource extends Resource
     {
         return $table->columns([TextColumn::make('kind'), TextColumn::make('title')->searchable(), TextColumn::make('status')->badge()])->recordActions([
             EditAction::make(),
+            Action::make('transition')->label('Change status')->visible(fn (PortalRecord $record): bool => in_array($record->status, ['draft', 'submitted', 'in_progress'], true))->form([TextInput::make('status')->required()])->action(function (PortalRecord $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(TransitionPortalRecord::class)->handle((int) $teamId, $record, $data['status']);
+            }),
             DeleteAction::make()->action(fn (PortalRecord $record) => app(DeletePortalRecord::class)->handle((int) (Filament::getTenant() ?? auth()->user()?->currentTeam)->getKey(), $record)),
         ]);
     }

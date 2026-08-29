@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Portal\Actions\CreatePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\DeletePortalRecord;
+use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\UpdatePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 
@@ -59,6 +60,16 @@ class PortalsRecordController extends Controller
         $delete->handle((int) $teamId, $record);
 
         return response()->json(null, 204);
+    }
+
+    public function transition(Request $request, PortalRecord $record, TransitionPortalRecord $transition): JsonResponse
+    {
+        $teamId = $request->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        abort_unless((int) $teamId === (int) $record->team_id && $request->user()->can('update', $record), 404);
+        $data = $request->validate(['status' => 'required|string|in:submitted,in_progress,resolved,rejected']);
+
+        return response()->json(['data' => $this->resource($transition->handle((int) $teamId, $record, $data['status']))]);
     }
 
     private function resource(PortalRecord $record): array
