@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\UpdateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
 
 class StockItemController extends Controller
@@ -48,6 +50,26 @@ class StockItemController extends Controller
         $data = $r->validate(['delta' => ['required', 'integer', 'between:-1000000,1000000']]);
 
         return response()->json(['data' => $this->resource($adjust->handle($id, $stockItem, $data['delta']))]);
+    }
+
+    public function update(Request $r, StockItem $stockItem, UpdateStockItem $update): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['part_number' => 'sometimes|required|string|max:96', 'name' => 'sometimes|required|string|max:255', 'location' => 'sometimes|nullable|string|max:255', 'reorder_level' => 'sometimes|integer|min:0', 'unit' => 'sometimes|nullable|string|max:32']);
+
+        return response()->json(['data' => $this->resource($update->handle($id, $stockItem, $data))]);
+    }
+
+    public function destroy(Request $r, StockItem $stockItem, DeleteStockItem $delete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('delete', $stockItem), 404);
+        $delete->handle($id, $stockItem);
+
+        return response()->json(null, 204);
     }
 
     private function teamId(Request $r): ?int

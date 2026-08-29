@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
 use Liberu\Modules\Maintenance\Inventory\Filament\Resources\StockItemResource\Pages\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Filament\Resources\StockItemResource\Pages\EditStockItem;
 use Liberu\Modules\Maintenance\Inventory\Filament\Resources\StockItemResource\Pages\ListStockItems;
@@ -41,7 +42,14 @@ class StockItemResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('part_number')->searchable(), TextColumn::make('name')->searchable(), TextColumn::make('location'), TextColumn::make('quantity')->sortable(), TextColumn::make('reorder_level')])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('part_number')->searchable(), TextColumn::make('name')->searchable(), TextColumn::make('location'), TextColumn::make('quantity')->sortable(), TextColumn::make('reorder_level')])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (StockItem $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteStockItem::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array
