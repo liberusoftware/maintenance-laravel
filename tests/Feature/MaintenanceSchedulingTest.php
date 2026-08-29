@@ -39,3 +39,13 @@ it('provides reusable upcoming and overdue schedule scopes', function () {
     expect(ScheduleEntry::query()->where('team_id', $team->id)->upcoming()->pluck('title')->all())->toBe(['Upcoming'])
         ->and(ScheduleEntry::query()->where('team_id', $team->id)->overdue()->pluck('title')->all())->toBe(['Overdue']);
 });
+
+it('filters schedule entries by resource, territory, and status', function () {
+    $team = Team::factory()->create();
+    $action = app(CreateScheduleEntry::class);
+    $matching = $action->handle($team->id, ['title' => 'Assigned', 'resource_key' => 'tech-1', 'territory' => 'north', 'status' => 'scheduled', 'starts_at' => now()->addDay(), 'ends_at' => now()->addDay()->addHour()]);
+    $action->handle($team->id, ['title' => 'Other territory', 'resource_key' => 'tech-1', 'territory' => 'south', 'starts_at' => now()->addDays(2), 'ends_at' => now()->addDays(2)->addHour()]);
+
+    expect(ScheduleEntry::query()->where('team_id', $team->id)->forResource('tech-1')->inTerritory('north')->withStatus('scheduled')->pluck('id')->all())
+        ->toBe([$matching->id]);
+});

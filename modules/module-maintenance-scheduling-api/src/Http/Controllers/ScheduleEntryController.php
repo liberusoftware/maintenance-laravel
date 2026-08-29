@@ -27,6 +27,15 @@ class ScheduleEntryController extends Controller
         } else {
             $query->orderBy('starts_at');
         }
+        if ($r->filled('resource_key')) {
+            $query->forResource($r->string('resource_key')->trim()->toString());
+        }
+        if ($r->filled('territory')) {
+            $query->inTerritory($r->string('territory')->trim()->toString());
+        }
+        if ($r->filled('status')) {
+            $query->withStatus($r->string('status')->trim()->toString());
+        }
         $items = $query->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (ScheduleEntry $e) => $this->resource($e))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
