@@ -61,3 +61,19 @@ it('carries sensor configuration and derives asset health', function () {
     expect($asset->health_status)->toBe('critical')
         ->and(Asset::query()->sensorEnabled()->withCriticalReadings()->whereKey($asset)->exists())->toBeTrue();
 });
+
+it('retains legacy equipment details on modular assets', function () {
+    $team = Team::factory()->create();
+    $asset = app(CreateAsset::class)->handle($team->id, [
+        'name' => 'Boiler', 'code' => 'B-03', 'description' => 'Steam boiler', 'model' => 'HX-100',
+        'manufacturer' => 'Acme', 'location' => 'Plant A', 'purchase_date' => '2024-01-10',
+        'warranty_expiry' => '2027-01-10', 'notes' => 'Annual inspection required',
+    ]);
+
+    expect($asset->description)->toBe('Steam boiler')
+        ->and($asset->model)->toBe('HX-100')
+        ->and($asset->manufacturer)->toBe('Acme')
+        ->and($asset->location)->toBe('Plant A')
+        ->and($asset->purchase_date->toDateString())->toBe('2024-01-10')
+        ->and($asset->warranty_expiry->toDateString())->toBe('2027-01-10');
+});

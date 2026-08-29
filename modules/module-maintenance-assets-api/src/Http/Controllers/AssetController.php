@@ -42,7 +42,7 @@ class AssetController extends Controller
         $teamId = $this->teamId($request);
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('create', Asset::class), 403);
-        $data = $request->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'serial_number' => 'nullable|string|max:255', 'condition' => 'nullable|string|max:64', 'criticality' => 'nullable|in:normal,high,critical', 'status' => 'nullable|string|max:64', 'qr_code' => 'nullable|string|max:255', 'barcode' => 'nullable|string|max:255', 'sensor_enabled' => 'sometimes|boolean', 'sensor_type' => 'nullable|string|max:80', 'sensor_id' => 'nullable|string|max:255', 'sensor_config' => 'nullable|array', 'last_sensor_reading_at' => 'nullable|date', 'metadata' => 'nullable|array']);
+        $data = $request->validate(['name' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'serial_number' => 'nullable|string|max:255', 'model' => 'nullable|string|max:255', 'manufacturer' => 'nullable|string|max:255', 'location' => 'nullable|string|max:255', 'purchase_date' => 'nullable|date', 'warranty_expiry' => 'nullable|date|after_or_equal:purchase_date', 'notes' => 'nullable|string|max:10000', 'condition' => 'nullable|string|max:64', 'criticality' => 'nullable|in:normal,high,critical', 'status' => 'nullable|string|max:64', 'qr_code' => 'nullable|string|max:255', 'barcode' => 'nullable|string|max:255', 'sensor_enabled' => 'sometimes|boolean', 'sensor_type' => 'nullable|string|max:80', 'sensor_id' => 'nullable|string|max:255', 'sensor_config' => 'nullable|array', 'last_sensor_reading_at' => 'nullable|date', 'metadata' => 'nullable|array']);
 
         return response()->json(['data' => $this->resource($create->handle($teamId, $data))], 201);
     }
@@ -62,9 +62,16 @@ class AssetController extends Controller
 
         $data = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
             'code' => ['sometimes', 'required', 'string', 'max:64'],
             'category' => ['sometimes', 'nullable', 'string', 'max:255'],
             'serial_number' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'model' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'manufacturer' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'location' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'purchase_date' => ['sometimes', 'nullable', 'date'],
+            'warranty_expiry' => ['sometimes', 'nullable', 'date', 'after_or_equal:purchase_date'],
+            'notes' => ['sometimes', 'nullable', 'string', 'max:10000'],
             'condition' => ['sometimes', 'nullable', 'string', 'max:64'],
             'criticality' => ['sometimes', 'nullable', 'in:normal,high,critical'],
             'status' => ['sometimes', 'nullable', 'string', 'max:64'],
@@ -100,6 +107,6 @@ class AssetController extends Controller
 
     private function resource(Asset $a): array
     {
-        return ['id' => (string) $a->getKey(), 'type' => 'maintenance-asset', 'attributes' => ['name' => $a->name, 'code' => $a->code, 'category' => $a->category, 'serial_number' => $a->serial_number, 'condition' => $a->condition, 'criticality' => $a->criticality, 'status' => $a->status, 'health_status' => $a->health_status, 'sensor_enabled' => $a->sensor_enabled, 'sensor_type' => $a->sensor_type, 'sensor_id' => $a->sensor_id, 'sensor_config' => $a->sensor_config, 'last_sensor_reading_at' => $a->last_sensor_reading_at?->toISOString(), 'qr_code' => $a->qr_code, 'barcode' => $a->barcode, 'metadata' => $a->metadata, 'created_at' => $a->created_at?->toISOString(), 'updated_at' => $a->updated_at?->toISOString()]];
+        return ['id' => (string) $a->getKey(), 'type' => 'maintenance-asset', 'attributes' => ['name' => $a->name, 'description' => $a->description, 'code' => $a->code, 'category' => $a->category, 'serial_number' => $a->serial_number, 'model' => $a->model, 'manufacturer' => $a->manufacturer, 'location' => $a->location, 'purchase_date' => $a->purchase_date?->toDateString(), 'warranty_expiry' => $a->warranty_expiry?->toDateString(), 'notes' => $a->notes, 'condition' => $a->condition, 'criticality' => $a->criticality, 'status' => $a->status, 'health_status' => $a->health_status, 'sensor_enabled' => $a->sensor_enabled, 'sensor_type' => $a->sensor_type, 'sensor_id' => $a->sensor_id, 'sensor_config' => $a->sensor_config, 'last_sensor_reading_at' => $a->last_sensor_reading_at?->toISOString(), 'qr_code' => $a->qr_code, 'barcode' => $a->barcode, 'metadata' => $a->metadata, 'created_at' => $a->created_at?->toISOString(), 'updated_at' => $a->updated_at?->toISOString()]];
     }
 }
