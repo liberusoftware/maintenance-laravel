@@ -28,7 +28,14 @@ final class TransitionScheduleEntry
         if ($status === 'completed') {
             $completedAt = now();
             $attributes['last_completed_at'] = $completedAt;
-            $attributes['next_due_at'] = $entry->calculateNextDueAt($completedAt);
+            $nextDueAt = $entry->calculateNextDueAt($completedAt);
+            $attributes['next_due_at'] = $nextDueAt;
+
+            // Recurring entries remain schedulable for their next occurrence;
+            // one-off entries become terminal after completion.
+            if ($nextDueAt !== null) {
+                $attributes['status'] = 'scheduled';
+            }
         }
         $entry->update($attributes);
 

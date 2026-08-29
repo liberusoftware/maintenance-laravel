@@ -91,6 +91,7 @@ it('advances recurring maintenance when a schedule entry is completed', function
     $completed = app(TransitionScheduleEntry::class)->handle($team->id, $completed, 'completed');
 
     expect($completed->last_completed_at)->not->toBeNull()
+        ->and($completed->status)->toBe('scheduled')
         ->and($completed->next_due_at->equalTo($completed->last_completed_at->copy()->addWeeks(2)))->toBeTrue();
 });
 
