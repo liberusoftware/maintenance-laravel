@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\DeleteTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Filament\Resources\TimeEntryResource\Pages\CreateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Filament\Resources\TimeEntryResource\Pages\EditTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Filament\Resources\TimeEntryResource\Pages\ListTimeEntries;
@@ -42,7 +43,14 @@ class TimeEntryResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('description'), TextColumn::make('minutes'), TextColumn::make('rate'), TextColumn::make('status')->badge()])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('description'), TextColumn::make('minutes'), TextColumn::make('rate'), TextColumn::make('status')->badge()])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (TimeEntry $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteTimeEntry::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array
