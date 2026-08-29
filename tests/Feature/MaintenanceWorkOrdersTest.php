@@ -37,3 +37,24 @@ it('updates work-order details but requires the transition action for status cha
     expect(fn () => app(UpdateWorkOrder::class)->handle($team->id, $order, ['status' => 'completed']))
         ->toThrow(ValidationException::class);
 });
+
+it('retains legacy assignment and maintenance tracking fields in the modular model', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, [
+        'title' => 'Inspect pump',
+        'location' => 'Plant A',
+        'equipment_id' => 41,
+        'customer_id' => 52,
+        'assigned_to' => 63,
+        'due_date' => now()->addDay(),
+        'estimated_minutes' => 90,
+        'maintenance_plan_id' => 74,
+        'checklist_id' => 85,
+    ]);
+
+    expect($order->location)->toBe('Plant A')
+        ->and($order->equipment_id)->toBe(41)
+        ->and($order->assigned_to)->toBe(63)
+        ->and($order->estimated_minutes)->toBe(90)
+        ->and($order->maintenance_plan_id)->toBe(74);
+});
