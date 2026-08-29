@@ -10,5 +10,7 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/inventory')->group
     Route::patch('/{stockItem}', [StockItemController::class, 'update']);
     Route::delete('/{stockItem}', [StockItemController::class, 'destroy']);
     Route::post('/{stockItem}/adjust', [StockItemController::class, 'adjust']);
+    Route::post('/{stockItem}/reserve', [StockItemController::class, 'reserve']);
+    Route::post('/{stockItem}/release', [StockItemController::class, 'release']);
     Route::get('/{stockItem}/movements', [StockItemController::class, 'movements']);
 });

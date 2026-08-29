@@ -1,7 +1,9 @@
 <?php
 
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
+use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CompleteMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CreateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Models\MaintenancePlan;
 
@@ -13,6 +15,30 @@ it('creates a tenant-scoped preventative maintenance plan', function () {
         ->and($plan->team_id)->toBe($team->id)
         ->and($plan->code)->toBe('PUMP')
         ->and($plan->frequency_unit)->toBe('days');
+});
+
+it('recalculates the next due date when a plan is completed', function () {
+    $team = Team::factory()->create();
+    $plan = app(CreateMaintenancePlan::class)->handle($team->id, [
+        'name' => 'Pump service', 'code' => 'pump', 'frequency_unit' => 'weeks', 'frequency_value' => 2,
+        'next_due_at' => Carbon::parse('2026-08-01'),
+    ]);
+
+    $completed = app(CompleteMaintenancePlan::class)->handle($team->id, $plan, Carbon::parse('2026-08-10 09:00:00'));
+
+    expect($completed->last_completed_at->toDateTimeString())->toBe('2026-08-10 09:00:00')
+        ->and($completed->next_due_at->toDateTimeString())->toBe('2026-08-24 09:00:00');
+});
+
+it('finds overdue and upcoming active plans through scopes', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateMaintenancePlan::class);
+    $create->handle($team->id, ['name' => 'Late', 'code' => 'late', 'frequency_value' => 30, 'next_due_at' => now()->subDay()]);
+    $create->handle($team->id, ['name' => 'Soon', 'code' => 'soon', 'frequency_value' => 30, 'next_due_at' => now()->addDays(3)]);
+    $create->handle($team->id, ['name' => 'Inactive', 'code' => 'inactive', 'frequency_value' => 30, 'next_due_at' => now()->subDay(), 'is_active' => false]);
+
+    expect(MaintenancePlan::query()->where('team_id', $team->id)->overdue()->count())->toBe(1)
+        ->and(MaintenancePlan::query()->where('team_id', $team->id)->upcoming(7)->count())->toBe(1);
 });
 
 it('rejects duplicate preventative plan codes within a team', function () {

@@ -8,5 +8,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/preventative-maint
     Route::post('/', [MaintenancePlanController::class, 'store']);
     Route::get('/{maintenancePlan}', [MaintenancePlanController::class, 'show']);
     Route::patch('/{maintenancePlan}', [MaintenancePlanController::class, 'update']);
+    Route::post('/{maintenancePlan}/complete', [MaintenancePlanController::class, 'complete']);
     Route::delete('/{maintenancePlan}', [MaintenancePlanController::class, 'destroy']);
 });
