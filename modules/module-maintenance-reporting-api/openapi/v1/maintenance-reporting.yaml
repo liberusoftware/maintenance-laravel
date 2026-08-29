@@ -3,6 +3,14 @@ info:
   title: maintenance reporting API
   version: 1.0.0
 paths:
+  /api/v1/maintenance/reporting/summary:
+    get:
+      operationId: maintenance.reporting.summary
+      security:
+        - sanctum: []
+      responses:
+        "200":
+          description: Authorized reporting summary
   /api/v1/maintenance/reporting:
     get:
       operationId: maintenance.reporting.list

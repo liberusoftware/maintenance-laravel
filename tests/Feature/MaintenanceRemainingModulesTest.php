@@ -15,6 +15,7 @@ use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
 use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
+use Liberu\Modules\Maintenance\Report\Queries\BuildReportSummary;
 
 it('creates tenant-scoped records for the remaining maintenance capabilities', function () {
     $team = Team::factory()->create();
@@ -80,6 +81,24 @@ it('requires the publish action for report status changes', function () {
 
     expect(fn () => app(UpdateReportRecord::class)->handle($team->id, $record, ['status' => 'published']))
         ->toThrow(ValidationException::class);
+});
+
+it('builds a tenant-scoped reporting summary by kind and status', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateReportRecord::class);
+    $create->handle($team->id, ['kind' => 'backlog', 'title' => 'Open', 'metric_value' => 4]);
+    $published = $create->handle($team->id, ['kind' => 'backlog', 'title' => 'Closed', 'metric_value' => 2]);
+    app(PublishReport::class)->execute($team->id, $published);
+    $otherTeam = Team::factory()->create();
+    $create->handle($otherTeam->id, ['kind' => 'backlog', 'title' => 'Other tenant', 'metric_value' => 100]);
+
+    $summary = app(BuildReportSummary::class)->handle($team->id);
+
+    expect($summary['total_records'])->toBe(2)
+        ->and($summary['published_records'])->toBe(1)
+        ->and($summary['draft_records'])->toBe(1)
+        ->and($summary['metric_total'])->toBe(6.0)
+        ->and($summary['by_kind']['backlog'])->toBe(['count' => 2, 'metric_total' => 6.0]);
 });
 
 it('scopes compliance records by expiry', function () {
