@@ -31,6 +31,22 @@ it('rejects duplicate customer codes within a team', function () {
         ->toThrow(ValidationException::class);
 });
 
+it('retains legacy customer profile fields and vendor classification', function () {
+    $team = Team::factory()->create();
+    $customer = app(CreateCustomer::class)->handle($team->id, [
+        'name' => 'Acme Services', 'code' => 'acme', 'type' => 'supplier', 'address' => '1 Main Street',
+        'city' => 'Denver', 'state' => 'CO', 'zip' => '80202', 'website' => 'https://acme.test',
+        'industry' => 'Facilities', 'contact_person' => 'Jane Doe', 'payment_terms' => 'Net 30',
+    ]);
+
+    expect($customer->code)->toBe('ACME')
+        ->and($customer->isSupplier())->toBeTrue()
+        ->and($customer->isVendor())->toBeTrue()
+        ->and($customer->isCustomer())->toBeFalse()
+        ->and(Customer::query()->where('team_id', $team->id)->suppliers()->whereKey($customer)->exists())->toBeTrue()
+        ->and($customer->city)->toBe('Denver');
+});
+
 it('updates a site without allowing cross-team customer reassignment', function () {
     $team = Team::factory()->create();
     $otherTeam = Team::factory()->create();

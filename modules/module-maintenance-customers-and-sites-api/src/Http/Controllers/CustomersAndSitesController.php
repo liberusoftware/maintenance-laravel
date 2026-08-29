@@ -33,7 +33,7 @@ class CustomersAndSitesController extends Controller
         $teamId = $this->teamId($request);
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('create', Customer::class), 403);
-        $data = $request->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'email' => 'nullable|email|max:255', 'phone' => 'nullable|string|max:64', 'notes' => 'nullable|string|max:10000']);
+        $data = $request->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'email' => 'nullable|email|max:255', 'phone' => 'nullable|string|max:64', 'address' => 'nullable|string|max:10000', 'city' => 'nullable|string|max:255', 'state' => 'nullable|string|max:255', 'zip' => 'nullable|string|max:32', 'website' => 'nullable|url|max:255', 'industry' => 'nullable|string|max:255', 'description' => 'nullable|string|max:10000', 'type' => 'nullable|in:customer,vendor,supplier,both', 'contact_person' => 'nullable|string|max:255', 'payment_terms' => 'nullable|string|max:255', 'notes' => 'nullable|string|max:10000']);
 
         return response()->json(['data' => $this->resource($create->handle($teamId, $data))], 201);
     }
@@ -50,7 +50,7 @@ class CustomersAndSitesController extends Controller
         $teamId = $this->teamId($request);
         abort_if($teamId === null, 403);
         abort_unless($teamId === (int) $customer->team_id && $request->user()->can('update', $customer), 404);
-        $data = $request->validate(['name' => 'sometimes|required|string|max:255', 'code' => 'sometimes|required|string|max:64', 'email' => 'sometimes|nullable|email|max:255', 'phone' => 'sometimes|nullable|string|max:64', 'notes' => 'sometimes|nullable|string|max:10000', 'is_active' => 'sometimes|boolean']);
+        $data = $request->validate(['name' => 'sometimes|required|string|max:255', 'code' => 'sometimes|required|string|max:64', 'email' => 'sometimes|nullable|email|max:255', 'phone' => 'sometimes|nullable|string|max:64', 'address' => 'sometimes|nullable|string|max:10000', 'city' => 'sometimes|nullable|string|max:255', 'state' => 'sometimes|nullable|string|max:255', 'zip' => 'sometimes|nullable|string|max:32', 'website' => 'sometimes|nullable|url|max:255', 'industry' => 'sometimes|nullable|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'type' => 'sometimes|in:customer,vendor,supplier,both', 'contact_person' => 'sometimes|nullable|string|max:255', 'payment_terms' => 'sometimes|nullable|string|max:255', 'notes' => 'sometimes|nullable|string|max:10000', 'is_active' => 'sometimes|boolean']);
 
         return response()->json(['data' => $this->resource($update->handle($teamId, $customer, $data))]);
     }
@@ -114,7 +114,7 @@ class CustomersAndSitesController extends Controller
 
     private function resource(Customer $c): array
     {
-        return ['id' => (string) $c->getKey(), 'type' => 'maintenance-customer', 'attributes' => ['name' => $c->name, 'code' => $c->code, 'email' => $c->email, 'phone' => $c->phone, 'notes' => $c->notes, 'is_active' => $c->is_active, 'created_at' => $c->created_at?->toISOString(), 'updated_at' => $c->updated_at?->toISOString()]];
+        return ['id' => (string) $c->getKey(), 'type' => 'maintenance-customer', 'attributes' => ['name' => $c->name, 'code' => $c->code, 'email' => $c->email, 'phone' => $c->phone, 'address' => $c->address, 'city' => $c->city, 'state' => $c->state, 'zip' => $c->zip, 'website' => $c->website, 'industry' => $c->industry, 'description' => $c->description, 'type' => $c->type, 'contact_person' => $c->contact_person, 'payment_terms' => $c->payment_terms, 'notes' => $c->notes, 'is_active' => $c->is_active, 'created_at' => $c->created_at?->toISOString(), 'updated_at' => $c->updated_at?->toISOString()]];
     }
 
     private function siteResource(Site $site): array
