@@ -30,7 +30,7 @@ class MaintenancePlanResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('name')->required()->maxLength(255), TextInput::make('code')->required()->maxLength(64), Select::make('frequency_unit')->options(['days' => 'Days', 'weeks' => 'Weeks', 'months' => 'Months', 'meters' => 'Meters'])->required(), TextInput::make('frequency_value')->numeric()->minValue(1)->required()]);
+        return $schema->components([TextInput::make('name')->required()->maxLength(255), TextInput::make('code')->required()->maxLength(64), Select::make('frequency_unit')->options(['hours' => 'Hours', 'days' => 'Days', 'weeks' => 'Weeks', 'months' => 'Months', 'years' => 'Years', 'meters' => 'Meters'])->required(), TextInput::make('frequency_value')->numeric()->minValue(1)->required()]);
     }
 
     public static function getEloquentQuery(): Builder

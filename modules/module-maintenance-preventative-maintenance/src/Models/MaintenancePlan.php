@@ -53,6 +53,7 @@ class MaintenancePlan extends Model
             'days' => $this->last_completed_at->copy()->addDays($this->frequency_value),
             'weeks' => $this->last_completed_at->copy()->addWeeks($this->frequency_value),
             'months' => $this->last_completed_at->copy()->addMonths($this->frequency_value),
+            'years' => $this->last_completed_at->copy()->addYears($this->frequency_value),
             'hours' => $this->last_completed_at->copy()->addHours($this->frequency_value),
             default => $this->next_due_at,
         };

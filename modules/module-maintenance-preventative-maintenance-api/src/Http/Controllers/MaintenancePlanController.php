@@ -48,7 +48,7 @@ class MaintenancePlanController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('create', MaintenancePlan::class), 403);
-        $data = $r->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'frequency_unit' => 'nullable|in:days,weeks,months,meters', 'frequency_value' => 'required|integer|min:1', 'next_due_at' => 'nullable|date', 'rules' => 'nullable|array']);
+        $data = $r->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'frequency_unit' => 'nullable|in:hours,days,weeks,months,years,meters', 'frequency_value' => 'required|integer|min:1', 'next_due_at' => 'nullable|date', 'rules' => 'nullable|array']);
 
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
     }
@@ -65,7 +65,7 @@ class MaintenancePlanController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($id === (int) $maintenancePlan->team_id && $r->user()->can('update', $maintenancePlan), 404);
-        $data = $r->validate(['name' => 'sometimes|required|string|max:255', 'code' => 'sometimes|required|string|max:64', 'frequency_unit' => 'sometimes|in:days,weeks,months,meters', 'frequency_value' => 'sometimes|required|integer|min:1', 'next_due_at' => 'sometimes|nullable|date', 'is_active' => 'sometimes|boolean', 'rules' => 'sometimes|nullable|array']);
+        $data = $r->validate(['name' => 'sometimes|required|string|max:255', 'code' => 'sometimes|required|string|max:64', 'frequency_unit' => 'sometimes|in:hours,days,weeks,months,years,meters', 'frequency_value' => 'sometimes|required|integer|min:1', 'next_due_at' => 'sometimes|nullable|date', 'is_active' => 'sometimes|boolean', 'rules' => 'sometimes|nullable|array']);
 
         return response()->json(['data' => $this->resource($update->handle($id, $maintenancePlan, $data))]);
     }
