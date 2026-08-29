@@ -3,6 +3,7 @@
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Assets\Actions\CreateAsset;
+use Liberu\Modules\Maintenance\Assets\Actions\RecordAssetHistory;
 use Liberu\Modules\Maintenance\Assets\Actions\UpdateAsset;
 use Liberu\Modules\Maintenance\Assets\Models\Asset;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -90,4 +91,15 @@ it('exposes reusable warranty state for modular assets', function () {
         ->and($daysRemaining)->toBeLessThanOrEqual(10)
         ->and(Asset::query()->where('team_id', $team->id)->underWarranty()->whereKey($covered)->exists())->toBeTrue()
         ->and(Asset::query()->where('team_id', $team->id)->warrantyExpired()->whereKey($expired)->exists())->toBeTrue();
+});
+
+it('records tenant-scoped asset history without replacing existing metadata', function () {
+    $team = Team::factory()->create();
+    $asset = app(CreateAsset::class)->handle($team->id, ['name' => 'Boiler', 'code' => 'B-05', 'metadata' => ['source' => 'import']]);
+
+    $updated = app(RecordAssetHistory::class)->handle($team->id, $asset, 'inspection', 'Annual inspection completed.', 42);
+
+    expect($updated->metadata['source'])->toBe('import')
+        ->and($updated->metadata['history'][0]['type'])->toBe('inspection')
+        ->and($updated->metadata['history'][0]['actor_id'])->toBe(42);
 });
