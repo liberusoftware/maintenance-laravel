@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,6 +20,7 @@ use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Filament\Resources\ReportingResource\Pages\CreateReport;
 use Liberu\Modules\Maintenance\Report\Filament\Resources\ReportingResource\Pages\EditReport;
 use Liberu\Modules\Maintenance\Report\Filament\Resources\ReportingResource\Pages\ListReports;
+use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
 class ReportingResource extends Resource
@@ -31,7 +33,7 @@ class ReportingResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('kind')->required(), TextInput::make('title')->required()]);
+        return $schema->components([Select::make('kind')->options(ReportKind::options())->required()->searchable(), TextInput::make('title')->required()]);
     }
 
     public static function getEloquentQuery(): Builder

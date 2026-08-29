@@ -9,6 +9,7 @@ use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\DeleteReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
+use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 use Livewire\Component;
 
@@ -24,7 +25,7 @@ class ReportingList extends Component
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
-        $this->validate(['kind' => 'required|string|max:80', 'title' => 'required|string|max:255']);
+        $this->validate(['kind' => 'required|in:'.implode(',', array_keys(ReportKind::options())), 'title' => 'required|string|max:255']);
         $create->handle((int) $teamId, ['kind' => $this->kind, 'title' => $this->title]);
         $this->reset(['kind', 'title']);
     }
@@ -41,7 +42,7 @@ class ReportingList extends Component
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingRecordId === null, 403);
-        $this->validate(['kind' => 'required|string|max:80', 'title' => 'required|string|max:255']);
+        $this->validate(['kind' => 'required|in:'.implode(',', array_keys(ReportKind::options())), 'title' => 'required|string|max:255']);
         $update->handle((int) $teamId, $this->recordForCurrentTeam($this->editingRecordId), ['kind' => $this->kind, 'title' => $this->title]);
         $this->cancelEdit();
     }

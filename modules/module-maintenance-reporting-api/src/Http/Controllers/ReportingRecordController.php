@@ -7,10 +7,12 @@ namespace Liberu\Modules\Maintenance\Reporting\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Validation\Rule;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\DeleteReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
+use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 
 class ReportingRecordController extends Controller
@@ -21,10 +23,10 @@ class ReportingRecordController extends Controller
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('viewAny', ReportRecord::class), 403);
         $query = ReportRecord::where('team_id', $teamId);
-        if ($request->filled('kind')) {
-            $query->ofKind($request->string('kind')->trim()->toString());
+        $period = $request->validate(['kind' => ['sometimes', Rule::enum(ReportKind::class)], 'period_start' => 'sometimes|date', 'period_end' => 'sometimes|date|after_or_equal:period_start']);
+        if (isset($period['kind'])) {
+            $query->ofKind($period['kind']);
         }
-        $period = $request->validate(['period_start' => 'sometimes|date', 'period_end' => 'sometimes|date|after_or_equal:period_start']);
         $query->forPeriod($period['period_start'] ?? null, $period['period_end'] ?? null);
         $items = $query->latest()->paginate(min($request->integer('per_page', 25), 100));
 
@@ -36,7 +38,7 @@ class ReportingRecordController extends Controller
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('create', ReportRecord::class), 403);
-        $data = $request->validate(['kind' => 'required|string|max:80', 'title' => 'required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'metric_value' => 'sometimes|nullable|numeric', 'period_start' => 'sometimes|nullable|date', 'period_end' => 'sometimes|nullable|date|after_or_equal:period_start', 'metadata' => 'sometimes|nullable|array']);
+        $data = $request->validate(['kind' => ['required', Rule::enum(ReportKind::class)], 'title' => 'required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'metric_value' => 'sometimes|nullable|numeric', 'period_start' => 'sometimes|nullable|date', 'period_end' => 'sometimes|nullable|date|after_or_equal:period_start', 'metadata' => 'sometimes|nullable|array']);
 
         return response()->json(['data' => $this->resource($create->handle((int) $teamId, $data))], 201);
     }
@@ -62,7 +64,7 @@ class ReportingRecordController extends Controller
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         abort_unless((int) $teamId === (int) $record->team_id && $request->user()->can('update', $record), 404);
-        $data = $request->validate(['kind' => 'sometimes|required|string|max:80', 'title' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'metric_value' => 'sometimes|nullable|numeric', 'period_start' => 'sometimes|nullable|date', 'period_end' => 'sometimes|nullable|date|after_or_equal:period_start', 'metadata' => 'sometimes|nullable|array']);
+        $data = $request->validate(['kind' => ['sometimes', 'required', Rule::enum(ReportKind::class)], 'title' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'metric_value' => 'sometimes|nullable|numeric', 'period_start' => 'sometimes|nullable|date', 'period_end' => 'sometimes|nullable|date|after_or_equal:period_start', 'metadata' => 'sometimes|nullable|array']);
 
         return response()->json(['data' => $this->resource($update->handle((int) $teamId, $record, $data))]);
     }
