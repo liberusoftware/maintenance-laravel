@@ -110,6 +110,6 @@ class PurchaseRequestController extends Controller
 
     private function resource(PurchaseRequest $p): array
     {
-        return ['id' => (string) $p->getKey(), 'type' => 'maintenance-purchase-request', 'attributes' => ['supplier_name' => $p->supplier_name, 'title' => $p->title, 'description' => $p->description, 'amount' => $p->amount, 'currency' => $p->currency, 'status' => $p->status, 'requested_by' => $p->requested_by, 'approved_by' => $p->approved_by]];
+        return ['id' => (string) $p->getKey(), 'type' => 'maintenance-purchase-request', 'attributes' => ['supplier_name' => $p->supplier_name, 'title' => $p->title, 'description' => $p->description, 'amount' => $p->amount, 'currency' => $p->currency, 'status' => $p->status, 'requested_by' => $p->requested_by, 'approved_by' => $p->approved_by, 'metadata' => $p->metadata]];
     }
 }
