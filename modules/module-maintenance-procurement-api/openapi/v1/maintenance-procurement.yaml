@@ -10,6 +10,12 @@ paths:
     delete: {operationId: maintenance.procurement.contracts.delete, security: [{sanctum: []}], responses: {'204': {description: Vendor contract deleted}}}
   /api/v1/maintenance/procurement/contracts/{vendorContract}/transition:
     post: {operationId: maintenance.procurement.contracts.transition, security: [{sanctum: []}], responses: {'200': {description: Vendor contract lifecycle transitioned}}}
+  /api/v1/maintenance/procurement/evaluations:
+    get: {operationId: maintenance.procurement.evaluations.list, security: [{sanctum: []}], responses: {'200': {description: Authorized vendor evaluations}}}
+    post: {operationId: maintenance.procurement.evaluations.create, security: [{sanctum: []}], responses: {'201': {description: Vendor evaluation created}}}
+  /api/v1/maintenance/procurement/evaluations/{vendorPerformanceEvaluation}:
+    get: {operationId: maintenance.procurement.evaluations.get, security: [{sanctum: []}], responses: {'200': {description: Vendor evaluation}}}
+    delete: {operationId: maintenance.procurement.evaluations.delete, security: [{sanctum: []}], responses: {'204': {description: Vendor evaluation deleted}}}
   /api/v1/maintenance/procurement:
     get: {operationId: maintenance.procurement.list, security: [{sanctum: []}], responses: {'200': {description: Authorized purchase requests}}}
     post: {operationId: maintenance.procurement.create, security: [{sanctum: []}], responses: {'201': {description: Purchase request created}}}
