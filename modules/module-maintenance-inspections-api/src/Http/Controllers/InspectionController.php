@@ -20,7 +20,20 @@ class InspectionController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('viewAny', Inspection::class), 403);
-        $items = Inspection::where('team_id', $id)->latest()->paginate(min($r->integer('per_page', 25), 100));
+        $filters = $r->validate([
+            'status' => ['sometimes', 'string', 'in:draft,completed'],
+            'outcome' => ['sometimes', 'string', 'in:pending,pass,fail,conditional'],
+            'inspected_after' => ['sometimes', 'date'],
+            'inspected_before' => ['sometimes', 'date', 'after_or_equal:inspected_after'],
+        ]);
+        $query = Inspection::where('team_id', $id)->inspectedBetween($filters['inspected_after'] ?? null, $filters['inspected_before'] ?? null);
+        if (isset($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+        if (isset($filters['outcome'])) {
+            $query->withOutcome($filters['outcome']);
+        }
+        $items = $query->latest()->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (Inspection $i) => $this->resource($i))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }
