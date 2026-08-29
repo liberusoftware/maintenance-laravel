@@ -3,6 +3,7 @@
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
@@ -95,4 +96,50 @@ it('soft deletes work orders while keeping them recoverable', function () {
 
     expect(WorkOrder::query()->whereKey($order->id)->exists())->toBeFalse()
         ->and(WorkOrder::withTrashed()->whereKey($order->id)->first()->deleted_at)->not->toBeNull();
+});
+
+it('provides triaged and blocked work-order scopes', function () {
+    $team = Team::factory()->create();
+    $triaged = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Triage repair']);
+    $blocked = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Blocked repair']);
+    $transition = app(TransitionWorkOrder::class);
+    $transition->handle($team->id, $triaged, 'triaged');
+    $transition->handle($team->id, $blocked, 'triaged');
+    $transition->handle($team->id, $blocked, 'in_progress');
+    $transition->handle($team->id, $blocked, 'blocked');
+
+    expect(WorkOrder::query()->where('team_id', $team->id)->triaged()->whereKey($triaged)->exists())->toBeTrue()
+        ->and(WorkOrder::query()->where('team_id', $team->id)->blocked()->whereKey($blocked)->exists())->toBeTrue();
+});
+
+it('supports tenant-scoped dependencies without cycles or self-links', function () {
+    $team = Team::factory()->create();
+    $first = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Prepare site']);
+    $second = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    $third = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Verify repair']);
+    $add = app(AddWorkOrderDependency::class);
+
+    $add->handle($team->id, $second, $first);
+    $add->handle($team->id, $third, $second);
+
+    expect($third->dependencies()->with('dependsOn')->first()->dependsOn->is($second))->toBeTrue();
+    expect(fn () => $add->handle($team->id, $first, $third))->toThrow(ValidationException::class);
+    expect(fn () => $add->handle($team->id, $first, $first))->toThrow(ValidationException::class);
+});
+
+it('requires prerequisite work orders to be completed first', function () {
+    $team = Team::factory()->create();
+    $prerequisite = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Prepare site']);
+    $dependent = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    app(AddWorkOrderDependency::class)->handle($team->id, $dependent, $prerequisite);
+    $transition = app(TransitionWorkOrder::class);
+    $transition->handle($team->id, $dependent, 'triaged');
+    $transition->handle($team->id, $dependent, 'in_progress');
+
+    expect(fn () => $transition->handle($team->id, $dependent, 'completed'))->toThrow(ValidationException::class);
+
+    $transition->handle($team->id, $prerequisite, 'triaged');
+    $transition->handle($team->id, $prerequisite, 'in_progress');
+    $transition->handle($team->id, $prerequisite, 'completed');
+    expect($transition->handle($team->id, $dependent, 'completed')->status)->toBe('completed');
 });

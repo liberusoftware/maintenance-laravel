@@ -21,7 +21,14 @@ class TimeEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('viewAny', TimeEntry::class), 403);
-        $items = TimeEntry::where('team_id', $id)->latest()->paginate(min($r->integer('per_page', 25), 100));
+        $query = TimeEntry::query()->where('team_id', $id);
+        if ($r->filled('status')) {
+            $query->where('status', $r->string('status')->toString());
+        }
+        if ($r->filled('user_id')) {
+            $query->forUser($r->integer('user_id'));
+        }
+        $items = $query->latest()->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (TimeEntry $e) => $this->resource($e))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }
@@ -31,7 +38,7 @@ class TimeEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('create', TimeEntry::class), 403);
-        $data = $r->validate(['description' => 'nullable|string|max:255', 'minutes' => 'required|integer|min:1', 'rate' => 'nullable|numeric|min:0', 'expense_amount' => 'nullable|numeric|min:0', 'currency' => 'nullable|string|size:3', 'started_at' => 'nullable|date', 'ended_at' => 'nullable|date']);
+        $data = $r->validate(['description' => 'nullable|string|max:255', 'minutes' => 'required|integer|min:1', 'rate' => 'nullable|numeric|min:0', 'expense_amount' => 'nullable|numeric|min:0', 'currency' => 'nullable|string|size:3', 'started_at' => 'nullable|date', 'ended_at' => 'nullable|date|after:started_at']);
         $data['user_id'] = $r->user()->getKey();
 
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
@@ -68,7 +75,7 @@ class TimeEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('update', $timeEntry), 404);
-        $data = $r->validate(['description' => 'sometimes|nullable|string|max:255', 'minutes' => 'sometimes|required|integer|min:1', 'rate' => 'sometimes|nullable|numeric|min:0', 'expense_amount' => 'sometimes|nullable|numeric|min:0', 'currency' => 'sometimes|string|size:3', 'started_at' => 'sometimes|nullable|date', 'ended_at' => 'sometimes|nullable|date']);
+        $data = $r->validate(['description' => 'sometimes|nullable|string|max:255', 'minutes' => 'sometimes|required|integer|min:1', 'rate' => 'sometimes|nullable|numeric|min:0', 'expense_amount' => 'sometimes|nullable|numeric|min:0', 'currency' => 'sometimes|string|size:3', 'started_at' => 'sometimes|nullable|date', 'ended_at' => 'sometimes|nullable|date|after:started_at']);
 
         return response()->json(['data' => $this->resource($update->handle($id, $timeEntry, $data))]);
     }

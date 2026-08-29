@@ -25,7 +25,7 @@ final class UpdateMaintenancePlan
             throw ValidationException::withMessages(['code' => 'The plan code is already in use.']);
         }
 
-        return DB::transaction(function () use ($plan, $attributes, $name, $code, $frequency): MaintenancePlan {
+        return DB::transaction(function () use ($plan, $attributes, $name, $code, $frequency, $unit): MaintenancePlan {
             $plan->fill(array_merge($attributes, ['name' => $name, 'code' => $code, 'frequency_value' => $frequency, 'frequency_unit' => $unit]));
             $plan->save();
 

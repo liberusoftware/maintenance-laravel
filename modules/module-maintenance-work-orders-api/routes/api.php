@@ -12,4 +12,7 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/work-orders')->gro
     Route::post('/{workOrder}/transitions', [WorkOrderController::class, 'transition']);
     Route::get('/{workOrder}/comments', [WorkOrderController::class, 'comments']);
     Route::post('/{workOrder}/comments', [WorkOrderController::class, 'comment']);
+    Route::get('/{workOrder}/dependencies', [WorkOrderController::class, 'dependencies']);
+    Route::post('/{workOrder}/dependencies', [WorkOrderController::class, 'addDependency']);
+    Route::delete('/{workOrder}/dependencies/{dependency}', [WorkOrderController::class, 'removeDependency']);
 });

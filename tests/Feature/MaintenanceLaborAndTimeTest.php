@@ -41,3 +41,13 @@ it('rejects pending time entries without allowing self-rejection', function () {
     expect(fn () => app(RejectTimeEntry::class)->handle($team->id, $rejected, $approver->id))
         ->toThrow(ValidationException::class);
 });
+
+it('enforces time ranges and exposes status scopes', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create(['current_team_id' => $team->id]);
+    expect(fn () => app(CreateTimeEntry::class)->handle($team->id, ['minutes' => 60, 'started_at' => '2026-08-29 10:00:00', 'ended_at' => '2026-08-29 09:00:00']))
+        ->toThrow(ValidationException::class);
+
+    $entry = app(CreateTimeEntry::class)->handle($team->id, ['minutes' => 60, 'user_id' => $user->id]);
+    expect(TimeEntry::query()->where('team_id', $team->id)->pending()->forUser((int) $entry->user_id)->whereKey($entry)->exists())->toBeTrue();
+});

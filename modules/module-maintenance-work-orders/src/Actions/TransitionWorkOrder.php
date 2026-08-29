@@ -17,6 +17,9 @@ class TransitionWorkOrder
         if (! in_array($status, $allowed[$workOrder->status] ?? [], true)) {
             throw ValidationException::withMessages(['status' => 'That work-order transition is not allowed.']);
         }
+        if ($status === 'completed' && $workOrder->dependencies()->whereHas('dependsOn', fn ($query) => $query->where('status', '!=', 'completed'))->exists()) {
+            throw ValidationException::withMessages(['status' => 'All prerequisite work orders must be completed first.']);
+        }
         $workOrder->status = $status;
         if ($status === 'in_progress' && $workOrder->started_at === null) {
             $workOrder->started_at = now();

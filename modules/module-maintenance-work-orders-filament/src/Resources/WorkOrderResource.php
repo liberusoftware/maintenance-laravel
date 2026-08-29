@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\WorkOrders\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
@@ -15,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Filament\Resources\WorkOrderResource\Pages\EditWorkOrder;
@@ -46,6 +48,15 @@ class WorkOrderResource extends Resource
     {
         return $table->columns([TextColumn::make('number')->sortable(), TextColumn::make('title')->searchable(), TextColumn::make('priority')->badge(), TextColumn::make('status')->badge(), TextColumn::make('created_at')->dateTime()])->recordActions([
             EditAction::make(),
+            Action::make('addDependency')->label('Add dependency')->form([Select::make('depends_on_work_order_id')->label('Depends on')->options(function (WorkOrder $record): array {
+                $teamId = (Filament::getTenant() ?? auth()->user()?->currentTeam)?->getKey();
+
+                return WorkOrder::query()->where('team_id', $teamId)->whereKeyNot($record->getKey())->orderBy('number')->pluck('title', 'id')->all();
+            })->required()->searchable()])->action(function (WorkOrder $record, array $data): void {
+                $teamId = (Filament::getTenant() ?? auth()->user()?->currentTeam)?->getKey();
+                abort_if($teamId === null, 403);
+                app(AddWorkOrderDependency::class)->handle((int) $teamId, $record, WorkOrder::query()->findOrFail($data['depends_on_work_order_id']));
+            }),
             DeleteAction::make()->action(function (WorkOrder $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);

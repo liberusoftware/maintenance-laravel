@@ -66,3 +66,12 @@ it('finds low and out of stock items using available quantities', function () {
         ->and(StockItem::query()->where('team_id', $team->id)->outOfStock()->pluck('id')->all())
         ->toBe([$out->id]);
 });
+
+it('does not adjust stock below reserved quantities', function () {
+    $team = Team::factory()->create();
+    $item = app(CreateStockItem::class)->handle($team->id, ['part_number' => 'reserved', 'name' => 'Reserved filter', 'quantity' => 5]);
+    app(ReserveStock::class)->handle($team->id, $item, 3);
+
+    expect(fn () => app(AdjustStock::class)->handle($team->id, $item, -3))
+        ->toThrow(ValidationException::class);
+});

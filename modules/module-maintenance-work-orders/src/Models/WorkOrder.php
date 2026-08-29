@@ -31,6 +31,16 @@ class WorkOrder extends Model
         return $query->where('status', 'in_progress');
     }
 
+    public function scopeTriaged(Builder $query): Builder
+    {
+        return $query->where('status', 'triaged');
+    }
+
+    public function scopeBlocked(Builder $query): Builder
+    {
+        return $query->where('status', 'blocked');
+    }
+
     public function scopeCompleted(Builder $query): Builder
     {
         return $query->where('status', 'completed');
@@ -59,5 +69,15 @@ class WorkOrder extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(WorkOrderComment::class);
+    }
+
+    public function dependencies(): HasMany
+    {
+        return $this->hasMany(WorkOrderDependency::class);
+    }
+
+    public function dependents(): HasMany
+    {
+        return $this->hasMany(WorkOrderDependency::class, 'depends_on_work_order_id');
     }
 }

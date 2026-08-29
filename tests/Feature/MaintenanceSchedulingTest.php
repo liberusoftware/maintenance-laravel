@@ -62,3 +62,17 @@ it('enforces the schedule status lifecycle', function () {
     expect($entry->status)->toBe('completed')
         ->and(fn () => $transition->handle($team->id, $entry, 'cancelled'))->toThrow(ValidationException::class);
 });
+
+it('does not let terminal schedule entries block future bookings', function () {
+    $team = Team::factory()->create();
+    $action = app(CreateScheduleEntry::class);
+    $attributes = ['resource_key' => 'tech-1', 'starts_at' => '2026-08-26 09:00:00', 'ends_at' => '2026-08-26 10:00:00'];
+    $completed = $action->handle($team->id, $attributes + ['title' => 'Completed visit']);
+    $transition = app(TransitionScheduleEntry::class);
+    $transition->handle($team->id, $completed, 'in_progress');
+    $transition->handle($team->id, $completed, 'completed');
+
+    $replacement = $action->handle($team->id, $attributes + ['title' => 'Replacement visit']);
+
+    expect($replacement->title)->toBe('Replacement visit');
+});
