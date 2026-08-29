@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\LaborAndTime\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\ApproveTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Models\TimeEntry;
 
@@ -38,6 +39,15 @@ class TimeEntryController extends Controller
         abort_unless($this->teamId($r) === $timeEntry->team_id && $r->user()->can('view', $timeEntry), 404);
 
         return response()->json(['data' => $this->resource($timeEntry)]);
+    }
+
+    public function approve(Request $r, TimeEntry $timeEntry, ApproveTimeEntry $approve): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('update', $timeEntry), 404);
+
+        return response()->json(['data' => $this->resource($approve->handle($id, $timeEntry, (int) $r->user()->getKey()))]);
     }
 
     private function teamId(Request $r): ?int

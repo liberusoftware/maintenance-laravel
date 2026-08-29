@@ -6,4 +6,6 @@ paths:
     post: {operationId: maintenance.inspections.create, security: [{sanctum: []}], responses: {'201': {description: Inspection created}}}
   /api/v1/maintenance/inspections/{id}:
     get: {operationId: maintenance.inspections.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Inspection}}}
+  /api/v1/maintenance/inspections/{id}/complete:
+    post: {operationId: maintenance.inspections.complete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Inspection completed}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

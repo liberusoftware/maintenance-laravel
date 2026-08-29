@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\Inspections\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection;
 use Liberu\Modules\Maintenance\Inspections\Models\Inspection;
 
@@ -38,6 +39,16 @@ class InspectionController extends Controller
         abort_unless($this->teamId($r) === $inspection->team_id && $r->user()->can('view', $inspection), 404);
 
         return response()->json(['data' => $this->resource($inspection)]);
+    }
+
+    public function complete(Request $r, Inspection $inspection, CompleteInspection $complete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $inspection->team_id && $r->user()->can('update', $inspection), 404);
+        $data = $r->validate(['outcome' => ['required', 'in:pass,fail,conditional']]);
+
+        return response()->json(['data' => $this->resource($complete->handle($id, $inspection, $data['outcome']))]);
     }
 
     private function teamId(Request $r): ?int

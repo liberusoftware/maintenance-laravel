@@ -32,6 +32,22 @@ RUN composer install \
     --ignore-platform-req=ext-pcntl
 
 ###########################################
+# Frontend assets stage
+###########################################
+FROM node:24-alpine AS frontend
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
+COPY resources ./resources
+COPY themes ./themes
+COPY vite.config.js ./
+COPY public ./public
+RUN npm run build
+
+###########################################
 # Main application stage
 ###########################################
 FROM php:${PHP_VERSION}-cli-alpine
@@ -127,6 +143,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy vendor from composer-deps stage for better caching
 COPY --chown=${USER}:${USER} --from=composer-deps /app/vendor ./vendor
+COPY --chown=${USER}:${USER} --from=frontend /app/public/build ./public/build
 
 # Copy composer files (needed for autoloader generation)
 COPY --chown=${USER}:${USER} composer.json composer.lock ./

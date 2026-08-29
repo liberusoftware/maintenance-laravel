@@ -8,6 +8,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
 
 class WorkOrderController extends Controller
@@ -32,11 +35,46 @@ class WorkOrderController extends Controller
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
     }
 
-    public function show(Request $r, WorkOrder $o): JsonResponse
+    public function show(Request $r, WorkOrder $workOrder): JsonResponse
     {
-        abort_unless($this->teamId($r) === $o->team_id && $r->user()->can('view', $o), 404);
+        abort_unless($this->teamId($r) === $workOrder->team_id && $r->user()->can('view', $workOrder), 404);
 
-        return response()->json(['data' => $this->resource($o)]);
+        return response()->json(['data' => $this->resource($workOrder)]);
+    }
+
+    public function update(Request $r, WorkOrder $workOrder, UpdateWorkOrder $update): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('update', $workOrder), 404);
+        $data = $r->validate([
+            'title' => ['sometimes', 'required', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
+            'priority' => ['sometimes', 'nullable', 'string', 'max:64'],
+            'metadata' => ['sometimes', 'nullable', 'array'],
+        ]);
+
+        return response()->json(['data' => $this->resource($update->handle($id, $workOrder, $data))]);
+    }
+
+    public function destroy(Request $r, WorkOrder $workOrder, DeleteWorkOrder $delete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('delete', $workOrder), 404);
+        $delete->handle($id, $workOrder);
+
+        return response()->json(null, 204);
+    }
+
+    public function transition(Request $r, WorkOrder $workOrder, TransitionWorkOrder $transition): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('update', $workOrder), 404);
+        $data = $r->validate(['status' => ['required', 'string', 'max:64']]);
+
+        return response()->json(['data' => $this->resource($transition->handle($id, $workOrder, $data['status']))]);
     }
 
     private function teamId(Request $r): ?int

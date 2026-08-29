@@ -6,4 +6,6 @@ paths:
     post: {operationId: maintenance.assets.create, security: [{sanctum: []}], responses: {'201': {description: Asset created}}}
   /api/v1/maintenance/assets/{id}:
     get: {operationId: maintenance.assets.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Asset}}}
+    patch: {operationId: maintenance.assets.update, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Asset updated}}}
+    delete: {operationId: maintenance.assets.delete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Asset deleted}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

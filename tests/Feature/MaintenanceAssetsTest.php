@@ -3,7 +3,9 @@
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Assets\Actions\CreateAsset;
+use Liberu\Modules\Maintenance\Assets\Actions\UpdateAsset;
 use Liberu\Modules\Maintenance\Assets\Models\Asset;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 it('creates tenant-scoped assets with normalized identifiers', function () {
     $team = Team::factory()->create();
@@ -22,4 +24,18 @@ it('rejects duplicate asset codes within a team', function () {
 
     expect(fn () => $action->handle($team->id, ['name' => 'Other', 'code' => 'ah-01']))
         ->toThrow(ValidationException::class);
+});
+
+it('updates assets without allowing a tenant escape or duplicate code', function () {
+    $team = Team::factory()->create();
+    $other = Team::factory()->create();
+    $action = app(CreateAsset::class);
+    $asset = $action->handle($team->id, ['name' => 'Air Handler', 'code' => 'AH-01']);
+    $otherAsset = $action->handle($team->id, ['name' => 'Pump', 'code' => 'P-01']);
+
+    $updated = app(UpdateAsset::class)->handle($team->id, $asset, ['name' => 'Main Air Handler', 'code' => 'ah-02']);
+
+    expect($updated->name)->toBe('Main Air Handler')->and($updated->code)->toBe('AH-02');
+    expect(fn () => app(UpdateAsset::class)->handle($other->id, $asset, ['name' => 'Nope']))->toThrow(NotFoundHttpException::class);
+    expect(fn () => app(UpdateAsset::class)->handle($team->id, $otherAsset, ['code' => 'ah-02']))->toThrow(ValidationException::class);
 });

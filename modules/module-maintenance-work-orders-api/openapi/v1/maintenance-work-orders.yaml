@@ -6,4 +6,8 @@ paths:
     post: {operationId: maintenance.work.orders.create, security: [{sanctum: []}], responses: {'201': {description: Work order created}}}
   /api/v1/maintenance/work-orders/{id}:
     get: {operationId: maintenance.work.orders.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Work order}}}
+    patch: {operationId: maintenance.work.orders.update, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Work order updated}}}
+    delete: {operationId: maintenance.work.orders.delete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Work order deleted}}}
+  /api/v1/maintenance/work-orders/{id}/transitions:
+    post: {operationId: maintenance.work.orders.transition, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Work order transitioned}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}
