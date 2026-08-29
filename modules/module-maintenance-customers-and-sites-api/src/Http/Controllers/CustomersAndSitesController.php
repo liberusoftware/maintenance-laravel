@@ -77,7 +77,14 @@ class CustomersAndSitesController extends Controller
         $teamId = $this->teamId($request);
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('viewAny', Site::class), 403);
-        $items = Site::query()->where('team_id', $teamId)->with('customer')->orderBy('name')->paginate(min($request->integer('per_page', 25), 100));
+        $query = Site::query()->where('team_id', $teamId)->with('customer');
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+        if ($request->filled('customer_id')) {
+            $query->where('customer_id', $request->integer('customer_id'));
+        }
+        $items = $query->orderBy('name')->paginate(min($request->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (Site $site) => $this->siteResource($site))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }

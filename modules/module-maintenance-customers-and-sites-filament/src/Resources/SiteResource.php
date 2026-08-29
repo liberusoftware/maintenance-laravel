@@ -51,7 +51,7 @@ class SiteResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('customer.name')->label('Customer')->searchable()])->recordActions([
+        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('customer.name')->label('Customer')->searchable(), TextColumn::make('is_active')->label('Active')->badge()])->recordActions([
             EditAction::make(),
             DeleteAction::make()->action(function (Site $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();

@@ -58,3 +58,13 @@ it('updates a site without allowing cross-team customer reassignment', function 
     expect(fn () => app(UpdateSite::class)->handle($team->id, $site, ['customer_id' => $otherCustomer->id]))
         ->toThrow(ValidationException::class);
 });
+
+it('provides active and inactive site scopes', function () {
+    $team = Team::factory()->create();
+    $customer = app(CreateCustomer::class)->handle($team->id, ['name' => 'Acme', 'code' => 'ACME']);
+    $active = app(CreateSite::class)->handle($team->id, ['customer_id' => $customer->id, 'name' => 'HQ', 'code' => 'HQ']);
+    $inactive = app(CreateSite::class)->handle($team->id, ['customer_id' => $customer->id, 'name' => 'Depot', 'code' => 'DEPOT', 'is_active' => false]);
+
+    expect(Site::query()->where('team_id', $team->id)->active()->whereKey($active)->exists())->toBeTrue()
+        ->and(Site::query()->where('team_id', $team->id)->inactive()->whereKey($inactive)->exists())->toBeTrue();
+});
