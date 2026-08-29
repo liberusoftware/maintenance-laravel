@@ -112,7 +112,7 @@ class WorkOrderController extends Controller
         abort_unless($id === (int) $workOrder->team_id && $r->user()->can('update', $workOrder), 404);
         $data = $r->validate(['status' => ['required', 'string', 'max:64']]);
 
-        return response()->json(['data' => $this->resource($transition->handle($id, $workOrder, $data['status']))]);
+        return response()->json(['data' => $this->resource($transition->handle($id, $workOrder, $data['status'], (int) $r->user()->getKey()))]);
     }
 
     public function comments(Request $r, WorkOrder $workOrder): JsonResponse

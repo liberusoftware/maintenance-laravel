@@ -21,7 +21,9 @@ it('creates and transitions a tenant-scoped work order', function () {
     expect($order)->toBeInstanceOf(WorkOrder::class)
         ->and($order->number)->toBe('WO-000001')
         ->and($order->status)->toBe('completed')
-        ->and($order->completed_at)->not->toBeNull();
+        ->and($order->completed_at)->not->toBeNull()
+        ->and($order->metadata['status_history'])->toHaveCount(3)
+        ->and($order->metadata['status_history'][0]['to'])->toBe('triaged');
 });
 
 it('rejects invalid work-order status transitions', function () {
