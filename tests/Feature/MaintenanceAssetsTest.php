@@ -51,6 +51,16 @@ it('provides reusable asset status and criticality scopes', function () {
         ->and(Asset::query()->where('team_id', $team->id)->underMaintenance()->pluck('id')->all())->toBe([$maintenance->id]);
 });
 
+it('filters assets by condition through the domain scope', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateAsset::class);
+    $needsRepair = $create->handle($team->id, ['name' => 'Pump', 'code' => 'P-05', 'condition' => 'needs_repair']);
+    $good = $create->handle($team->id, ['name' => 'Boiler', 'code' => 'B-06', 'condition' => 'good']);
+
+    expect(Asset::query()->where('team_id', $team->id)->inCondition('needs_repair')->pluck('id')->all())->toBe([$needsRepair->id])
+        ->and(Asset::query()->where('team_id', $team->id)->inCondition('good')->whereKey($good)->exists())->toBeTrue();
+});
+
 it('carries sensor configuration and derives asset health', function () {
     $team = Team::factory()->create();
     $asset = app(CreateAsset::class)->handle($team->id, [

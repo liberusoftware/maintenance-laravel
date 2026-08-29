@@ -27,6 +27,9 @@ class AssetController extends Controller
         if ($request->filled('criticality')) {
             $query->where('criticality', $request->string('criticality')->trim()->toString());
         }
+        if ($request->filled('condition')) {
+            $query->inCondition($request->string('condition')->trim()->toString());
+        }
         if ($request->has('sensor_enabled')) {
             $query->where('sensor_enabled', $request->boolean('sensor_enabled'));
         }
