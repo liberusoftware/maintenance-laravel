@@ -63,6 +63,26 @@ it('retains legacy assignment and maintenance tracking fields in the modular mod
         ->and($order->maintenance_plan_id)->toBe(74);
 });
 
+it('retains legacy guest intake and review fields in the modular model', function () {
+    $team = Team::factory()->create();
+    $submitted = now()->subHour();
+    $reviewed = now();
+    $order = app(CreateWorkOrder::class)->handle($team->id, [
+        'title' => 'Guest-reported leak', 'guest_name' => 'Jane Doe', 'guest_email' => 'jane@example.com',
+        'guest_phone' => '+1 555 0100', 'submitted_at' => $submitted, 'reviewed_by' => 17,
+        'reviewed_at' => $reviewed, 'vendor_id' => 29, 'notes' => 'Call before arrival.',
+    ]);
+
+    expect($order->guest_name)->toBe('Jane Doe')
+        ->and($order->guest_email)->toBe('jane@example.com')
+        ->and($order->guest_phone)->toBe('+1 555 0100')
+        ->and($order->submitted_at->toDateTimeString())->toBe($submitted->toDateTimeString())
+        ->and($order->reviewed_by)->toBe(17)
+        ->and($order->reviewed_at->toDateTimeString())->toBe($reviewed->toDateTimeString())
+        ->and($order->vendor_id)->toBe(29)
+        ->and($order->notes)->toBe('Call before arrival.');
+});
+
 it('stores comments within the work order tenant boundary', function () {
     $team = Team::factory()->create();
     $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);

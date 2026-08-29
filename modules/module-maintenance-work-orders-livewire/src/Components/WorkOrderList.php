@@ -24,6 +24,14 @@ class WorkOrderList extends Component
 
     public string $description = '';
 
+    public string $guestName = '';
+
+    public string $guestEmail = '';
+
+    public string $guestPhone = '';
+
+    public string $notes = '';
+
     public ?int $editingOrderId = null;
 
     public string $comment = '';
@@ -42,9 +50,9 @@ class WorkOrderList extends Component
     {
         $id = auth()->user()?->currentTeam?->getKey();
         abort_if($id === null, 403);
-        $this->validate(['title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000']);
-        $create->handle((int) $id, ['title' => $this->title, 'description' => $this->description]);
-        $this->reset(['title', 'description']);
+        $this->validate(['title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'guestName' => 'nullable|string|max:255', 'guestEmail' => 'nullable|email|max:255', 'guestPhone' => 'nullable|string|max:64', 'notes' => 'nullable|string|max:10000']);
+        $create->handle((int) $id, ['title' => $this->title, 'description' => $this->description, 'guest_name' => $this->guestName ?: null, 'guest_email' => $this->guestEmail ?: null, 'guest_phone' => $this->guestPhone ?: null, 'submitted_at' => now(), 'notes' => $this->notes ?: null]);
+        $this->reset(['title', 'description', 'guestName', 'guestEmail', 'guestPhone', 'notes']);
         $this->dispatch('maintenance-work-order-created');
     }
 
@@ -54,14 +62,18 @@ class WorkOrderList extends Component
         $this->editingOrderId = $order->getKey();
         $this->title = $order->title;
         $this->description = (string) ($order->description ?? '');
+        $this->guestName = (string) ($order->guest_name ?? '');
+        $this->guestEmail = (string) ($order->guest_email ?? '');
+        $this->guestPhone = (string) ($order->guest_phone ?? '');
+        $this->notes = (string) ($order->notes ?? '');
     }
 
     public function update(UpdateWorkOrder $update): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingOrderId === null, 403);
-        $this->validate(['title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000']);
-        $update->handle((int) $teamId, $this->orderForCurrentTeam($this->editingOrderId), ['title' => $this->title, 'description' => $this->description]);
+        $this->validate(['title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'guestName' => 'nullable|string|max:255', 'guestEmail' => 'nullable|email|max:255', 'guestPhone' => 'nullable|string|max:64', 'notes' => 'nullable|string|max:10000']);
+        $update->handle((int) $teamId, $this->orderForCurrentTeam($this->editingOrderId), ['title' => $this->title, 'description' => $this->description, 'guest_name' => $this->guestName ?: null, 'guest_email' => $this->guestEmail ?: null, 'guest_phone' => $this->guestPhone ?: null, 'notes' => $this->notes ?: null]);
         $this->cancelEdit();
     }
 
@@ -74,7 +86,7 @@ class WorkOrderList extends Component
 
     public function cancelEdit(): void
     {
-        $this->reset(['title', 'description', 'editingOrderId']);
+        $this->reset(['title', 'description', 'guestName', 'guestEmail', 'guestPhone', 'notes', 'editingOrderId']);
     }
 
     public function addDependency(int $orderId, AddWorkOrderDependency $add): void
