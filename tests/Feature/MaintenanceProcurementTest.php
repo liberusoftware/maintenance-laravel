@@ -5,6 +5,7 @@ use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Procurement\Actions\ApprovePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\RejectPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
 
 it('creates and approves a tenant-scoped purchase request', function () {
@@ -27,4 +28,16 @@ it('prevents self-approval of purchase requests', function () {
 
     expect(fn () => app(ApprovePurchaseRequest::class)->handle($team->id, $request, $requester->id))
         ->toThrow(ValidationException::class);
+});
+
+it('rejects pending purchase requests and records the reason', function () {
+    $team = Team::factory()->create();
+    $requester = User::factory()->create(['current_team_id' => $team->id]);
+    $approver = User::factory()->create(['current_team_id' => $team->id]);
+    $request = app(CreatePurchaseRequest::class)->handle($team->id, ['title' => 'Pump seal', 'amount' => 10, 'requested_by' => $requester->id]);
+
+    $rejected = app(RejectPurchaseRequest::class)->handle($team->id, $request, $approver->id, 'Budget unavailable');
+
+    expect($rejected->status)->toBe('rejected')
+        ->and($rejected->metadata['rejection_reason'])->toBe('Budget unavailable');
 });

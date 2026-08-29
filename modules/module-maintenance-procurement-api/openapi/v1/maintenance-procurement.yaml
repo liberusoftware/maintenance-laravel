@@ -8,4 +8,6 @@ paths:
     get: {operationId: maintenance.procurement.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase request}}}
   /api/v1/maintenance/procurement/{id}/approve:
     post: {operationId: maintenance.procurement.approve, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase request approved}}}
+  /api/v1/maintenance/procurement/{id}/reject:
+    post: {operationId: maintenance.procurement.reject, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase request rejected}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

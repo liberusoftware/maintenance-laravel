@@ -10,6 +10,7 @@ use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Procurement\Actions\ApprovePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\DeletePurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\RejectPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\UpdatePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
 
@@ -50,6 +51,16 @@ class PurchaseRequestController extends Controller
         abort_unless($id === (int) $purchaseRequest->team_id && $r->user()->can('update', $purchaseRequest), 404);
 
         return response()->json(['data' => $this->resource($approve->handle($id, $purchaseRequest, (int) $r->user()->getKey()))]);
+    }
+
+    public function reject(Request $r, PurchaseRequest $purchaseRequest, RejectPurchaseRequest $reject): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $purchaseRequest->team_id && $r->user()->can('update', $purchaseRequest), 404);
+        $data = $r->validate(['reason' => 'sometimes|nullable|string|max:2000']);
+
+        return response()->json(['data' => $this->resource($reject->handle($id, $purchaseRequest, (int) $r->user()->getKey(), $data['reason'] ?? null))]);
     }
 
     public function update(Request $r, PurchaseRequest $purchaseRequest, UpdatePurchaseRequest $update): JsonResponse
