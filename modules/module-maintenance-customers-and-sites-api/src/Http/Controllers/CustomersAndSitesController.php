@@ -23,7 +23,14 @@ class CustomersAndSitesController extends Controller
         $teamId = $this->teamId($request);
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('viewAny', Customer::class), 403);
-        $items = Customer::where('team_id', $teamId)->orderBy('name')->paginate(min($request->integer('per_page', 25), 100));
+        $query = Customer::where('team_id', $teamId);
+        if ($request->has('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+        if ($request->filled('type')) {
+            $query->where('type', $request->string('type')->trim()->toString());
+        }
+        $items = $query->orderBy('name')->paginate(min($request->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (Customer $c) => $this->resource($c))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }

@@ -44,6 +44,7 @@ it('retains legacy customer profile fields and vendor classification', function 
         ->and($customer->isVendor())->toBeTrue()
         ->and($customer->isCustomer())->toBeFalse()
         ->and(Customer::query()->where('team_id', $team->id)->suppliers()->whereKey($customer)->exists())->toBeTrue()
+        ->and(Customer::query()->where('team_id', $team->id)->active()->whereKey($customer)->exists())->toBeTrue()
         ->and($customer->city)->toBe('Denver');
 });
 
