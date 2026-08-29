@@ -21,6 +21,16 @@ class WorkOrder extends Model
 
     protected $casts = ['team_id' => 'integer', 'equipment_id' => 'integer', 'customer_id' => 'integer', 'vendor_id' => 'integer', 'assigned_to' => 'integer', 'requested_by' => 'integer', 'reviewed_by' => 'integer', 'maintenance_plan_id' => 'integer', 'checklist_id' => 'integer', 'due_date' => 'datetime', 'started_at' => 'datetime', 'submitted_at' => 'datetime', 'reviewed_at' => 'datetime', 'completed_at' => 'datetime', 'estimated_minutes' => 'integer', 'actual_minutes' => 'integer', 'metadata' => 'array'];
 
+    public function estimatedHours(): ?float
+    {
+        return $this->estimated_minutes === null ? null : round((int) $this->estimated_minutes / 60, 2);
+    }
+
+    public function actualHours(): ?float
+    {
+        return $this->actual_minutes === null ? null : round((int) $this->actual_minutes / 60, 2);
+    }
+
     public function scopePending(Builder $query): Builder
     {
         return $query->where('status', 'requested');
