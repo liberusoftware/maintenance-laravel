@@ -32,11 +32,11 @@ class WorkOrderController extends Controller
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
     }
 
-    public function show(Request $r, WorkOrder $o): JsonResponse
+    public function show(Request $r, WorkOrder $workOrder): JsonResponse
     {
-        abort_unless($this->teamId($r) === $o->team_id && $r->user()->can('view', $o), 404);
+        abort_unless($this->teamId($r) === $workOrder->team_id && $r->user()->can('view', $workOrder), 404);
 
-        return response()->json(['data' => $this->resource($o)]);
+        return response()->json(['data' => $this->resource($workOrder)]);
     }
 
     private function teamId(Request $r): ?int

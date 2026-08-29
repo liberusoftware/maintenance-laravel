@@ -7,4 +7,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/assets')->group(fu
     Route::get('/', [AssetController::class, 'index']);
     Route::post('/', [AssetController::class, 'store']);
     Route::get('/{asset}', [AssetController::class, 'show']);
+    Route::patch('/{asset}', [AssetController::class, 'update']);
+    Route::delete('/{asset}', [AssetController::class, 'destroy']);
 });

@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Assets\Actions\CreateAsset;
+use Liberu\Modules\Maintenance\Assets\Actions\DeleteAsset;
+use Liberu\Modules\Maintenance\Assets\Actions\UpdateAsset;
 use Liberu\Modules\Maintenance\Assets\Models\Asset;
 
 class AssetController extends Controller
@@ -37,6 +39,37 @@ class AssetController extends Controller
         abort_unless($this->teamId($request) === $asset->team_id && $request->user()->can('view', $asset), 404);
 
         return response()->json(['data' => $this->resource($asset)]);
+    }
+
+    public function update(Request $request, Asset $asset, UpdateAsset $update): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($teamId === (int) $asset->team_id && $request->user()->can('update', $asset), 404);
+
+        $data = $request->validate([
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'code' => ['sometimes', 'required', 'string', 'max:64'],
+            'category' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'serial_number' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'condition' => ['sometimes', 'nullable', 'string', 'max:64'],
+            'status' => ['sometimes', 'nullable', 'string', 'max:64'],
+            'qr_code' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'barcode' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'metadata' => ['sometimes', 'nullable', 'array'],
+        ]);
+
+        return response()->json(['data' => $this->resource($update->handle($teamId, $asset, $data))]);
+    }
+
+    public function destroy(Request $request, Asset $asset, DeleteAsset $delete): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($teamId === (int) $asset->team_id && $request->user()->can('delete', $asset), 404);
+        $delete->handle($teamId, $asset);
+
+        return response()->json(null, 204);
     }
 
     private function teamId(Request $request): ?int

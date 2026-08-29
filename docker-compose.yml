@@ -9,7 +9,7 @@ services:
         GROUP_ID: '${WWWGROUP:-1000}'
     image: boilerplate-laravel:latest
     ports:
-      - '${APP_PORT:-8000}:80'
+      - '${APP_PORT:-8000}:8000'
     environment:
       CONTAINER_MODE: http
       OCTANE_SERVER: roadrunner
