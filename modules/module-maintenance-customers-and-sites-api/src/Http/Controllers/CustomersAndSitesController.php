@@ -8,9 +8,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\CustomersAndSites\Actions\CreateCustomer;
+use Liberu\Modules\Maintenance\CustomersAndSites\Actions\CreateSite;
 use Liberu\Modules\Maintenance\CustomersAndSites\Actions\DeleteCustomer;
+use Liberu\Modules\Maintenance\CustomersAndSites\Actions\DeleteSite;
 use Liberu\Modules\Maintenance\CustomersAndSites\Actions\UpdateCustomer;
+use Liberu\Modules\Maintenance\CustomersAndSites\Actions\UpdateSite;
 use Liberu\Modules\Maintenance\CustomersAndSites\Models\Customer;
+use Liberu\Modules\Maintenance\CustomersAndSites\Models\Site;
 
 class CustomersAndSitesController extends Controller
 {
@@ -61,6 +65,46 @@ class CustomersAndSitesController extends Controller
         return response()->json(null, 204);
     }
 
+    public function sites(Request $request): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($request->user()->can('viewAny', Site::class), 403);
+        $items = Site::query()->where('team_id', $teamId)->with('customer')->orderBy('name')->paginate(min($request->integer('per_page', 25), 100));
+
+        return response()->json(['data' => $items->getCollection()->map(fn (Site $site) => $this->siteResource($site))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
+    }
+
+    public function storeSite(Request $request, CreateSite $create): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($request->user()->can('create', Site::class), 403);
+        $data = $request->validate(['customer_id' => 'required|integer', 'name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'address' => 'nullable|string|max:10000', 'access_details' => 'nullable|string|max:10000', 'hazards' => 'nullable|string|max:10000']);
+
+        return response()->json(['data' => $this->siteResource($create->handle($teamId, $data))], 201);
+    }
+
+    public function updateSite(Request $request, Site $site, UpdateSite $update): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($teamId === (int) $site->team_id && $request->user()->can('update', $site), 404);
+        $data = $request->validate(['customer_id' => 'sometimes|integer', 'name' => 'sometimes|required|string|max:255', 'code' => 'sometimes|required|string|max:64', 'address' => 'sometimes|nullable|string|max:10000', 'access_details' => 'sometimes|nullable|string|max:10000', 'hazards' => 'sometimes|nullable|string|max:10000', 'is_active' => 'sometimes|boolean']);
+
+        return response()->json(['data' => $this->siteResource($update->handle($teamId, $site, $data))]);
+    }
+
+    public function destroySite(Request $request, Site $site, DeleteSite $delete): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($teamId === (int) $site->team_id && $request->user()->can('delete', $site), 404);
+        $delete->handle($teamId, $site);
+
+        return response()->json(null, 204);
+    }
+
     private function teamId(Request $request): ?int
     {
         $id = $request->user()?->currentTeam?->getKey();
@@ -71,5 +115,10 @@ class CustomersAndSitesController extends Controller
     private function resource(Customer $c): array
     {
         return ['id' => (string) $c->getKey(), 'type' => 'maintenance-customer', 'attributes' => ['name' => $c->name, 'code' => $c->code, 'email' => $c->email, 'phone' => $c->phone, 'notes' => $c->notes, 'is_active' => $c->is_active, 'created_at' => $c->created_at?->toISOString(), 'updated_at' => $c->updated_at?->toISOString()]];
+    }
+
+    private function siteResource(Site $site): array
+    {
+        return ['id' => (string) $site->getKey(), 'type' => 'maintenance-site', 'attributes' => ['customer_id' => $site->customer_id, 'name' => $site->name, 'code' => $site->code, 'address' => $site->address, 'access_details' => $site->access_details, 'hazards' => $site->hazards, 'is_active' => $site->is_active]];
     }
 }
