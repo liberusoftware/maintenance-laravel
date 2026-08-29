@@ -2,10 +2,14 @@ openapi: 3.1.0
 info: {title: maintenance inventory API, version: 1.0.0}
 paths:
   /api/v1/maintenance/inventory:
-    get: {operationId: maintenance.inventory.list, security: [{sanctum: []}], responses: {'200': {description: Authorized stock items}}}
+    get: {operationId: maintenance.inventory.list, security: [{sanctum: []}], parameters: [{name: stock, in: query, schema: {type: string, enum: [low, out]}}], responses: {'200': {description: Authorized stock items}}}
     post: {operationId: maintenance.inventory.create, security: [{sanctum: []}], responses: {'201': {description: Stock item created}}}
   /api/v1/maintenance/inventory/{id}:
     get: {operationId: maintenance.inventory.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock item}}}
   /api/v1/maintenance/inventory/{id}/adjust:
     post: {operationId: maintenance.inventory.adjust, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock adjusted}}}
+  /api/v1/maintenance/inventory/{id}/reserve:
+    post: {operationId: maintenance.inventory.reserve, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock reserved}}}
+  /api/v1/maintenance/inventory/{id}/release:
+    post: {operationId: maintenance.inventory.release, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Reserved stock released}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}
