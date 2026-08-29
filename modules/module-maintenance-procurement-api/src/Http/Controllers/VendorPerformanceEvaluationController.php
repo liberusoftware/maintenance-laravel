@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreateVendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Procurement\Actions\DeleteVendorPerformanceEvaluation;
+use Liberu\Modules\Maintenance\Procurement\Actions\UpdateVendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Procurement\Models\VendorPerformanceEvaluation;
 
 class VendorPerformanceEvaluationController extends Controller
@@ -46,6 +47,16 @@ class VendorPerformanceEvaluationController extends Controller
         abort_unless($this->teamId($request) === (int) $vendorPerformanceEvaluation->team_id && $request->user()->can('view', $vendorPerformanceEvaluation), 404);
 
         return response()->json(['data' => $this->resource($vendorPerformanceEvaluation)]);
+    }
+
+    public function update(Request $request, VendorPerformanceEvaluation $vendorPerformanceEvaluation, UpdateVendorPerformanceEvaluation $update): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($teamId === (int) $vendorPerformanceEvaluation->team_id && $request->user()->can('update', $vendorPerformanceEvaluation), 404);
+        $data = $request->validate(['vendor_name' => 'sometimes|required|string|max:255', 'evaluation_date' => 'sometimes|required|date', 'quality_rating' => 'sometimes|integer|min:0|max:5', 'timeliness_rating' => 'sometimes|integer|min:0|max:5', 'communication_rating' => 'sometimes|integer|min:0|max:5', 'cost_effectiveness_rating' => 'sometimes|integer|min:0|max:5', 'professionalism_rating' => 'sometimes|integer|min:0|max:5', 'strengths' => 'sometimes|nullable|string|max:10000', 'areas_for_improvement' => 'sometimes|nullable|string|max:10000', 'comments' => 'sometimes|nullable|string|max:10000', 'would_recommend' => 'sometimes|boolean']);
+
+        return response()->json(['data' => $this->resource($update->handle($teamId, $vendorPerformanceEvaluation, $data))]);
     }
 
     public function destroy(Request $request, VendorPerformanceEvaluation $vendorPerformanceEvaluation, DeleteVendorPerformanceEvaluation $delete): JsonResponse

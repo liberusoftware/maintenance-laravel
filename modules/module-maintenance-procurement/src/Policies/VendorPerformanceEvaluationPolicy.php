@@ -23,6 +23,11 @@ class VendorPerformanceEvaluationPolicy
         return $user->currentTeam !== null;
     }
 
+    public function update(object $user, VendorPerformanceEvaluation $evaluation): bool
+    {
+        return $this->view($user, $evaluation);
+    }
+
     public function delete(object $user, VendorPerformanceEvaluation $evaluation): bool
     {
         return $this->view($user, $evaluation);

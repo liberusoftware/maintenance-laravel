@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Modules\Maintenance\Procurement\Filament\Resources;
 
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
@@ -15,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Procurement\Actions\DeleteVendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\VendorEvaluationResource\Pages\CreateVendorEvaluation;
+use Liberu\Modules\Maintenance\Procurement\Filament\Resources\VendorEvaluationResource\Pages\EditVendorEvaluation;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\VendorEvaluationResource\Pages\ListVendorEvaluations;
 use Liberu\Modules\Maintenance\Procurement\Models\VendorPerformanceEvaluation;
 
@@ -42,6 +44,7 @@ class VendorEvaluationResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->columns([TextColumn::make('vendor_name')->searchable(), TextColumn::make('evaluation_date')->date()->sortable(), TextColumn::make('overall_rating')->sortable(), TextColumn::make('would_recommend')->boolean()])->recordActions([
+            EditAction::make(),
             DeleteAction::make()->action(function (VendorPerformanceEvaluation $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);
@@ -52,6 +55,6 @@ class VendorEvaluationResource extends Resource
 
     public static function getPages(): array
     {
-        return ['index' => ListVendorEvaluations::route('/'), 'create' => CreateVendorEvaluation::route('/create')];
+        return ['index' => ListVendorEvaluations::route('/'), 'create' => CreateVendorEvaluation::route('/create'), 'edit' => EditVendorEvaluation::route('/{record}/edit')];
     }
 }

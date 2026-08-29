@@ -13,6 +13,7 @@ use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreateVendorContract;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreateVendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Procurement\Actions\TransitionVendorContract;
+use Liberu\Modules\Maintenance\Procurement\Actions\UpdateVendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Procurement\Models\VendorContract;
 use Liberu\Modules\Maintenance\Procurement\Models\VendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
@@ -175,4 +176,13 @@ it('derives vendor evaluation ratings and keeps evaluations tenant scoped', func
         ->and($evaluation->overall_rating)->toBe('4.20')
         ->and(VendorPerformanceEvaluation::query()->where('team_id', $otherTeam->id)->count())->toBe(0)
         ->and(VendorPerformanceEvaluation::query()->where('team_id', $team->id)->highPerformance()->whereKey($evaluation)->exists())->toBeTrue();
+});
+
+it('recalculates vendor evaluation ratings through the update action', function () {
+    $team = Team::factory()->create();
+    $evaluation = app(CreateVendorPerformanceEvaluation::class)->handle($team->id, ['vendor_name' => 'Acme Services', 'evaluation_date' => now()->toDateString(), 'quality_rating' => 2, 'timeliness_rating' => 2]);
+
+    $updated = app(UpdateVendorPerformanceEvaluation::class)->handle($team->id, $evaluation, ['quality_rating' => 5, 'timeliness_rating' => 4, 'communication_rating' => 5]);
+
+    expect($updated->overall_rating)->toBe('4.67');
 });

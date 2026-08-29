@@ -15,6 +15,7 @@ paths:
     post: {operationId: maintenance.procurement.evaluations.create, security: [{sanctum: []}], responses: {'201': {description: Vendor evaluation created}}}
   /api/v1/maintenance/procurement/evaluations/{vendorPerformanceEvaluation}:
     get: {operationId: maintenance.procurement.evaluations.get, security: [{sanctum: []}], responses: {'200': {description: Vendor evaluation}}}
+    patch: {operationId: maintenance.procurement.evaluations.update, security: [{sanctum: []}], responses: {'200': {description: Vendor evaluation updated}}}
     delete: {operationId: maintenance.procurement.evaluations.delete, security: [{sanctum: []}], responses: {'204': {description: Vendor evaluation deleted}}}
   /api/v1/maintenance/procurement:
     get: {operationId: maintenance.procurement.list, security: [{sanctum: []}], responses: {'200': {description: Authorized purchase requests}}}

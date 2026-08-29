@@ -15,6 +15,7 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/procurement')->gro
     Route::get('/evaluations', [VendorPerformanceEvaluationController::class, 'index']);
     Route::post('/evaluations', [VendorPerformanceEvaluationController::class, 'store']);
     Route::get('/evaluations/{vendorPerformanceEvaluation}', [VendorPerformanceEvaluationController::class, 'show']);
+    Route::patch('/evaluations/{vendorPerformanceEvaluation}', [VendorPerformanceEvaluationController::class, 'update']);
     Route::delete('/evaluations/{vendorPerformanceEvaluation}', [VendorPerformanceEvaluationController::class, 'destroy']);
     Route::get('/', [PurchaseRequestController::class, 'index']);
     Route::post('/', [PurchaseRequestController::class, 'store']);
