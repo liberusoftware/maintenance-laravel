@@ -99,3 +99,15 @@ it('upserts settings and numbering configuration per team', function () {
         ->and($sequence->prefix)->toBe('WO-')
         ->and($sequence->padding)->toBe(8);
 });
+
+it('provides lifecycle scopes for core configuration records', function () {
+    $team = Team::factory()->create();
+    $organization = app(CreateOrganization::class)->execute($team->id, 'North Plant', 'NORTH');
+    $inactive = app(UpdateOrganization::class)->execute($organization, ['state' => 'inactive']);
+    app(CreateStatus::class)->execute($team->id, ['name' => 'Open', 'code' => 'open', 'is_active' => true]);
+    app(CreateStatus::class)->execute($team->id, ['name' => 'Closed', 'code' => 'closed', 'is_active' => false]);
+
+    expect(Organization::query()->inactive()->whereKey($inactive)->exists())->toBeTrue()
+        ->and(Status::query()->where('team_id', $team->id)->active()->count())->toBe(1)
+        ->and(Status::query()->where('team_id', $team->id)->inactive()->count())->toBe(1);
+});
