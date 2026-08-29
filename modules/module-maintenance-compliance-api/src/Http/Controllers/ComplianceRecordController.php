@@ -16,6 +16,7 @@ class ComplianceRecordController extends Controller
     {
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
+        abort_unless($request->user()->can('viewAny', ComplianceRecord::class), 403);
         $items = ComplianceRecord::where('team_id', $teamId)->latest()->paginate(min($request->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (ComplianceRecord $record) => $this->resource($record))->values(), 'meta' => ['total' => $items->total()]]);
@@ -33,7 +34,7 @@ class ComplianceRecordController extends Controller
 
     public function show(Request $request, ComplianceRecord $record): JsonResponse
     {
-        abort_unless((int) $request->user()?->currentTeam?->getKey() === (int) $record->team_id, 404);
+        abort_unless((int) $request->user()?->currentTeam?->getKey() === (int) $record->team_id && $request->user()->can('view', $record), 404);
 
         return response()->json(['data' => $this->resource($record)]);
     }
