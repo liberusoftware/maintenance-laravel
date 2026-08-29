@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace Liberu\Modules\Maintenance\PreventativeMaintenance\Filament\Resources\MaintenancePlanResource\Pages;
 
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
+use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CreateMaintenancePlan as CreateMaintenancePlanAction;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Filament\Resources\MaintenancePlanResource;
 
 class CreateMaintenancePlan extends CreateRecord
 {
     protected static string $resource = MaintenancePlanResource::class;
 
-    protected function mutateFormDataBeforeCreate(array $data): array
+    protected function handleRecordCreation(array $data): Model
     {
-        $data['team_id'] = auth()->user()?->currentTeam?->getKey();
-        abort_if($data['team_id'] === null, 403);
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
 
-        return $data;
+        return app(CreateMaintenancePlanAction::class)->handle((int) $teamId, $data);
     }
 }
