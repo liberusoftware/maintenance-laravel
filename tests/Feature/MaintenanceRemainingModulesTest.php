@@ -11,8 +11,10 @@ use Liberu\Modules\Maintenance\Portal\Actions\CreatePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreateVendorContract;
+use Liberu\Modules\Maintenance\Procurement\Actions\CreateVendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Procurement\Actions\TransitionVendorContract;
 use Liberu\Modules\Maintenance\Procurement\Models\VendorContract;
+use Liberu\Modules\Maintenance\Procurement\Models\VendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
@@ -154,4 +156,23 @@ it('tracks tenant-scoped vendor contracts and their expiry lifecycle', function 
     $active = app(TransitionVendorContract::class)->handle($team->id, $contract, 'active');
     expect($active->isActive())->toBeTrue()
         ->and(VendorContract::query()->where('team_id', $team->id)->expiringSoon(30)->whereKey($contract)->exists())->toBeTrue();
+});
+
+it('derives vendor evaluation ratings and keeps evaluations tenant scoped', function () {
+    $team = Team::factory()->create();
+    $otherTeam = Team::factory()->create();
+    $evaluation = app(CreateVendorPerformanceEvaluation::class)->handle($team->id, [
+        'vendor_name' => 'Acme Services',
+        'evaluation_date' => now()->toDateString(),
+        'quality_rating' => 5,
+        'timeliness_rating' => 4,
+        'communication_rating' => 3,
+        'cost_effectiveness_rating' => 4,
+        'professionalism_rating' => 5,
+    ]);
+
+    expect($evaluation)->toBeInstanceOf(VendorPerformanceEvaluation::class)
+        ->and($evaluation->overall_rating)->toBe('4.20')
+        ->and(VendorPerformanceEvaluation::query()->where('team_id', $otherTeam->id)->count())->toBe(0)
+        ->and(VendorPerformanceEvaluation::query()->where('team_id', $team->id)->highPerformance()->whereKey($evaluation)->exists())->toBeTrue();
 });
