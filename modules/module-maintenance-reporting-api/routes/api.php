@@ -9,4 +9,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/reporting')->group
     Route::get('/', [ReportingRecordController::class, 'index']);
     Route::post('/', [ReportingRecordController::class, 'store']);
     Route::get('/{record}', [ReportingRecordController::class, 'show']);
+    Route::patch('/{record}', [ReportingRecordController::class, 'update']);
+    Route::delete('/{record}', [ReportingRecordController::class, 'destroy']);
 });
