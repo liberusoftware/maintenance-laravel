@@ -29,7 +29,7 @@ class AssetResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('name')->required()->maxLength(255), TextInput::make('code')->required()->maxLength(64), TextInput::make('category')->maxLength(255), TextInput::make('serial_number')->maxLength(255), TextInput::make('condition')->maxLength(64), TextInput::make('criticality')->maxLength(32), TextInput::make('status')->maxLength(64)]);
+        return $schema->components([TextInput::make('name')->required()->maxLength(255), TextInput::make('code')->required()->maxLength(64), TextInput::make('category')->maxLength(255), TextInput::make('serial_number')->maxLength(255), TextInput::make('condition')->maxLength(64), TextInput::make('criticality')->maxLength(32), TextInput::make('status')->maxLength(64), TextInput::make('sensor_type')->maxLength(80), TextInput::make('sensor_id')->maxLength(255)]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -42,7 +42,7 @@ class AssetResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('category'), TextColumn::make('condition')->badge(), TextColumn::make('criticality')->badge(), TextColumn::make('status')->badge()])->recordActions([
+        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('category'), TextColumn::make('condition')->badge(), TextColumn::make('criticality')->badge(), TextColumn::make('status')->badge(), TextColumn::make('health_status')->badge()])->recordActions([
             EditAction::make(),
             DeleteAction::make()->action(function (Asset $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
