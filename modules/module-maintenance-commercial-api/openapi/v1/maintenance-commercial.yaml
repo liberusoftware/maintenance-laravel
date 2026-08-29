@@ -18,10 +18,34 @@ paths:
       responses:
         "201":
           description: Created commercial record
+  /api/v1/maintenance/commercial/{id}:
+    get:
+      operationId: maintenance.commercial.get
+      security:
+        - sanctum: []
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Commercial record}
+    patch:
+      operationId: maintenance.commercial.update
+      security:
+        - sanctum: []
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Updated commercial record}
+    delete:
+      operationId: maintenance.commercial.delete
+      security:
+        - sanctum: []
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "204": {description: Deleted commercial record}
 components:
   securitySchemes:
     sanctum:
       type: http
       scheme: bearer
       bearerFormat: Sanctum
-
