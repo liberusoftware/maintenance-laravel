@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\LaborAndTime\Livewire\Components;
 use Illuminate\View\View;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\DeleteTimeEntry;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\RejectTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\UpdateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Models\TimeEntry;
 use Livewire\Component;
@@ -52,6 +53,13 @@ class TimeEntryList extends Component
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         $delete->handle((int) $teamId, $this->entryForCurrentTeam($entryId));
+    }
+
+    public function reject(int $entryId, RejectTimeEntry $reject): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $reject->handle((int) $teamId, $this->entryForCurrentTeam($entryId), (int) auth()->id());
     }
 
     public function cancelEdit(): void
