@@ -7,15 +7,16 @@ namespace Liberu\Modules\Maintenance\Scheduling\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Liberu\Modules\OrganizationsTeams\Models\Team;
 
 class ScheduleEntry extends Model
 {
     protected $table = 'maintenance_schedule_entries';
 
-    protected $fillable = ['team_id', 'title', 'resource_key', 'starts_at', 'ends_at', 'status', 'territory', 'metadata'];
+    protected $fillable = ['team_id', 'title', 'resource_key', 'starts_at', 'ends_at', 'status', 'territory', 'metadata', 'recurrence_type', 'recurrence_value', 'next_due_at', 'last_completed_at', 'priority'];
 
-    protected $casts = ['team_id' => 'integer', 'starts_at' => 'datetime', 'ends_at' => 'datetime', 'metadata' => 'array'];
+    protected $casts = ['team_id' => 'integer', 'starts_at' => 'datetime', 'ends_at' => 'datetime', 'next_due_at' => 'datetime', 'last_completed_at' => 'datetime', 'recurrence_value' => 'integer', 'metadata' => 'array'];
 
     public function team(): BelongsTo
     {
@@ -31,9 +32,25 @@ class ScheduleEntry extends Model
 
     public function scopeOverdue(Builder $query): Builder
     {
-        return $query->whereIn('status', ['scheduled', 'in_progress'])
-            ->where('ends_at', '<', now())
+        return $query->where('status', 'scheduled')
+            ->where(function (Builder $query): void {
+                $query->where('ends_at', '<', now())->orWhere('next_due_at', '<', now());
+            })
             ->orderBy('ends_at');
+    }
+
+    public function calculateNextDueAt(Carbon $completedAt): ?Carbon
+    {
+        $value = max(1, (int) $this->recurrence_value);
+
+        return match ($this->recurrence_type) {
+            'daily' => $completedAt->copy()->addDays($value),
+            'weekly' => $completedAt->copy()->addWeeks($value),
+            'monthly' => $completedAt->copy()->addMonths($value),
+            'yearly' => $completedAt->copy()->addYears($value),
+            'hours' => $completedAt->copy()->addHours($value),
+            default => null,
+        };
     }
 
     public function scopeForResource(Builder $query, string $resourceKey): Builder

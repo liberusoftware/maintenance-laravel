@@ -22,6 +22,14 @@ class CreateScheduleEntry
         if (strtotime((string) $end) <= strtotime((string) $start)) {
             throw ValidationException::withMessages(['ends_at' => 'The end must be after the start.']);
         }
+        $recurrenceType = $attributes['recurrence_type'] ?? null;
+        $recurrenceValue = (int) ($attributes['recurrence_value'] ?? 1);
+        if ($recurrenceType !== null && ! in_array($recurrenceType, ['daily', 'weekly', 'monthly', 'yearly', 'hours'], true)) {
+            throw ValidationException::withMessages(['recurrence_type' => 'The recurrence type is invalid.']);
+        }
+        if ($recurrenceValue < 1) {
+            throw ValidationException::withMessages(['recurrence_value' => 'The recurrence value must be at least one.']);
+        }
         $query = ScheduleEntry::where('team_id', $teamId)
             ->where('resource_key', $attributes['resource_key'] ?? null)
             ->whereNotIn('status', ['completed', 'cancelled'])
@@ -31,6 +39,6 @@ class CreateScheduleEntry
             throw ValidationException::withMessages(['starts_at' => 'The schedule conflicts with an existing entry.']);
         }
 
-        return DB::transaction(fn () => ScheduleEntry::create(array_merge($attributes, ['team_id' => $teamId, 'title' => $title, 'status' => $status])));
+        return DB::transaction(fn () => ScheduleEntry::create(array_merge($attributes, ['team_id' => $teamId, 'title' => $title, 'status' => $status, 'recurrence_value' => $recurrenceValue])));
     }
 }

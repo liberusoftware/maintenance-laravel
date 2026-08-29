@@ -20,6 +20,10 @@ class ScheduleList extends Component
 
     public string $ends_at = '';
 
+    public string $recurrence_type = '';
+
+    public int $recurrence_value = 1;
+
     public ?int $editingEntryId = null;
 
     public function save(CreateScheduleEntry $create): void
@@ -27,8 +31,9 @@ class ScheduleList extends Component
         $id = auth()->user()?->currentTeam?->getKey();
         abort_if($id === null, 403);
         $this->validate(['title' => 'required|string|max:255', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at']);
-        $create->handle((int) $id, ['title' => $this->title, 'starts_at' => $this->starts_at, 'ends_at' => $this->ends_at]);
-        $this->reset(['title', 'starts_at', 'ends_at']);
+        $this->validate(['recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'required|integer|min:1']);
+        $create->handle((int) $id, ['title' => $this->title, 'starts_at' => $this->starts_at, 'ends_at' => $this->ends_at, 'recurrence_type' => $this->recurrence_type ?: null, 'recurrence_value' => $this->recurrence_value]);
+        $this->reset(['title', 'starts_at', 'ends_at', 'recurrence_type', 'recurrence_value']);
         $this->dispatch('maintenance-schedule-created');
     }
 
