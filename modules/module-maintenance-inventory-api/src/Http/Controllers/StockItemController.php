@@ -7,8 +7,8 @@ namespace Liberu\Modules\Maintenance\Inventory\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
 
 class StockItemController extends Controller

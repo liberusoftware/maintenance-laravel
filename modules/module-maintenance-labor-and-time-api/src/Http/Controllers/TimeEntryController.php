@@ -7,8 +7,8 @@ namespace Liberu\Modules\Maintenance\LaborAndTime\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\ApproveTimeEntry;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Models\TimeEntry;
 
 class TimeEntryController extends Controller

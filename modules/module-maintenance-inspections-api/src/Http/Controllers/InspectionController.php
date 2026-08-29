@@ -7,8 +7,8 @@ namespace Liberu\Modules\Maintenance\Inspections\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspection;
+use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection;
 use Liberu\Modules\Maintenance\Inspections\Models\Inspection;
 
 class InspectionController extends Controller

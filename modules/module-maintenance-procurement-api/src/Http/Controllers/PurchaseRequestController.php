@@ -7,8 +7,8 @@ namespace Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\ApprovePurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
 
 class PurchaseRequestController extends Controller
