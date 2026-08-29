@@ -4,6 +4,7 @@ use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
@@ -84,4 +85,14 @@ it('finds overdue and assigned work orders through domain scopes', function () {
     expect(WorkOrder::query()->where('team_id', $team->id)->overdue()->pluck('id')->all())->toBe([$overdue->id])
         ->and(WorkOrder::query()->where('team_id', $team->id)->dueWithin(7)->pluck('id')->all())->toBe([$upcoming->id])
         ->and(WorkOrder::query()->where('team_id', $team->id)->assignedToUser(12)->count())->toBe(2);
+});
+
+it('soft deletes work orders while keeping them recoverable', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+
+    app(DeleteWorkOrder::class)->handle($team->id, $order);
+
+    expect(WorkOrder::query()->whereKey($order->id)->exists())->toBeFalse()
+        ->and(WorkOrder::withTrashed()->whereKey($order->id)->first()->deleted_at)->not->toBeNull();
 });
