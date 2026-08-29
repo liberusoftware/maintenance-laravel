@@ -61,3 +61,13 @@ it('publishes a draft reporting record through its domain action', function () {
     expect($published->status)->toBe('published')
         ->and(ReportRecord::query()->published()->whereKey($record->id)->exists())->toBeTrue();
 });
+
+it('scopes compliance records by expiry', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateComplianceRecord::class);
+    $expired = $create->handle($team->id, ['kind' => 'permit', 'title' => 'Expired permit', 'expires_at' => '2026-01-01']);
+    $current = $create->handle($team->id, ['kind' => 'permit', 'title' => 'Current permit', 'expires_at' => '2027-01-01']);
+
+    expect(ComplianceRecord::query()->where('team_id', $team->id)->expired()->whereKey($expired)->exists())->toBeTrue()
+        ->and(ComplianceRecord::query()->where('team_id', $team->id)->current()->whereKey($current)->exists())->toBeTrue();
+});

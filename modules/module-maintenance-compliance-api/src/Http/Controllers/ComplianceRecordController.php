@@ -19,7 +19,19 @@ class ComplianceRecordController extends Controller
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
         abort_unless($request->user()->can('viewAny', ComplianceRecord::class), 403);
-        $items = ComplianceRecord::where('team_id', $teamId)->latest()->paginate(min($request->integer('per_page', 25), 100));
+        $query = ComplianceRecord::where('team_id', $teamId);
+        if ($request->filled('kind')) {
+            $query->where('kind', $request->string('kind')->toString());
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status')->toString());
+        }
+        if ($request->boolean('expired')) {
+            $query->expired();
+        } elseif ($request->boolean('current')) {
+            $query->current();
+        }
+        $items = $query->latest()->paginate(min($request->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (ComplianceRecord $record) => $this->resource($record))->values(), 'meta' => ['total' => $items->total()]]);
     }
