@@ -9,4 +9,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/portals')->group(f
     Route::get('/', [PortalsRecordController::class, 'index']);
     Route::post('/', [PortalsRecordController::class, 'store']);
     Route::get('/{record}', [PortalsRecordController::class, 'show']);
+    Route::patch('/{record}', [PortalsRecordController::class, 'update']);
+    Route::delete('/{record}', [PortalsRecordController::class, 'destroy']);
 });
