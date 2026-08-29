@@ -44,7 +44,7 @@ class AssetResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('category'), TextColumn::make('condition')->badge(), TextColumn::make('criticality')->badge(), TextColumn::make('status')->badge(), TextColumn::make('health_status')->badge()])->recordActions([
+        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('category'), TextColumn::make('condition')->badge(), TextColumn::make('criticality')->badge(), TextColumn::make('status')->badge(), TextColumn::make('warranty_expiry')->date(), TextColumn::make('health_status')->badge()])->recordActions([
             EditAction::make(),
             DeleteAction::make()->action(function (Asset $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();

@@ -14,6 +14,7 @@ use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
 use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
+use Liberu\Modules\Maintenance\Report\Queries\BuildReportSummary;
 
 class ReportingRecordController extends Controller
 {
@@ -31,6 +32,16 @@ class ReportingRecordController extends Controller
         $items = $query->latest()->paginate(min($request->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (ReportRecord $record) => $this->resource($record))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
+    }
+
+    public function summary(Request $request, BuildReportSummary $summary): JsonResponse
+    {
+        $teamId = $request->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        abort_unless($request->user()->can('viewAny', ReportRecord::class), 403);
+        $period = $request->validate(['period_start' => 'sometimes|date', 'period_end' => 'sometimes|date|after_or_equal:period_start']);
+
+        return response()->json(['data' => $summary->handle((int) $teamId, isset($period['period_start']) ? now()->parse($period['period_start']) : null, isset($period['period_end']) ? now()->parse($period['period_end']) : null)]);
     }
 
     public function store(Request $request, CreateReportRecord $create): JsonResponse

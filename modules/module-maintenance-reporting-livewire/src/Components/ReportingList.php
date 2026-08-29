@@ -11,6 +11,7 @@ use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
 use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
+use Liberu\Modules\Maintenance\Report\Queries\BuildReportSummary;
 use Livewire\Component;
 
 class ReportingList extends Component
@@ -66,12 +67,13 @@ class ReportingList extends Component
         $this->reset(['kind', 'title', 'editingRecordId']);
     }
 
-    public function render(): View
+    public function render(BuildReportSummary $summary): View
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         $records = $teamId === null ? collect() : ReportRecord::where('team_id', $teamId)->latest()->get();
+        $reportSummary = $teamId === null ? null : $summary->handle((int) $teamId);
 
-        return view('module-maintenance-reporting-livewire::reporting-list', compact('records'));
+        return view('module-maintenance-reporting-livewire::reporting-list', compact('records', 'reportSummary'));
     }
 
     private function recordForCurrentTeam(int $recordId): ReportRecord

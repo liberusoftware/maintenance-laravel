@@ -10,11 +10,18 @@ use Liberu\Modules\Maintenance\Compliance\Models\ComplianceRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\CreatePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
+use Liberu\Modules\Maintenance\Procurement\Actions\CreateVendorContract;
+use Liberu\Modules\Maintenance\Procurement\Actions\CreateVendorPerformanceEvaluation;
+use Liberu\Modules\Maintenance\Procurement\Actions\TransitionVendorContract;
+use Liberu\Modules\Maintenance\Procurement\Actions\UpdateVendorPerformanceEvaluation;
+use Liberu\Modules\Maintenance\Procurement\Models\VendorContract;
+use Liberu\Modules\Maintenance\Procurement\Models\VendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Report\Actions\CreateReportRecord;
 use Liberu\Modules\Maintenance\Report\Actions\PublishReport;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
 use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
+use Liberu\Modules\Maintenance\Report\Queries\BuildReportSummary;
 
 it('creates tenant-scoped records for the remaining maintenance capabilities', function () {
     $team = Team::factory()->create();
@@ -82,6 +89,24 @@ it('requires the publish action for report status changes', function () {
         ->toThrow(ValidationException::class);
 });
 
+it('builds a tenant-scoped reporting summary by kind and status', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateReportRecord::class);
+    $create->handle($team->id, ['kind' => 'backlog', 'title' => 'Open', 'metric_value' => 4]);
+    $published = $create->handle($team->id, ['kind' => 'backlog', 'title' => 'Closed', 'metric_value' => 2]);
+    app(PublishReport::class)->execute($team->id, $published);
+    $otherTeam = Team::factory()->create();
+    $create->handle($otherTeam->id, ['kind' => 'backlog', 'title' => 'Other tenant', 'metric_value' => 100]);
+
+    $summary = app(BuildReportSummary::class)->handle($team->id);
+
+    expect($summary['total_records'])->toBe(2)
+        ->and($summary['published_records'])->toBe(1)
+        ->and($summary['draft_records'])->toBe(1)
+        ->and($summary['metric_total'])->toBe(6.0)
+        ->and($summary['by_kind']['backlog'])->toBe(['count' => 2, 'metric_total' => 6.0]);
+});
+
 it('scopes compliance records by expiry', function () {
     $team = Team::factory()->create();
     $create = app(CreateComplianceRecord::class);
@@ -110,4 +135,54 @@ it('enforces commercial record status transitions', function () {
     $proposed = $transition->handle($team->id, $record, 'proposed');
     expect($proposed->status)->toBe('proposed');
     expect(fn () => $transition->handle($team->id, $proposed, 'fulfilled'))->toThrow(ValidationException::class);
+});
+
+it('tracks tenant-scoped vendor contracts and their expiry lifecycle', function () {
+    $team = Team::factory()->create();
+    $contract = app(CreateVendorContract::class)->handle($team->id, [
+        'vendor_name' => 'Acme Services',
+        'contract_number' => 'ACME-2026',
+        'title' => 'Pump maintenance agreement',
+        'start_date' => now()->subDay()->toDateString(),
+        'end_date' => now()->addDays(10)->toDateString(),
+    ]);
+
+    $daysUntilExpiration = $contract->daysUntilExpiration();
+
+    expect($contract)->toBeInstanceOf(VendorContract::class)
+        ->and($contract->team_id)->toBe($team->id)
+        ->and($daysUntilExpiration)->toBeGreaterThanOrEqual(9)
+        ->and($daysUntilExpiration)->toBeLessThanOrEqual(10);
+
+    $active = app(TransitionVendorContract::class)->handle($team->id, $contract, 'active');
+    expect($active->isActive())->toBeTrue()
+        ->and(VendorContract::query()->where('team_id', $team->id)->expiringSoon(30)->whereKey($contract)->exists())->toBeTrue();
+});
+
+it('derives vendor evaluation ratings and keeps evaluations tenant scoped', function () {
+    $team = Team::factory()->create();
+    $otherTeam = Team::factory()->create();
+    $evaluation = app(CreateVendorPerformanceEvaluation::class)->handle($team->id, [
+        'vendor_name' => 'Acme Services',
+        'evaluation_date' => now()->toDateString(),
+        'quality_rating' => 5,
+        'timeliness_rating' => 4,
+        'communication_rating' => 3,
+        'cost_effectiveness_rating' => 4,
+        'professionalism_rating' => 5,
+    ]);
+
+    expect($evaluation)->toBeInstanceOf(VendorPerformanceEvaluation::class)
+        ->and($evaluation->overall_rating)->toBe('4.20')
+        ->and(VendorPerformanceEvaluation::query()->where('team_id', $otherTeam->id)->count())->toBe(0)
+        ->and(VendorPerformanceEvaluation::query()->where('team_id', $team->id)->highPerformance()->whereKey($evaluation)->exists())->toBeTrue();
+});
+
+it('recalculates vendor evaluation ratings through the update action', function () {
+    $team = Team::factory()->create();
+    $evaluation = app(CreateVendorPerformanceEvaluation::class)->handle($team->id, ['vendor_name' => 'Acme Services', 'evaluation_date' => now()->toDateString(), 'quality_rating' => 2, 'timeliness_rating' => 2]);
+
+    $updated = app(UpdateVendorPerformanceEvaluation::class)->handle($team->id, $evaluation, ['quality_rating' => 5, 'timeliness_rating' => 4, 'communication_rating' => 5]);
+
+    expect($updated->overall_rating)->toBe('4.67');
 });

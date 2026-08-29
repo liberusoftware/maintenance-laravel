@@ -1,4 +1,7 @@
 <div>
+    @if ($reportSummary)
+        <p>Total reports: {{ $reportSummary['total_records'] }} | Published: {{ $reportSummary['published_records'] }} | Metric total: {{ $reportSummary['metric_total'] }}</p>
+    @endif
     <form wire:submit="{{ $editingRecordId === null ? 'save' : 'update' }}">
         <input wire:model="kind" type="text" required>
         <input wire:model="title" type="text" required>

@@ -32,6 +32,11 @@ class AssetController extends Controller
         if ($request->boolean('critical_readings')) {
             $query->withCriticalReadings();
         }
+        if ($request->boolean('under_warranty')) {
+            $query->underWarranty();
+        } elseif ($request->boolean('warranty_expired')) {
+            $query->warrantyExpired();
+        }
         $items = $query->orderBy('name')->paginate(min($request->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (Asset $a) => $this->resource($a))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
@@ -107,6 +112,6 @@ class AssetController extends Controller
 
     private function resource(Asset $a): array
     {
-        return ['id' => (string) $a->getKey(), 'type' => 'maintenance-asset', 'attributes' => ['name' => $a->name, 'description' => $a->description, 'code' => $a->code, 'category' => $a->category, 'serial_number' => $a->serial_number, 'model' => $a->model, 'manufacturer' => $a->manufacturer, 'location' => $a->location, 'purchase_date' => $a->purchase_date?->toDateString(), 'warranty_expiry' => $a->warranty_expiry?->toDateString(), 'notes' => $a->notes, 'condition' => $a->condition, 'criticality' => $a->criticality, 'status' => $a->status, 'health_status' => $a->health_status, 'sensor_enabled' => $a->sensor_enabled, 'sensor_type' => $a->sensor_type, 'sensor_id' => $a->sensor_id, 'sensor_config' => $a->sensor_config, 'last_sensor_reading_at' => $a->last_sensor_reading_at?->toISOString(), 'qr_code' => $a->qr_code, 'barcode' => $a->barcode, 'metadata' => $a->metadata, 'created_at' => $a->created_at?->toISOString(), 'updated_at' => $a->updated_at?->toISOString()]];
+        return ['id' => (string) $a->getKey(), 'type' => 'maintenance-asset', 'attributes' => ['name' => $a->name, 'description' => $a->description, 'code' => $a->code, 'category' => $a->category, 'serial_number' => $a->serial_number, 'model' => $a->model, 'manufacturer' => $a->manufacturer, 'location' => $a->location, 'purchase_date' => $a->purchase_date?->toDateString(), 'warranty_expiry' => $a->warranty_expiry?->toDateString(), 'warranty_days_remaining' => $a->warrantyDaysRemaining(), 'is_under_warranty' => $a->isUnderWarranty(), 'notes' => $a->notes, 'condition' => $a->condition, 'criticality' => $a->criticality, 'status' => $a->status, 'health_status' => $a->health_status, 'sensor_enabled' => $a->sensor_enabled, 'sensor_type' => $a->sensor_type, 'sensor_id' => $a->sensor_id, 'sensor_config' => $a->sensor_config, 'last_sensor_reading_at' => $a->last_sensor_reading_at?->toISOString(), 'qr_code' => $a->qr_code, 'barcode' => $a->barcode, 'metadata' => $a->metadata, 'created_at' => $a->created_at?->toISOString(), 'updated_at' => $a->updated_at?->toISOString()]];
     }
 }

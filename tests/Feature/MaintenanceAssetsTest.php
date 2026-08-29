@@ -77,3 +77,17 @@ it('retains legacy equipment details on modular assets', function () {
         ->and($asset->purchase_date->toDateString())->toBe('2024-01-10')
         ->and($asset->warranty_expiry->toDateString())->toBe('2027-01-10');
 });
+
+it('exposes reusable warranty state for modular assets', function () {
+    $team = Team::factory()->create();
+    $covered = app(CreateAsset::class)->handle($team->id, ['name' => 'Boiler', 'code' => 'B-04', 'warranty_expiry' => now()->addDays(10)->toDateString()]);
+    $expired = app(CreateAsset::class)->handle($team->id, ['name' => 'Pump', 'code' => 'P-04', 'warranty_expiry' => now()->subDay()->toDateString()]);
+
+    $daysRemaining = $covered->warrantyDaysRemaining();
+
+    expect($covered->isUnderWarranty())->toBeTrue()
+        ->and($daysRemaining)->toBeGreaterThanOrEqual(9)
+        ->and($daysRemaining)->toBeLessThanOrEqual(10)
+        ->and(Asset::query()->where('team_id', $team->id)->underWarranty()->whereKey($covered)->exists())->toBeTrue()
+        ->and(Asset::query()->where('team_id', $team->id)->warrantyExpired()->whereKey($expired)->exists())->toBeTrue();
+});
