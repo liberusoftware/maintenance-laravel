@@ -24,3 +24,14 @@ it('prevents inventory from becoming negative', function () {
     expect(fn () => app(AdjustStock::class)->handle($team->id, $item, -2))
         ->toThrow(ValidationException::class);
 });
+
+it('records every stock adjustment as an auditable movement', function () {
+    $team = Team::factory()->create();
+    $item = app(CreateStockItem::class)->handle($team->id, ['part_number' => 'filter-1', 'name' => 'Filter', 'quantity' => 3]);
+    $adjusted = app(AdjustStock::class)->handle($team->id, $item, 2, 'receipt', 42, 'Received shipment');
+
+    expect($adjusted->quantity)->toBe(5)
+        ->and($adjusted->movements()->count())->toBe(1)
+        ->and($adjusted->movements()->first()->quantity_before)->toBe(3)
+        ->and($adjusted->movements()->first()->reason)->toBe('receipt');
+});
