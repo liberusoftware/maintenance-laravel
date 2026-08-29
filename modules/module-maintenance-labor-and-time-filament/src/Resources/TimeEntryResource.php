@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -32,7 +33,7 @@ class TimeEntryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([Textarea::make('description')->maxLength(255), TextInput::make('minutes')->numeric()->minValue(1)->required(), TextInput::make('rate')->numeric()->minValue(0), TextInput::make('expense_amount')->numeric()->minValue(0)]);
+        return $schema->components([Textarea::make('description')->maxLength(255), TextInput::make('minutes')->numeric()->minValue(1)->required(), TextInput::make('rate')->numeric()->minValue(0), TextInput::make('expense_amount')->numeric()->minValue(0), DateTimePicker::make('started_at'), DateTimePicker::make('ended_at')->after('started_at')]);
     }
 
     public static function getEloquentQuery(): Builder
