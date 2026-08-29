@@ -20,6 +20,22 @@ it('creates tenant-scoped schedule entries', function () {
         ->and($entry->status)->toBe('scheduled');
 });
 
+it('retains legacy maintenance schedule details', function () {
+    $team = Team::factory()->create();
+    $entry = app(CreateScheduleEntry::class)->handle($team->id, [
+        'title' => 'Pump inspection', 'description' => 'Monthly inspection', 'equipment_id' => 41,
+        'assigned_to' => 52, 'checklist_id' => 63, 'instructions' => 'Lock out before work.',
+        'estimated_duration' => 90, 'starts_at' => now()->addDay(), 'ends_at' => now()->addDay()->addHour(),
+    ]);
+
+    expect($entry->description)->toBe('Monthly inspection')
+        ->and($entry->equipment_id)->toBe(41)
+        ->and($entry->assigned_to)->toBe(52)
+        ->and($entry->checklist_id)->toBe(63)
+        ->and($entry->instructions)->toBe('Lock out before work.')
+        ->and($entry->estimated_duration)->toBe(90);
+});
+
 it('rejects overlapping entries for the same resource', function () {
     $team = Team::factory()->create();
     $action = app(CreateScheduleEntry::class);

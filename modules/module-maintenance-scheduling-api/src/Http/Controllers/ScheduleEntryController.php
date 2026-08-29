@@ -49,7 +49,7 @@ class ScheduleEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('create', ScheduleEntry::class), 403);
-        $data = $r->validate(['title' => 'required|string|max:255', 'resource_key' => 'nullable|string|max:255', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at', 'status' => 'nullable|in:scheduled,in_progress,completed,cancelled', 'territory' => 'nullable|string|max:255', 'metadata' => 'nullable|array', 'recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'nullable|integer|min:1', 'next_due_at' => 'nullable|date', 'priority' => 'nullable|in:low,medium,high,critical']);
+        $data = $r->validate(['title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'resource_key' => 'nullable|string|max:255', 'equipment_id' => 'nullable|integer', 'assigned_to' => 'nullable|integer', 'checklist_id' => 'nullable|integer', 'instructions' => 'nullable|string|max:10000', 'estimated_duration' => 'nullable|integer|min:0', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at', 'status' => 'nullable|in:scheduled,in_progress,completed,cancelled', 'territory' => 'nullable|string|max:255', 'metadata' => 'nullable|array', 'recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'nullable|integer|min:1', 'next_due_at' => 'nullable|date', 'priority' => 'nullable|in:low,medium,high,critical']);
 
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
     }
@@ -76,7 +76,7 @@ class ScheduleEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($id === (int) $scheduleEntry->team_id && $r->user()->can('update', $scheduleEntry), 404);
-        $data = $r->validate(['title' => 'sometimes|required|string|max:255', 'resource_key' => 'sometimes|nullable|string|max:255', 'starts_at' => 'sometimes|required|date', 'ends_at' => 'sometimes|required|date|after:starts_at', 'status' => 'sometimes|string|max:64', 'territory' => 'sometimes|nullable|string|max:255', 'metadata' => 'sometimes|nullable|array', 'recurrence_type' => 'sometimes|nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'sometimes|integer|min:1', 'next_due_at' => 'sometimes|nullable|date', 'priority' => 'sometimes|in:low,medium,high,critical']);
+        $data = $r->validate(['title' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'resource_key' => 'sometimes|nullable|string|max:255', 'equipment_id' => 'sometimes|nullable|integer', 'assigned_to' => 'sometimes|nullable|integer', 'checklist_id' => 'sometimes|nullable|integer', 'instructions' => 'sometimes|nullable|string|max:10000', 'estimated_duration' => 'sometimes|nullable|integer|min:0', 'starts_at' => 'sometimes|required|date', 'ends_at' => 'sometimes|required|date|after:starts_at', 'status' => 'sometimes|string|max:64', 'territory' => 'sometimes|nullable|string|max:255', 'metadata' => 'sometimes|nullable|array', 'recurrence_type' => 'sometimes|nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'sometimes|integer|min:1', 'next_due_at' => 'sometimes|nullable|date', 'priority' => 'sometimes|in:low,medium,high,critical']);
 
         return response()->json(['data' => $this->resource($update->handle($id, $scheduleEntry, $data))]);
     }
@@ -100,6 +100,6 @@ class ScheduleEntryController extends Controller
 
     private function resource(ScheduleEntry $e): array
     {
-        return ['id' => (string) $e->getKey(), 'type' => 'maintenance-schedule-entry', 'attributes' => ['title' => $e->title, 'resource_key' => $e->resource_key, 'starts_at' => $e->starts_at?->toISOString(), 'ends_at' => $e->ends_at?->toISOString(), 'status' => $e->status, 'territory' => $e->territory, 'metadata' => $e->metadata, 'recurrence_type' => $e->recurrence_type, 'recurrence_value' => $e->recurrence_value, 'next_due_at' => $e->next_due_at?->toISOString(), 'last_completed_at' => $e->last_completed_at?->toISOString(), 'priority' => $e->priority]];
+        return ['id' => (string) $e->getKey(), 'type' => 'maintenance-schedule-entry', 'attributes' => ['title' => $e->title, 'description' => $e->description, 'resource_key' => $e->resource_key, 'equipment_id' => $e->equipment_id, 'assigned_to' => $e->assigned_to, 'checklist_id' => $e->checklist_id, 'instructions' => $e->instructions, 'estimated_duration' => $e->estimated_duration, 'starts_at' => $e->starts_at?->toISOString(), 'ends_at' => $e->ends_at?->toISOString(), 'status' => $e->status, 'territory' => $e->territory, 'metadata' => $e->metadata, 'recurrence_type' => $e->recurrence_type, 'recurrence_value' => $e->recurrence_value, 'next_due_at' => $e->next_due_at?->toISOString(), 'last_completed_at' => $e->last_completed_at?->toISOString(), 'priority' => $e->priority]];
     }
 }

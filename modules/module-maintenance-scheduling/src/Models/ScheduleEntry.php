@@ -14,9 +14,9 @@ class ScheduleEntry extends Model
 {
     protected $table = 'maintenance_schedule_entries';
 
-    protected $fillable = ['team_id', 'title', 'resource_key', 'starts_at', 'ends_at', 'status', 'territory', 'metadata', 'recurrence_type', 'recurrence_value', 'next_due_at', 'last_completed_at', 'priority'];
+    protected $fillable = ['team_id', 'title', 'description', 'resource_key', 'equipment_id', 'assigned_to', 'checklist_id', 'instructions', 'estimated_duration', 'starts_at', 'ends_at', 'status', 'territory', 'metadata', 'recurrence_type', 'recurrence_value', 'next_due_at', 'last_completed_at', 'priority'];
 
-    protected $casts = ['team_id' => 'integer', 'starts_at' => 'datetime', 'ends_at' => 'datetime', 'next_due_at' => 'datetime', 'last_completed_at' => 'datetime', 'recurrence_value' => 'integer', 'metadata' => 'array'];
+    protected $casts = ['team_id' => 'integer', 'equipment_id' => 'integer', 'assigned_to' => 'integer', 'checklist_id' => 'integer', 'estimated_duration' => 'integer', 'starts_at' => 'datetime', 'ends_at' => 'datetime', 'next_due_at' => 'datetime', 'last_completed_at' => 'datetime', 'recurrence_value' => 'integer', 'metadata' => 'array'];
 
     public function team(): BelongsTo
     {
