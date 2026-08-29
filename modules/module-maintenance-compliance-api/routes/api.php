@@ -11,4 +11,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/compliance')->grou
     Route::get('/{record}', [ComplianceRecordController::class, 'show']);
     Route::patch('/{record}', [ComplianceRecordController::class, 'update']);
     Route::delete('/{record}', [ComplianceRecordController::class, 'destroy']);
+    Route::patch('/{record}', [ComplianceRecordController::class, 'update']);
+    Route::delete('/{record}', [ComplianceRecordController::class, 'destroy']);
 });

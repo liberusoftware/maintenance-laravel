@@ -11,4 +11,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/portals')->group(f
     Route::get('/{record}', [PortalsRecordController::class, 'show']);
     Route::patch('/{record}', [PortalsRecordController::class, 'update']);
     Route::delete('/{record}', [PortalsRecordController::class, 'destroy']);
+    Route::patch('/{record}', [PortalsRecordController::class, 'update']);
+    Route::delete('/{record}', [PortalsRecordController::class, 'destroy']);
 });
