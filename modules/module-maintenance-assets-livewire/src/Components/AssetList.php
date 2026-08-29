@@ -19,15 +19,17 @@ class AssetList extends Component
 
     public string $category = '';
 
+    public string $criticality = 'normal';
+
     public ?int $editingAssetId = null;
 
     public function save(CreateAsset $create): void
     {
         $id = auth()->user()?->currentTeam?->getKey();
         abort_if($id === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255']);
-        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'category' => $this->category]);
-        $this->reset(['name', 'code', 'category']);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'criticality' => 'required|in:normal,high,critical']);
+        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'category' => $this->category, 'criticality' => $this->criticality]);
+        $this->reset(['name', 'code', 'category', 'criticality']);
         $this->dispatch('maintenance-assets-created');
     }
 
@@ -38,14 +40,15 @@ class AssetList extends Component
         $this->name = $asset->name;
         $this->code = $asset->code;
         $this->category = (string) ($asset->category ?? '');
+        $this->criticality = (string) ($asset->criticality ?? 'normal');
     }
 
     public function update(UpdateAsset $update): void
     {
         $teamId = auth()->user()?->currentTeam?->getKey();
         abort_if($teamId === null || $this->editingAssetId === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255']);
-        $update->handle((int) $teamId, $this->assetForCurrentTeam($this->editingAssetId), ['name' => $this->name, 'code' => $this->code, 'category' => $this->category]);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'category' => 'nullable|string|max:255', 'criticality' => 'required|in:normal,high,critical']);
+        $update->handle((int) $teamId, $this->assetForCurrentTeam($this->editingAssetId), ['name' => $this->name, 'code' => $this->code, 'category' => $this->category, 'criticality' => $this->criticality]);
         $this->cancelEdit();
         $this->dispatch('maintenance-assets-updated');
     }
@@ -60,7 +63,7 @@ class AssetList extends Component
 
     public function cancelEdit(): void
     {
-        $this->reset(['name', 'code', 'category', 'editingAssetId']);
+        $this->reset(['name', 'code', 'category', 'criticality', 'editingAssetId']);
     }
 
     public function render(): View
