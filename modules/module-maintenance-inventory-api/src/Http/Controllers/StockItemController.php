@@ -22,7 +22,13 @@ class StockItemController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('viewAny', StockItem::class), 403);
-        $items = StockItem::where('team_id', $id)->orderBy('name')->paginate(min($r->integer('per_page', 25), 100));
+        $query = StockItem::where('team_id', $id);
+        $query = match ($r->string('stock')->toString()) {
+            'low' => $query->lowStock(),
+            'out' => $query->outOfStock(),
+            default => $query,
+        };
+        $items = $query->orderBy('name')->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (StockItem $i) => $this->resource($i))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }

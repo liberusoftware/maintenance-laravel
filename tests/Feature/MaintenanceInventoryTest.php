@@ -53,3 +53,16 @@ it('reserves and releases only available stock', function () {
     expect(fn () => app(ReserveStock::class)->handle($team->id, $item, 4))
         ->toThrow(ValidationException::class);
 });
+
+it('finds low and out of stock items using available quantities', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateStockItem::class);
+    $low = $create->handle($team->id, ['part_number' => 'low', 'name' => 'Low', 'quantity' => 3, 'reorder_level' => 3]);
+    $out = $create->handle($team->id, ['part_number' => 'out', 'name' => 'Out', 'quantity' => 2, 'reorder_level' => 1]);
+    app(ReserveStock::class)->handle($team->id, $out, 2);
+
+    expect(StockItem::query()->where('team_id', $team->id)->lowStock()->pluck('id')->all())
+        ->toContain($low->id, $out->id)
+        ->and(StockItem::query()->where('team_id', $team->id)->outOfStock()->pluck('id')->all())
+        ->toBe([$out->id]);
+});
