@@ -8,6 +8,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -17,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Procurement\Actions\DeletePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\RejectPurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\TransitionPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\PurchaseRequestResource\Pages\CreatePurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\PurchaseRequestResource\Pages\EditPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Filament\Resources\PurchaseRequestResource\Pages\ListPurchaseRequests;
@@ -51,6 +53,18 @@ class PurchaseRequestResource extends Resource
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);
                 app(RejectPurchaseRequest::class)->handle((int) $teamId, $record, (int) auth()->id(), $data['reason'] ?? null);
+            }),
+            Action::make('transition')->label('Update lifecycle')->visible(fn (PurchaseRequest $record): bool => in_array($record->status, ['pending', 'approved', 'ordered'], true))->form([
+                Select::make('status')->options(fn (PurchaseRequest $record): array => match ($record->status) {
+                    'pending' => ['cancelled' => 'Cancelled'],
+                    'approved' => ['ordered' => 'Ordered', 'cancelled' => 'Cancelled'],
+                    'ordered' => ['received' => 'Received', 'cancelled' => 'Cancelled'],
+                    default => [],
+                })->required(),
+            ])->action(function (PurchaseRequest $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(TransitionPurchaseRequest::class)->handle((int) $teamId, $record, $data['status'], auth()->id());
             }),
             DeleteAction::make()->action(function (PurchaseRequest $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
