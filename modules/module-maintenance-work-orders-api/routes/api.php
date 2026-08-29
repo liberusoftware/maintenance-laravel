@@ -10,4 +10,6 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/work-orders')->gro
     Route::patch('/{workOrder}', [WorkOrderController::class, 'update']);
     Route::delete('/{workOrder}', [WorkOrderController::class, 'destroy']);
     Route::post('/{workOrder}/transitions', [WorkOrderController::class, 'transition']);
+    Route::get('/{workOrder}/comments', [WorkOrderController::class, 'comments']);
+    Route::post('/{workOrder}/comments', [WorkOrderController::class, 'comment']);
 });

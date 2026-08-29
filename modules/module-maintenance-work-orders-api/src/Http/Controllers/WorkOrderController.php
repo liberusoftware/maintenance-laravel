@@ -7,11 +7,13 @@ namespace Liberu\Modules\Maintenance\WorkOrders\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderComment;
 
 class WorkOrderController extends Controller
 {
@@ -87,6 +89,25 @@ class WorkOrderController extends Controller
         return response()->json(['data' => $this->resource($transition->handle($id, $workOrder, $data['status']))]);
     }
 
+    public function comments(Request $r, WorkOrder $workOrder): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('view', $workOrder), 404);
+
+        return response()->json(['data' => $workOrder->comments()->latest()->get()->map(fn (WorkOrderComment $comment): array => $this->commentResource($comment))->values()]);
+    }
+
+    public function comment(Request $r, WorkOrder $workOrder, AddWorkOrderComment $add): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('update', $workOrder), 404);
+        $data = $r->validate(['comment' => ['required', 'string', 'max:10000'], 'is_internal' => ['sometimes', 'boolean']]);
+
+        return response()->json(['data' => $this->commentResource($add->handle($id, $workOrder, (int) $r->user()->getAuthIdentifier(), $data['comment'], (bool) ($data['is_internal'] ?? false)))], 201);
+    }
+
     private function teamId(Request $r): ?int
     {
         $id = $r->user()?->currentTeam?->getKey();
@@ -97,6 +118,12 @@ class WorkOrderController extends Controller
     private function resource(WorkOrder $o): array
     {
         return ['id' => (string) $o->getKey(), 'type' => 'maintenance-work-order', 'attributes' => ['number' => $o->number, 'title' => $o->title, 'description' => $o->description, 'location' => $o->location, 'equipment_id' => $o->equipment_id, 'customer_id' => $o->customer_id, 'assigned_to' => $o->assigned_to, 'due_date' => $o->due_date?->toISOString(), 'started_at' => $o->started_at?->toISOString(), 'estimated_minutes' => $o->estimated_minutes, 'actual_minutes' => $o->actual_minutes, 'maintenance_plan_id' => $o->maintenance_plan_id, 'checklist_id' => $o->checklist_id, 'priority' => $o->priority, 'status' => $o->status, 'completed_at' => $o->completed_at?->toISOString(), 'metadata' => $o->metadata, 'created_at' => $o->created_at?->toISOString(), 'updated_at' => $o->updated_at?->toISOString()]];
+    }
+
+    /** @return array<string, mixed> */
+    private function commentResource(WorkOrderComment $comment): array
+    {
+        return ['id' => (string) $comment->getKey(), 'type' => 'maintenance-work-order-comment', 'attributes' => ['work_order_id' => (string) $comment->work_order_id, 'user_id' => $comment->user_id, 'comment' => $comment->comment, 'is_internal' => $comment->is_internal, 'created_at' => $comment->created_at?->toISOString()]];
     }
 
     /** @return array<string, array<int, string>> */

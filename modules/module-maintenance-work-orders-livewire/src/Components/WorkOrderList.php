@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Liberu\Modules\Maintenance\WorkOrders\Livewire\Components;
 
 use Illuminate\View\View;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
@@ -18,6 +19,10 @@ class WorkOrderList extends Component
     public string $description = '';
 
     public ?int $editingOrderId = null;
+
+    public string $comment = '';
+
+    public bool $commentIsInternal = false;
 
     public function save(CreateWorkOrder $create): void
     {
@@ -56,6 +61,16 @@ class WorkOrderList extends Component
     public function cancelEdit(): void
     {
         $this->reset(['title', 'description', 'editingOrderId']);
+    }
+
+    public function addComment(int $orderId, AddWorkOrderComment $add): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null || auth()->id() === null, 403);
+        $this->validate(['comment' => ['required', 'string', 'max:10000'], 'commentIsInternal' => ['boolean']]);
+        $add->handle((int) $teamId, $this->orderForCurrentTeam($orderId), (int) auth()->id(), $this->comment, $this->commentIsInternal);
+        $this->reset(['comment', 'commentIsInternal']);
+        $this->dispatch('maintenance-work-order-comment-added');
     }
 
     public function render(): View
