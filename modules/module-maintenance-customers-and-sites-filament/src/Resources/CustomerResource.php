@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\CustomersAndSites\Actions\DeleteCustomer;
 use Liberu\Modules\Maintenance\CustomersAndSites\Filament\Resources\CustomerResource\Pages\CreateCustomer;
 use Liberu\Modules\Maintenance\CustomersAndSites\Filament\Resources\CustomerResource\Pages\EditCustomer;
 use Liberu\Modules\Maintenance\CustomersAndSites\Filament\Resources\CustomerResource\Pages\ListCustomers;
@@ -41,7 +42,14 @@ class CustomerResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('email')])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('email')])->recordActions([
+            EditAction::make(),
+            DeleteAction::make()->action(function (Customer $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteCustomer::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array
