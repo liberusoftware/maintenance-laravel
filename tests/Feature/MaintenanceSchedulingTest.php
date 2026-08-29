@@ -38,6 +38,7 @@ it('provides reusable upcoming and overdue schedule scopes', function () {
     $action->handle($team->id, ['title' => 'Cancelled', 'resource_key' => 'cancelled', 'starts_at' => now()->subDays(2), 'ends_at' => now()->subDay(), 'status' => 'cancelled']);
 
     expect(ScheduleEntry::query()->where('team_id', $team->id)->upcoming()->pluck('title')->all())->toBe(['Upcoming'])
+        ->and(ScheduleEntry::query()->where('team_id', $team->id)->dueSoon(7)->pluck('title')->all())->toBe(['Upcoming'])
         ->and(ScheduleEntry::query()->where('team_id', $team->id)->overdue()->pluck('title')->all())->toBe(['Overdue']);
 });
 

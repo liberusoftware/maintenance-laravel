@@ -2,7 +2,7 @@ openapi: 3.1.0
 info: {title: maintenance scheduling API, version: 1.0.0}
 paths:
   /api/v1/maintenance/scheduling:
-    get: {operationId: maintenance.scheduling.list, security: [{sanctum: []}], parameters: [{name: window, in: query, schema: {type: string, enum: [upcoming, overdue]}}, {name: days, in: query, schema: {type: integer, minimum: 0}}, {name: resource_key, in: query, schema: {type: string}}, {name: territory, in: query, schema: {type: string}}, {name: status, in: query, schema: {type: string}}], responses: {'200': {description: Authorized schedule entries}}}
+    get: {operationId: maintenance.scheduling.list, security: [{sanctum: []}], parameters: [{name: window, in: query, schema: {type: string, enum: [upcoming, due_soon, overdue]}}, {name: days, in: query, schema: {type: integer, minimum: 0}}, {name: resource_key, in: query, schema: {type: string}}, {name: territory, in: query, schema: {type: string}}, {name: status, in: query, schema: {type: string}}], responses: {'200': {description: Authorized schedule entries}}}
     post: {operationId: maintenance.scheduling.create, security: [{sanctum: []}], responses: {'201': {description: Schedule entry created}}}
   /api/v1/maintenance/scheduling/{id}:
     get: {operationId: maintenance.scheduling.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Schedule entry}}}

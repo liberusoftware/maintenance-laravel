@@ -23,6 +23,8 @@ class ScheduleEntryController extends Controller
         $query = ScheduleEntry::where('team_id', $id);
         if ($r->string('window')->toString() === 'upcoming') {
             $query->upcoming($r->integer('days', 30));
+        } elseif ($r->string('window')->toString() === 'due_soon') {
+            $query->dueSoon($r->integer('days', 7));
         } elseif ($r->string('window')->toString() === 'overdue') {
             $query->overdue();
         } else {

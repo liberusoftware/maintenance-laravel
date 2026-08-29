@@ -25,6 +25,11 @@ class ScheduleEntry extends Model
 
     public function scopeUpcoming(Builder $query, int $days = 30): Builder
     {
+        return $this->scopeDueSoon($query, $days);
+    }
+
+    public function scopeDueSoon(Builder $query, int $days = 7): Builder
+    {
         return $query->whereIn('status', ['scheduled', 'in_progress'])
             ->where(function (Builder $query) use ($days): void {
                 $query->whereBetween('starts_at', [now(), now()->addDays(max(0, $days))])
