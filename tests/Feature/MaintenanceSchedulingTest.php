@@ -232,6 +232,47 @@ it('supports tenant-scoped skills shifts travel and dispatch records', function 
         ->and($entry->dispatches)->toHaveCount(1);
 });
 
+it('exposes scheduling operations through the tenant API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('scheduling-operations-api-test')->plainTextToken;
+
+    $this->withToken($token)->postJson('/api/v1/maintenance/scheduling/skills', [
+        'user_id' => $user->id,
+        'name' => 'HVAC',
+        'proficiency' => 4,
+    ])->assertCreated()->assertJsonPath('data.attributes.name', 'HVAC');
+
+    $this->withToken($token)->postJson('/api/v1/maintenance/scheduling/shifts', [
+        'user_id' => $user->id,
+        'name' => 'Day shift',
+        'weekday' => 1,
+        'starts_at' => '08:00',
+        'ends_at' => '16:00',
+    ])->assertCreated()->assertJsonPath('data.attributes.weekday', 1);
+
+    $entry = app(CreateScheduleEntry::class)->handle($team->id, [
+        'title' => 'Pump visit',
+        'starts_at' => now()->addDay(),
+        'ends_at' => now()->addDay()->addHour(),
+    ]);
+
+    $this->withToken($token)->postJson("/api/v1/maintenance/scheduling/{$entry->id}/travel", [
+        'origin' => 'Depot',
+        'destination' => 'Plant A',
+        'planned_minutes' => 45,
+    ])->assertCreated()->assertJsonPath('data.attributes.destination', 'Plant A');
+
+    $this->withToken($token)->postJson("/api/v1/maintenance/scheduling/{$entry->id}/dispatches", [
+        'user_id' => $user->id,
+        'notes' => 'Bring safety kit.',
+    ])->assertCreated()->assertJsonPath('data.attributes.status', 'offered');
+
+    $this->withToken($token)->getJson("/api/v1/maintenance/scheduling/{$entry->id}/dispatches")
+        ->assertOk()->assertJsonCount(1, 'data');
+});
+
 it('rejects duplicate engineer skills and overlapping shifts', function () {
     $team = Team::factory()->create();
     $engineer = User::factory()->create();
