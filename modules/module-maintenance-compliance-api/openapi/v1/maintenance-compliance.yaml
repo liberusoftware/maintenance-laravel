@@ -3,6 +3,18 @@ info:
   title: maintenance compliance API
   version: 1.0.0
 paths:
+  /api/v1/maintenance/compliance/requirements:
+    get: {operationId: maintenance.compliance.requirements.list, security: [{sanctum: []}], responses: {'200': {description: Tenant-scoped compliance requirements}}}
+    post: {operationId: maintenance.compliance.requirements.create, security: [{sanctum: []}], responses: {'201': {description: Compliance requirement created}}}
+  /api/v1/maintenance/compliance/permits:
+    get: {operationId: maintenance.compliance.permits.list, security: [{sanctum: []}], responses: {'200': {description: Tenant-scoped compliance permits}}}
+    post: {operationId: maintenance.compliance.permits.create, security: [{sanctum: []}], responses: {'201': {description: Compliance permit created}}}
+  /api/v1/maintenance/compliance/risk-assessments:
+    get: {operationId: maintenance.compliance.risk-assessments.list, security: [{sanctum: []}], responses: {'200': {description: Tenant-scoped risk assessments}}}
+    post: {operationId: maintenance.compliance.risk-assessments.create, security: [{sanctum: []}], responses: {'201': {description: Risk assessment created}}}
+  /api/v1/maintenance/compliance/incidents:
+    get: {operationId: maintenance.compliance.incidents.list, security: [{sanctum: []}], responses: {'200': {description: Tenant-scoped compliance incidents}}}
+    post: {operationId: maintenance.compliance.incidents.create, security: [{sanctum: []}], responses: {'201': {description: Compliance incident created}}}
   /api/v1/maintenance/compliance:
     get:
       operationId: maintenance.compliance.list
