@@ -4,10 +4,61 @@ use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Procurement\Actions\ApprovePurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseOrder;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Actions\PlacePurchaseOrder;
+use Liberu\Modules\Maintenance\Procurement\Actions\ReceivePurchaseOrder;
 use Liberu\Modules\Maintenance\Procurement\Actions\RejectPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Actions\TransitionPurchaseRequest;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
+
+it('places purchase orders and records tenant-scoped receipts through the API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('procurement-api-test')->plainTextToken;
+
+    $created = $this->withToken($token)->postJson('/api/v1/maintenance/procurement/purchase-orders', [
+        'order_number' => 'PO-1001',
+        'supplier_name' => 'Parts Supplier',
+        'amount' => 125,
+        'items' => [['part_number' => 'P-1', 'quantity' => 2]],
+    ])->assertCreated()->json('data.id');
+
+    $this->withToken($token)->postJson("/api/v1/maintenance/procurement/purchase-orders/{$created}/place")
+        ->assertOk()->assertJsonPath('data.attributes.status', 'ordered');
+    $this->withToken($token)->postJson("/api/v1/maintenance/procurement/purchase-orders/{$created}/receive", [
+        'items' => [['part_number' => 'P-1', 'quantity' => 2]],
+        'notes' => 'Received in full',
+    ])->assertOk()->assertJsonPath('data.attributes.status', 'received');
+
+    $this->withToken($token)->getJson('/api/v1/maintenance/procurement/purchase-orders')
+        ->assertOk()->assertJsonPath('data.0.attributes.receipts.0.notes', 'Received in full');
+});
+
+it('records purchase order returns and bounded cost allocations through the API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('procurement-adjustments-test')->plainTextToken;
+    $order = $this->withToken($token)->postJson('/api/v1/maintenance/procurement/purchase-orders', ['order_number' => 'PO-ADJ-1', 'amount' => 100])->assertCreated()->json('data.id');
+    $this->withToken($token)->postJson("/api/v1/maintenance/procurement/purchase-orders/{$order}/returns", ['items' => [['sku' => 'P-1', 'quantity' => 1]], 'reason' => 'Damaged'])->assertCreated()->assertJsonPath('data.attributes.status', 'requested');
+    $this->withToken($token)->postJson("/api/v1/maintenance/procurement/purchase-orders/{$order}/cost-allocations", ['cost_center' => 'FACILITIES', 'amount' => 60])->assertCreated();
+    $this->withToken($token)->postJson("/api/v1/maintenance/procurement/purchase-orders/{$order}/cost-allocations", ['cost_center' => 'OPERATIONS', 'amount' => 41])->assertUnprocessable();
+});
+
+it('requires an ordered purchase order before receiving it', function () {
+    $team = Team::factory()->create();
+    $order = app(CreatePurchaseOrder::class)->handle($team->id, ['order_number' => 'PO-1002', 'amount' => 50]);
+
+    expect(fn () => app(ReceivePurchaseOrder::class)->handle($team->id, $order, ['items' => [['quantity' => 1]]]))
+        ->toThrow(ValidationException::class);
+
+    $order = app(PlacePurchaseOrder::class)->handle($team->id, $order);
+    $received = app(ReceivePurchaseOrder::class)->handle($team->id, $order, ['items' => [['quantity' => 1]]]);
+
+    expect($received->status)->toBe('received')->and($received->receipts)->toHaveCount(1);
+});
 
 it('creates and approves a tenant-scoped purchase request', function () {
     $team = Team::factory()->create();

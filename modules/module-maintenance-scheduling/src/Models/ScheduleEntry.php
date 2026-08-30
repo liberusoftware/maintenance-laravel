@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\Scheduling\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Liberu\Modules\OrganizationsTeams\Models\Team;
 
@@ -21,6 +22,16 @@ class ScheduleEntry extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function travelSegments(): HasMany
+    {
+        return $this->hasMany(TravelSegment::class);
+    }
+
+    public function dispatches(): HasMany
+    {
+        return $this->hasMany(Dispatch::class);
     }
 
     public function scopeUpcoming(Builder $query, int $days = 30): Builder

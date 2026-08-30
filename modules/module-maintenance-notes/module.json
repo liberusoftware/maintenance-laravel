@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.liberu.dev/module/v1.json",
+  "name": "module-maintenance-notes",
+  "display_name": "Maintenance Notes",
+  "description": "Tenant-scoped notes that can be associated with maintenance records.",
+  "version": "0.1.0",
+  "category": "capability",
+  "provider": "Liberu\\Modules\\Maintenance\\Notes\\NotesServiceProvider",
+  "requires": { "php": "^8.5", "laravel": "^13.0", "packages": { "liberusoftware/module-manager": "^1.0", "liberusoftware/organizations-teams": "^1.0" } },
+  "capabilities": ["maintenance.notes"],
+  "default_enabled": true,
+  "features": ["Tenant-scoped notes", "Record association", "CRUD"]
+}

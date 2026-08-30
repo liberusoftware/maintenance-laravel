@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\PurchaseOrderController;
 use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\PurchaseRequestController;
 use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\VendorContractController;
 use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\VendorPerformanceEvaluationController;
@@ -17,6 +18,13 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/procurement')->gro
     Route::get('/evaluations/{vendorPerformanceEvaluation}', [VendorPerformanceEvaluationController::class, 'show']);
     Route::patch('/evaluations/{vendorPerformanceEvaluation}', [VendorPerformanceEvaluationController::class, 'update']);
     Route::delete('/evaluations/{vendorPerformanceEvaluation}', [VendorPerformanceEvaluationController::class, 'destroy']);
+    Route::get('/purchase-orders', [PurchaseOrderController::class, 'index']);
+    Route::post('/purchase-orders', [PurchaseOrderController::class, 'store']);
+    Route::get('/purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'show']);
+    Route::post('/purchase-orders/{purchaseOrder}/place', [PurchaseOrderController::class, 'place']);
+    Route::post('/purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receive']);
+    Route::post('/purchase-orders/{purchaseOrder}/returns', [PurchaseOrderController::class, 'return']);
+    Route::post('/purchase-orders/{purchaseOrder}/cost-allocations', [PurchaseOrderController::class, 'allocateCost']);
     Route::get('/', [PurchaseRequestController::class, 'index']);
     Route::post('/', [PurchaseRequestController::class, 'store']);
     Route::get('/{purchaseRequest}', [PurchaseRequestController::class, 'show']);

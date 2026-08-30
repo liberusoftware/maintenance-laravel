@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.liberu.dev/module/v1.json",
+  "name": "module-maintenance-documents",
+  "display_name": "Maintenance Documents",
+  "description": "Versioned, tenant-scoped documents with approval and review tracking.",
+  "version": "0.1.0",
+  "category": "capability",
+  "provider": "Liberu\\Modules\\Maintenance\\Documents\\DocumentsServiceProvider",
+  "requires": { "php": "^8.5", "laravel": "^13.0", "packages": { "liberusoftware/files-media": "^1.0", "liberusoftware/module-manager": "^1.0", "liberusoftware/organizations-teams": "^1.0" } },
+  "capabilities": ["maintenance.documents"],
+  "default_enabled": true,
+  "features": ["Documents", "Versions", "Tags", "Approval", "Expiry and review tracking"]
+}

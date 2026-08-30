@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Liberu\Modules\Maintenance\Report\Filament\Resources\ReportingResource\Pages;
+namespace Liberu\Modules\Maintenance\Reporting\Filament\Resources\ReportingResource\Pages;
 
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
-use Liberu\Modules\Maintenance\Report\Filament\Resources\ReportingResource;
+use Liberu\Modules\Maintenance\Reporting\Filament\Resources\ReportingResource;
 
 final class EditReport extends EditRecord
 {

@@ -5,7 +5,9 @@ use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderEvidence;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\CompleteWorkOrderTask;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrderTask;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
@@ -24,6 +26,31 @@ it('creates and transitions a tenant-scoped work order', function () {
         ->and($order->completed_at)->not->toBeNull()
         ->and($order->metadata['status_history'])->toHaveCount(3)
         ->and($order->metadata['status_history'][0]['to'])->toBe('triaged');
+});
+
+it('preserves lifecycle timestamps when a work order is changed through the model boundary', function () {
+    $team = Team::factory()->create();
+    $order = WorkOrder::query()->create(['team_id' => $team->id, 'number' => 'WO-MODEL-1', 'title' => 'Repair pump', 'status' => 'requested', 'priority' => 'normal']);
+
+    expect($order->submitted_at)->not->toBeNull();
+
+    $order->status = 'in_progress';
+    $order->save();
+    expect($order->started_at)->not->toBeNull();
+
+    $order->status = 'completed';
+    $order->save();
+    expect($order->completed_at)->not->toBeNull();
+});
+
+it('supports tenant-scoped task creation and completion', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    $task = app(CreateWorkOrderTask::class)->handle($team->id, $order, ['title' => 'Isolate power', 'sort_order' => 1]);
+
+    expect($order->tasks()->whereKey($task)->exists())->toBeTrue();
+    $completed = app(CompleteWorkOrderTask::class)->handle($team->id, $task);
+    expect($completed->isComplete())->toBeTrue()->and($completed->completed_at)->not->toBeNull();
 });
 
 it('rejects invalid work-order status transitions', function () {

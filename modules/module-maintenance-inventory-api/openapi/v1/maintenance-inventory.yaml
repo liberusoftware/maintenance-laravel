@@ -1,6 +1,11 @@
 openapi: 3.1.0
 info: {title: maintenance inventory API, version: 1.0.0}
 paths:
+  /api/v1/maintenance/inventory/reorder-recommendations:
+    get:
+      operationId: maintenance.inventory.reorderRecommendations
+      security: [{sanctum: []}]
+      responses: {'200': {description: Tenant-scoped reorder recommendations}}
   /api/v1/maintenance/inventory:
     get: {operationId: maintenance.inventory.list, security: [{sanctum: []}], parameters: [{name: stock, in: query, schema: {type: string, enum: [low, out]}}], responses: {'200': {description: Authorized stock items}}}
     post: {operationId: maintenance.inventory.create, security: [{sanctum: []}], responses: {'201': {description: Stock item created}}}
@@ -16,4 +21,27 @@ paths:
     post: {operationId: maintenance.inventory.issue, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock issued}}}
   /api/v1/maintenance/inventory/{id}/return:
     post: {operationId: maintenance.inventory.return, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Stock returned}}}
+  /api/v1/maintenance/inventory/{id}/count:
+    post:
+      operationId: maintenance.inventory.count
+      security: [{sanctum: []}]
+      parameters: [{name: id, in: path, required: true, schema: {type: string}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [counted_quantity]
+              properties:
+                counted_quantity: {type: integer, minimum: 0}
+                notes: {type: string, nullable: true, maxLength: 10000}
+      responses: {'200': {description: Stock count recorded}}
+  /api/v1/maintenance/inventory/locations:
+    get: {operationId: maintenance.inventory.locations.list, security: [{sanctum: []}], responses: {'200': {description: Tenant inventory locations}}}
+    post: {operationId: maintenance.inventory.locations.create, security: [{sanctum: []}], responses: {'201': {description: Inventory location created}}}
+  /api/v1/maintenance/inventory/locations/{location}/levels:
+    post: {operationId: maintenance.inventory.locations.levels.set, security: [{sanctum: []}], parameters: [{name: location, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Location stock level recorded}}}
+  /api/v1/maintenance/inventory/transfers:
+    post: {operationId: maintenance.inventory.transfers.create, security: [{sanctum: []}], responses: {'200': {description: Stock transferred between locations}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

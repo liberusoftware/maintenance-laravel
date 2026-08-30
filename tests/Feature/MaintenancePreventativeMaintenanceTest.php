@@ -1,12 +1,15 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CompleteMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CreateMaintenancePlan;
+use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\GenerateWorkOrderFromPlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\UpdateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Models\MaintenancePlan;
+use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
 
 it('creates a tenant-scoped preventative maintenance plan', function () {
     $team = Team::factory()->create();
@@ -90,4 +93,35 @@ it('retains legacy preventative schedule details in the modular plan', function 
         ->and($plan->checklist_id)->toBe(63)
         ->and($plan->instructions)->toBe('Lock out before inspection.')
         ->and($plan->estimated_duration)->toBe(90);
+});
+
+it('generates one linked work order from an active preventative plan', function () {
+    $team = Team::factory()->create();
+    $plan = app(CreateMaintenancePlan::class)->handle($team->id, [
+        'name' => 'Pump service', 'code' => 'pump-generated', 'priority' => 'high',
+        'description' => 'Inspect the pump', 'frequency_value' => 30,
+    ]);
+
+    $generate = app(GenerateWorkOrderFromPlan::class);
+    $workOrder = $generate->handle($team->id, $plan);
+    $sameWorkOrder = $generate->handle($team->id, $plan->refresh());
+
+    expect($workOrder)->toBeInstanceOf(WorkOrder::class)
+        ->and($workOrder->maintenance_plan_id)->toBe($plan->id)
+        ->and($workOrder->priority)->toBe('high')
+        ->and($sameWorkOrder->id)->toBe($workOrder->id)
+        ->and($plan->workOrders()->count())->toBe(1);
+});
+
+it('generates preventative work orders through the tenant API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('preventative-generation-test')->plainTextToken;
+    $plan = $this->withToken($token)->postJson('/api/v1/maintenance/preventative-maintenance', [
+        'name' => 'Filter service', 'code' => 'filter-api', 'frequency_value' => 14,
+    ])->assertCreated()->json('data.id');
+
+    $this->withToken($token)->postJson("/api/v1/maintenance/preventative-maintenance/{$plan}/generate-work-order")
+        ->assertCreated()->assertJsonPath('data.attributes.maintenance_plan_id', (int) $plan);
 });

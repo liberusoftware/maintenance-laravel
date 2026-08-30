@@ -28,4 +28,17 @@ paths:
     post: {operationId: maintenance.procurement.reject, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase request rejected}}}
   /api/v1/maintenance/procurement/{id}/transitions:
     post: {operationId: maintenance.procurement.transition, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase request lifecycle transitioned}}}
+  /api/v1/maintenance/procurement/purchase-orders:
+    get: {operationId: maintenance.procurement.purchase.orders.list, security: [{sanctum: []}], responses: {'200': {description: Tenant purchase orders with receipts}}}
+    post: {operationId: maintenance.procurement.purchase.orders.create, security: [{sanctum: []}], responses: {'201': {description: Purchase order created}}}
+  /api/v1/maintenance/procurement/purchase-orders/{purchaseOrder}:
+    get: {operationId: maintenance.procurement.purchase.orders.get, security: [{sanctum: []}], parameters: [{name: purchaseOrder, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase order with receipts}}}
+  /api/v1/maintenance/procurement/purchase-orders/{purchaseOrder}/place:
+    post: {operationId: maintenance.procurement.purchase.orders.place, security: [{sanctum: []}], parameters: [{name: purchaseOrder, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase order placed}}}
+  /api/v1/maintenance/procurement/purchase-orders/{purchaseOrder}/receive:
+    post: {operationId: maintenance.procurement.purchase.orders.receive, security: [{sanctum: []}], parameters: [{name: purchaseOrder, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Purchase order receipt recorded}}}
+  /api/v1/maintenance/procurement/purchase-orders/{purchaseOrder}/returns:
+    post: {operationId: maintenance.procurement.purchase.orders.return, security: [{sanctum: []}], responses: {'201': {description: Purchase order return recorded}}}
+  /api/v1/maintenance/procurement/purchase-orders/{purchaseOrder}/cost-allocations:
+    post: {operationId: maintenance.procurement.purchase.orders.allocate-cost, security: [{sanctum: []}], responses: {'201': {description: Purchase order cost allocation recorded}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

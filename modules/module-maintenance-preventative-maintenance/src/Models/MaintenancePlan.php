@@ -7,14 +7,16 @@ namespace Liberu\Modules\Maintenance\PreventativeMaintenance\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
 use Liberu\Modules\OrganizationsTeams\Models\Team;
 
 class MaintenancePlan extends Model
 {
     protected $table = 'maintenance_preventative_plans';
 
-    protected $fillable = ['team_id', 'name', 'code', 'description', 'equipment_id', 'assigned_to', 'checklist_id', 'instructions', 'estimated_duration', 'frequency_unit', 'frequency_value', 'next_due_at', 'last_completed_at', 'is_active', 'rules'];
+    protected $fillable = ['team_id', 'name', 'code', 'description', 'equipment_id', 'assigned_to', 'checklist_id', 'instructions', 'estimated_duration', 'priority', 'frequency_unit', 'frequency_value', 'next_due_at', 'last_completed_at', 'is_active', 'rules'];
 
     protected $casts = ['team_id' => 'integer', 'equipment_id' => 'integer', 'assigned_to' => 'integer', 'checklist_id' => 'integer', 'estimated_duration' => 'integer', 'frequency_value' => 'integer', 'next_due_at' => 'datetime', 'last_completed_at' => 'datetime', 'is_active' => 'boolean', 'rules' => 'array'];
 
@@ -62,5 +64,17 @@ class MaintenancePlan extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function assignedUser(): BelongsTo
+    {
+        $userModel = (string) config('auth.providers.users.model');
+
+        return $this->belongsTo($userModel, 'assigned_to');
+    }
+
+    public function workOrders(): HasMany
+    {
+        return $this->hasMany(WorkOrder::class, 'maintenance_plan_id');
     }
 }
