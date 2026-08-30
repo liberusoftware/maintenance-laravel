@@ -2,7 +2,13 @@
 
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderEvidence;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\CompleteWorkOrderTask;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrderTask;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
@@ -17,7 +23,34 @@ it('creates and transitions a tenant-scoped work order', function () {
     expect($order)->toBeInstanceOf(WorkOrder::class)
         ->and($order->number)->toBe('WO-000001')
         ->and($order->status)->toBe('completed')
-        ->and($order->completed_at)->not->toBeNull();
+        ->and($order->completed_at)->not->toBeNull()
+        ->and($order->metadata['status_history'])->toHaveCount(3)
+        ->and($order->metadata['status_history'][0]['to'])->toBe('triaged');
+});
+
+it('preserves lifecycle timestamps when a work order is changed through the model boundary', function () {
+    $team = Team::factory()->create();
+    $order = WorkOrder::query()->create(['team_id' => $team->id, 'number' => 'WO-MODEL-1', 'title' => 'Repair pump', 'status' => 'requested', 'priority' => 'normal']);
+
+    expect($order->submitted_at)->not->toBeNull();
+
+    $order->status = 'in_progress';
+    $order->save();
+    expect($order->started_at)->not->toBeNull();
+
+    $order->status = 'completed';
+    $order->save();
+    expect($order->completed_at)->not->toBeNull();
+});
+
+it('supports tenant-scoped task creation and completion', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    $task = app(CreateWorkOrderTask::class)->handle($team->id, $order, ['title' => 'Isolate power', 'sort_order' => 1]);
+
+    expect($order->tasks()->whereKey($task)->exists())->toBeTrue();
+    $completed = app(CompleteWorkOrderTask::class)->handle($team->id, $task);
+    expect($completed->isComplete())->toBeTrue()->and($completed->completed_at)->not->toBeNull();
 });
 
 it('rejects invalid work-order status transitions', function () {
@@ -35,5 +68,151 @@ it('updates work-order details but requires the transition action for status cha
     $updated = app(UpdateWorkOrder::class)->handle($team->id, $order, ['title' => 'Repair main pump']);
     expect($updated->title)->toBe('Repair main pump');
     expect(fn () => app(UpdateWorkOrder::class)->handle($team->id, $order, ['status' => 'completed']))
+        ->toThrow(ValidationException::class);
+});
+
+it('retains legacy assignment and maintenance tracking fields in the modular model', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, [
+        'title' => 'Inspect pump',
+        'location' => 'Plant A',
+        'equipment_id' => 41,
+        'customer_id' => 52,
+        'assigned_to' => 63,
+        'due_date' => now()->addDay(),
+        'estimated_minutes' => 90,
+        'maintenance_plan_id' => 74,
+        'checklist_id' => 85,
+    ]);
+
+    expect($order->location)->toBe('Plant A')
+        ->and($order->equipment_id)->toBe(41)
+        ->and($order->assigned_to)->toBe(63)
+        ->and($order->estimated_minutes)->toBe(90)
+        ->and($order->maintenance_plan_id)->toBe(74);
+});
+
+it('retains legacy guest intake and review fields in the modular model', function () {
+    $team = Team::factory()->create();
+    $submitted = now()->subHour();
+    $reviewed = now();
+    $order = app(CreateWorkOrder::class)->handle($team->id, [
+        'title' => 'Guest-reported leak', 'guest_name' => 'Jane Doe', 'guest_email' => 'jane@example.com',
+        'guest_phone' => '+1 555 0100', 'submitted_at' => $submitted, 'reviewed_by' => 17,
+        'reviewed_at' => $reviewed, 'vendor_id' => 29, 'notes' => 'Call before arrival.',
+    ]);
+
+    expect($order->guest_name)->toBe('Jane Doe')
+        ->and($order->guest_email)->toBe('jane@example.com')
+        ->and($order->guest_phone)->toBe('+1 555 0100')
+        ->and($order->submitted_at->toDateTimeString())->toBe($submitted->toDateTimeString())
+        ->and($order->reviewed_by)->toBe(17)
+        ->and($order->reviewed_at->toDateTimeString())->toBe($reviewed->toDateTimeString())
+        ->and($order->vendor_id)->toBe(29)
+        ->and($order->notes)->toBe('Call before arrival.');
+});
+
+it('derives legacy hour values from modular minute tracking', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Track repair', 'estimated_minutes' => 90, 'actual_minutes' => 125]);
+
+    expect($order->estimatedHours())->toBe(1.5)
+        ->and($order->actualHours())->toBe(2.08);
+});
+
+it('stores comments within the work order tenant boundary', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    $comment = app(AddWorkOrderComment::class)->handle($team->id, $order, 123, 'Technician dispatched', true);
+
+    expect($comment->work_order_id)->toBe($order->id)
+        ->and($comment->team_id)->toBe($team->id)
+        ->and($comment->is_internal)->toBeTrue();
+    $this->assertDatabaseHas('maintenance_work_order_comments', ['id' => $comment->id, 'comment' => 'Technician dispatched']);
+});
+
+it('finds overdue and assigned work orders through domain scopes', function () {
+    $team = Team::factory()->create();
+    $create = app(CreateWorkOrder::class);
+    $overdue = $create->handle($team->id, ['title' => 'Late repair', 'assigned_to' => 12, 'due_date' => now()->subDay()]);
+    $upcoming = $create->handle($team->id, ['title' => 'Upcoming repair', 'assigned_to' => 12, 'due_date' => now()->addDays(2)]);
+    $completed = $create->handle($team->id, ['title' => 'Finished repair', 'due_date' => now()->subDay()]);
+    app(TransitionWorkOrder::class)->handle($team->id, $completed, 'triaged');
+    app(TransitionWorkOrder::class)->handle($team->id, $completed, 'in_progress');
+    app(TransitionWorkOrder::class)->handle($team->id, $completed, 'completed');
+
+    expect(WorkOrder::query()->where('team_id', $team->id)->overdue()->pluck('id')->all())->toBe([$overdue->id])
+        ->and(WorkOrder::query()->where('team_id', $team->id)->dueWithin(7)->pluck('id')->all())->toBe([$upcoming->id])
+        ->and(WorkOrder::query()->where('team_id', $team->id)->assignedToUser(12)->count())->toBe(2);
+});
+
+it('soft deletes work orders while keeping them recoverable', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+
+    app(DeleteWorkOrder::class)->handle($team->id, $order);
+
+    expect(WorkOrder::query()->whereKey($order->id)->exists())->toBeFalse()
+        ->and(WorkOrder::withTrashed()->whereKey($order->id)->first()->deleted_at)->not->toBeNull();
+});
+
+it('provides triaged and blocked work-order scopes', function () {
+    $team = Team::factory()->create();
+    $triaged = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Triage repair']);
+    $blocked = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Blocked repair']);
+    $transition = app(TransitionWorkOrder::class);
+    $transition->handle($team->id, $triaged, 'triaged');
+    $transition->handle($team->id, $blocked, 'triaged');
+    $transition->handle($team->id, $blocked, 'in_progress');
+    $transition->handle($team->id, $blocked, 'blocked');
+
+    expect(WorkOrder::query()->where('team_id', $team->id)->triaged()->whereKey($triaged)->exists())->toBeTrue()
+        ->and(WorkOrder::query()->where('team_id', $team->id)->blocked()->whereKey($blocked)->exists())->toBeTrue();
+});
+
+it('supports tenant-scoped dependencies without cycles or self-links', function () {
+    $team = Team::factory()->create();
+    $first = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Prepare site']);
+    $second = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    $third = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Verify repair']);
+    $add = app(AddWorkOrderDependency::class);
+
+    $add->handle($team->id, $second, $first);
+    $add->handle($team->id, $third, $second);
+
+    expect($third->dependencies()->with('dependsOn')->first()->dependsOn->is($second))->toBeTrue();
+    expect(fn () => $add->handle($team->id, $first, $third))->toThrow(ValidationException::class);
+    expect(fn () => $add->handle($team->id, $first, $first))->toThrow(ValidationException::class);
+});
+
+it('requires prerequisite work orders to be completed first', function () {
+    $team = Team::factory()->create();
+    $prerequisite = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Prepare site']);
+    $dependent = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    app(AddWorkOrderDependency::class)->handle($team->id, $dependent, $prerequisite);
+    $transition = app(TransitionWorkOrder::class);
+    $transition->handle($team->id, $dependent, 'triaged');
+    $transition->handle($team->id, $dependent, 'in_progress');
+
+    expect(fn () => $transition->handle($team->id, $dependent, 'completed'))->toThrow(ValidationException::class);
+
+    $transition->handle($team->id, $prerequisite, 'triaged');
+    $transition->handle($team->id, $prerequisite, 'in_progress');
+    $transition->handle($team->id, $prerequisite, 'completed');
+    expect($transition->handle($team->id, $dependent, 'completed')->status)->toBe('completed');
+});
+
+it('stores tenant-scoped work order evidence through the domain action', function () {
+    $team = Team::factory()->create();
+    $order = app(CreateWorkOrder::class)->handle($team->id, ['title' => 'Repair pump']);
+    $evidence = app(AddWorkOrderEvidence::class)->handle($team->id, $order, [
+        'kind' => 'photo', 'label' => 'Damaged seal', 'reference' => 'files/repair/damaged-seal.jpg',
+        'metadata' => ['captured_at' => '2026-08-29T10:00:00Z'],
+    ]);
+
+    expect($evidence->work_order_id)->toBe($order->id)
+        ->and($evidence->team_id)->toBe($team->id)
+        ->and($order->evidence()->whereKey($evidence)->exists())->toBeTrue();
+    expect(fn () => app(AddWorkOrderEvidence::class)->handle($team->id, $order, ['kind' => 'photo']))
         ->toThrow(ValidationException::class);
 });

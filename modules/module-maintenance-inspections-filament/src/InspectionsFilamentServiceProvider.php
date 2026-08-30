@@ -6,4 +6,4 @@ namespace Liberu\Modules\Maintenance\Inspections\Filament;
 
 use Illuminate\Support\ServiceProvider;
 
-class InspectionsFilamentServiceProvider extends ServiceProvider {}
+final class InspectionsFilamentServiceProvider extends ServiceProvider {}

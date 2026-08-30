@@ -7,7 +7,11 @@ namespace Liberu\Modules\Maintenance\Procurement;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
+use Liberu\Modules\Maintenance\Procurement\Models\VendorContract;
+use Liberu\Modules\Maintenance\Procurement\Models\VendorPerformanceEvaluation;
 use Liberu\Modules\Maintenance\Procurement\Policies\PurchaseRequestPolicy;
+use Liberu\Modules\Maintenance\Procurement\Policies\VendorContractPolicy;
+use Liberu\Modules\Maintenance\Procurement\Policies\VendorPerformanceEvaluationPolicy;
 
 class ProcurementServiceProvider extends ServiceProvider
 {
@@ -15,5 +19,7 @@ class ProcurementServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Gate::policy(PurchaseRequest::class, PurchaseRequestPolicy::class);
+        Gate::policy(VendorContract::class, VendorContractPolicy::class);
+        Gate::policy(VendorPerformanceEvaluation::class, VendorPerformanceEvaluationPolicy::class);
     }
 }

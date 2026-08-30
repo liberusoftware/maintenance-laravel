@@ -18,10 +18,53 @@ paths:
       responses:
         "201":
           description: Created compliance record
+  /api/v1/maintenance/compliance/{record}/evidence:
+    get:
+      operationId: maintenance.compliance.evidence.list
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Authorized compliance evidence}
+    post:
+      operationId: maintenance.compliance.evidence.create
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "201": {description: Compliance evidence created}
+  /api/v1/maintenance/compliance/{record}/corrective-actions:
+    get:
+      operationId: maintenance.compliance.corrective.actions.list
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Authorized corrective actions}
+    post:
+      operationId: maintenance.compliance.corrective.actions.create
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "201": {description: Corrective action created}
+  /api/v1/maintenance/compliance/{record}/corrective-actions/{action}/complete:
+    post:
+      operationId: maintenance.compliance.corrective.actions.complete
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+        - {name: action, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Corrective action completed}
 components:
   securitySchemes:
     sanctum:
       type: http
       scheme: bearer
       bearerFormat: Sanctum
-

@@ -19,6 +19,9 @@ class CreateStockItem
         }if (StockItem::where('team_id', $teamId)->where('part_number', $part)->exists()) {
             throw ValidationException::withMessages(['part_number' => 'The part number is already in use.']);
         }
+        if (isset($attributes['unit_cost']) && (float) $attributes['unit_cost'] < 0) {
+            throw ValidationException::withMessages(['unit_cost' => 'Unit cost cannot be negative.']);
+        }
 
         return DB::transaction(fn () => StockItem::create(array_merge($attributes, ['team_id' => $teamId, 'part_number' => $part, 'name' => $name, 'quantity' => (int) ($attributes['quantity'] ?? 0), 'reorder_level' => (int) ($attributes['reorder_level'] ?? 0)])));
     }

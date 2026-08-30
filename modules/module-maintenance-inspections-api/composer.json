@@ -1,1 +1,11 @@
-{"name":"liberusoftware/module-maintenance-inspections-api","description":"Inspections API adapter for Liberu Maintenance","type":"liberu-module","license":"AGPL-3.0-or-later","require":{"php":"^8.5","illuminate/http":"^13.0","illuminate/routing":"^13.0","liberusoftware/module-maintenance-inspections":"0.1.0","laravel/sanctum":"^4.0"},"autoload":{"psr-4":{"Liberu\\Modules\\Maintenance\\Inspections\\Api\\":"src/"}},"config":{"allow-plugins":{"pestphp/pest-plugin":true}},"extra":{"liberu":{"name":"module-maintenance-inspections-api","provider":"Liberu\\Modules\\Maintenance\\Inspections\\Api\\InspectionsApiServiceProvider"}},"version":"0.1.0"}
+{
+  "name": "liberusoftware/module-maintenance-inspections-api",
+  "description": "HTTP API adapter for Maintenance Inspections.",
+  "type": "liberu-module",
+  "license": "AGPL-3.0-or-later",
+  "require": {"php": "^8.5", "illuminate/http": "^13.0", "illuminate/routing": "^13.0", "liberusoftware/module-maintenance-inspections": "0.1.0", "laravel/sanctum": "^4.0"},
+  "autoload": {"psr-4": {"Liberu\\Modules\\Maintenance\\Inspections\\Api\\": "src/"}},
+  "extra": {"liberu": {"name": "module-maintenance-inspections-api"}},
+  "config": {"allow-plugins": {"pestphp/pest-plugin": true}},
+  "version": "0.1.0"
+}

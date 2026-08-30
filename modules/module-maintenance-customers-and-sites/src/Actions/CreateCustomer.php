@@ -14,13 +14,14 @@ class CreateCustomer
     {
         $name = trim((string) ($attributes['name'] ?? ''));
         $code = strtoupper(trim((string) ($attributes['code'] ?? '')));
-        if ($name === '' || $code === '') {
+        $type = (string) ($attributes['type'] ?? 'customer');
+        if ($name === '' || $code === '' || ! in_array($type, ['customer', 'vendor', 'supplier', 'both'], true)) {
             throw ValidationException::withMessages(['name' => 'Name and code are required.']);
         }
         if (Customer::query()->where('team_id', $teamId)->where('code', $code)->exists()) {
             throw ValidationException::withMessages(['code' => 'The customer code is already in use.']);
         }
 
-        return DB::transaction(fn () => Customer::query()->create(array_merge($attributes, ['team_id' => $teamId, 'name' => $name, 'code' => $code, 'is_active' => $attributes['is_active'] ?? true])));
+        return DB::transaction(fn () => Customer::query()->create(array_merge($attributes, ['team_id' => $teamId, 'name' => $name, 'code' => $code, 'type' => $type, 'is_active' => $attributes['is_active'] ?? true])));
     }
 }

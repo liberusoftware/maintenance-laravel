@@ -8,6 +8,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Scheduling\Actions\CreateScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\DeleteScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\TransitionScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\UpdateScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Models\ScheduleEntry;
 
 class ScheduleEntryController extends Controller
@@ -17,7 +20,26 @@ class ScheduleEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('viewAny', ScheduleEntry::class), 403);
-        $items = ScheduleEntry::where('team_id', $id)->orderBy('starts_at')->paginate(min($r->integer('per_page', 25), 100));
+        $query = ScheduleEntry::where('team_id', $id);
+        if ($r->string('window')->toString() === 'upcoming') {
+            $query->upcoming($r->integer('days', 30));
+        } elseif ($r->string('window')->toString() === 'due_soon') {
+            $query->dueSoon($r->integer('days', 7));
+        } elseif ($r->string('window')->toString() === 'overdue') {
+            $query->overdue();
+        } else {
+            $query->orderBy('starts_at');
+        }
+        if ($r->filled('resource_key')) {
+            $query->forResource($r->string('resource_key')->trim()->toString());
+        }
+        if ($r->filled('territory')) {
+            $query->inTerritory($r->string('territory')->trim()->toString());
+        }
+        if ($r->filled('status')) {
+            $query->withStatus($r->string('status')->trim()->toString());
+        }
+        $items = $query->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (ScheduleEntry $e) => $this->resource($e))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }
@@ -27,9 +49,19 @@ class ScheduleEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('create', ScheduleEntry::class), 403);
-        $data = $r->validate(['title' => 'required|string|max:255', 'resource_key' => 'nullable|string|max:255', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at', 'status' => 'nullable|string|max:64', 'territory' => 'nullable|string|max:255', 'metadata' => 'nullable|array']);
+        $data = $r->validate(['title' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'resource_key' => 'nullable|string|max:255', 'equipment_id' => 'nullable|integer', 'assigned_to' => 'nullable|integer', 'checklist_id' => 'nullable|integer', 'instructions' => 'nullable|string|max:10000', 'estimated_duration' => 'nullable|integer|min:0', 'starts_at' => 'required|date', 'ends_at' => 'required|date|after:starts_at', 'timezone' => 'nullable|timezone', 'status' => 'nullable|in:scheduled,in_progress,completed,cancelled', 'territory' => 'nullable|string|max:255', 'metadata' => 'nullable|array', 'recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'nullable|integer|min:1', 'next_due_at' => 'nullable|date', 'priority' => 'nullable|in:low,medium,high,critical']);
 
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
+    }
+
+    public function transition(Request $r, ScheduleEntry $scheduleEntry, TransitionScheduleEntry $transition): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $scheduleEntry->team_id && $r->user()->can('update', $scheduleEntry), 404);
+        $data = $r->validate(['status' => 'required|in:scheduled,in_progress,completed,cancelled']);
+
+        return response()->json(['data' => $this->resource($transition->handle($id, $scheduleEntry, $data['status']))]);
     }
 
     public function show(Request $r, ScheduleEntry $scheduleEntry): JsonResponse
@@ -37,6 +69,26 @@ class ScheduleEntryController extends Controller
         abort_unless($this->teamId($r) === $scheduleEntry->team_id && $r->user()->can('view', $scheduleEntry), 404);
 
         return response()->json(['data' => $this->resource($scheduleEntry)]);
+    }
+
+    public function update(Request $r, ScheduleEntry $scheduleEntry, UpdateScheduleEntry $update): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $scheduleEntry->team_id && $r->user()->can('update', $scheduleEntry), 404);
+        $data = $r->validate(['title' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'resource_key' => 'sometimes|nullable|string|max:255', 'equipment_id' => 'sometimes|nullable|integer', 'assigned_to' => 'sometimes|nullable|integer', 'checklist_id' => 'sometimes|nullable|integer', 'instructions' => 'sometimes|nullable|string|max:10000', 'estimated_duration' => 'sometimes|nullable|integer|min:0', 'starts_at' => 'sometimes|required|date', 'ends_at' => 'sometimes|required|date|after:starts_at', 'timezone' => 'sometimes|nullable|timezone', 'status' => 'sometimes|string|max:64', 'territory' => 'sometimes|nullable|string|max:255', 'metadata' => 'sometimes|nullable|array', 'recurrence_type' => 'sometimes|nullable|in:daily,weekly,monthly,yearly,hours', 'recurrence_value' => 'sometimes|integer|min:1', 'next_due_at' => 'sometimes|nullable|date', 'priority' => 'sometimes|in:low,medium,high,critical']);
+
+        return response()->json(['data' => $this->resource($update->handle($id, $scheduleEntry, $data))]);
+    }
+
+    public function destroy(Request $r, ScheduleEntry $scheduleEntry, DeleteScheduleEntry $delete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $scheduleEntry->team_id && $r->user()->can('delete', $scheduleEntry), 404);
+        $delete->handle($id, $scheduleEntry);
+
+        return response()->json(null, 204);
     }
 
     private function teamId(Request $r): ?int
@@ -48,6 +100,6 @@ class ScheduleEntryController extends Controller
 
     private function resource(ScheduleEntry $e): array
     {
-        return ['id' => (string) $e->getKey(), 'type' => 'maintenance-schedule-entry', 'attributes' => ['title' => $e->title, 'resource_key' => $e->resource_key, 'starts_at' => $e->starts_at?->toISOString(), 'ends_at' => $e->ends_at?->toISOString(), 'status' => $e->status, 'territory' => $e->territory, 'metadata' => $e->metadata]];
+        return ['id' => (string) $e->getKey(), 'type' => 'maintenance-schedule-entry', 'attributes' => ['title' => $e->title, 'description' => $e->description, 'resource_key' => $e->resource_key, 'equipment_id' => $e->equipment_id, 'assigned_to' => $e->assigned_to, 'checklist_id' => $e->checklist_id, 'instructions' => $e->instructions, 'estimated_duration' => $e->estimated_duration, 'starts_at' => $e->starts_at?->toISOString(), 'ends_at' => $e->ends_at?->toISOString(), 'status' => $e->status, 'territory' => $e->territory, 'metadata' => $e->metadata, 'recurrence_type' => $e->recurrence_type, 'recurrence_value' => $e->recurrence_value, 'next_due_at' => $e->next_due_at?->toISOString(), 'last_completed_at' => $e->last_completed_at?->toISOString(), 'priority' => $e->priority]];
     }
 }

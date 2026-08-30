@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Scheduling\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Liberu\Modules\Maintenance\Scheduling\Actions\DeleteScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\TransitionScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Filament\Resources\ScheduleEntryResource\Pages\CreateScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Filament\Resources\ScheduleEntryResource\Pages\EditScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Filament\Resources\ScheduleEntryResource\Pages\ListScheduleEntries;
@@ -29,7 +33,7 @@ class ScheduleEntryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('title')->required()->maxLength(255), TextInput::make('resource_key')->maxLength(255), DateTimePicker::make('starts_at')->required(), DateTimePicker::make('ends_at')->required(), TextInput::make('territory')->maxLength(255)]);
+        return $schema->components([TextInput::make('title')->required()->maxLength(255), Textarea::make('description')->maxLength(10000), TextInput::make('resource_key')->maxLength(255), TextInput::make('equipment_id')->numeric()->minValue(1), TextInput::make('assigned_to')->numeric()->minValue(1), TextInput::make('checklist_id')->numeric()->minValue(1), Textarea::make('instructions')->maxLength(10000), TextInput::make('estimated_duration')->numeric()->minValue(0), DateTimePicker::make('starts_at')->required(), DateTimePicker::make('ends_at')->required(), TextInput::make('territory')->maxLength(255), TextInput::make('recurrence_type')->datalist(['daily', 'weekly', 'monthly', 'yearly', 'hours']), TextInput::make('recurrence_value')->numeric()->minValue(1)->default(1), TextInput::make('priority')->datalist(['low', 'medium', 'high', 'critical'])->default('medium')]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -42,7 +46,16 @@ class ScheduleEntryResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('starts_at')->dateTime()->sortable(), TextColumn::make('ends_at')->dateTime(), TextColumn::make('status')->badge()])->recordActions([EditAction::make(), DeleteAction::make()]);
+        return $table->columns([TextColumn::make('title')->searchable(), TextColumn::make('starts_at')->dateTime()->sortable(), TextColumn::make('ends_at')->dateTime(), TextColumn::make('status')->badge(), TextColumn::make('next_due_at')->dateTime()])->recordActions([
+            EditAction::make(),
+            Action::make('start')->label('Start')->visible(fn (ScheduleEntry $record): bool => $record->status === 'scheduled')->action(fn (ScheduleEntry $record): ScheduleEntry => app(TransitionScheduleEntry::class)->handle((int) (Filament::getTenant() ?? auth()->user()?->currentTeam)->getKey(), $record, 'in_progress')),
+            Action::make('complete')->label('Complete')->visible(fn (ScheduleEntry $record): bool => $record->status === 'in_progress')->action(fn (ScheduleEntry $record): ScheduleEntry => app(TransitionScheduleEntry::class)->handle((int) (Filament::getTenant() ?? auth()->user()?->currentTeam)->getKey(), $record, 'completed')),
+            DeleteAction::make()->action(function (ScheduleEntry $record): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(DeleteScheduleEntry::class)->handle((int) $teamId, $record);
+            }),
+        ]);
     }
 
     public static function getPages(): array

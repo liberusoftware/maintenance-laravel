@@ -9,16 +9,39 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\CountStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\IssueStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\ReturnStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\UpdateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
+use Liberu\Modules\Maintenance\Inventory\Queries\ReorderRecommendations;
 
 class StockItemController extends Controller
 {
+    public function reorderRecommendations(Request $r, ReorderRecommendations $recommendations): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($r->user()->can('viewAny', StockItem::class), 403);
+
+        return response()->json(['data' => $recommendations->handle($id)->values()]);
+    }
+
     public function index(Request $r): JsonResponse
     {
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('viewAny', StockItem::class), 403);
-        $items = StockItem::where('team_id', $id)->orderBy('name')->paginate(min($r->integer('per_page', 25), 100));
+        $query = StockItem::where('team_id', $id);
+        $query = match ($r->string('stock')->toString()) {
+            'low' => $query->lowStock(),
+            'out' => $query->outOfStock(),
+            default => $query,
+        };
+        $items = $query->orderBy('name')->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (StockItem $i) => $this->resource($i))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }
@@ -28,7 +51,7 @@ class StockItemController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('create', StockItem::class), 403);
-        $data = $r->validate(['part_number' => 'required|string|max:96', 'name' => 'required|string|max:255', 'location' => 'nullable|string|max:255', 'quantity' => 'nullable|integer|min:0', 'reorder_level' => 'nullable|integer|min:0', 'unit' => 'nullable|string|max:32']);
+        $data = $r->validate(['part_number' => 'required|string|max:96', 'name' => 'required|string|max:255', 'description' => 'nullable|string|max:10000', 'category' => 'nullable|string|max:255', 'location' => 'nullable|string|max:255', 'supplier_name' => 'nullable|string|max:255', 'lead_time_days' => 'nullable|integer|min:0', 'notes' => 'nullable|string|max:10000', 'quantity' => 'nullable|integer|min:0', 'reorder_level' => 'nullable|integer|min:0', 'reorder_quantity' => 'nullable|integer|min:0', 'unit' => 'nullable|string|max:32', 'unit_cost' => 'nullable|numeric|min:0']);
 
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
     }
@@ -45,9 +68,79 @@ class StockItemController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
-        $data = $r->validate(['delta' => ['required', 'integer', 'between:-1000000,1000000']]);
+        $data = $r->validate(['delta' => ['required', 'integer', 'between:-1000000,1000000'], 'reason' => ['sometimes', 'string', 'max:64'], 'notes' => ['sometimes', 'nullable', 'string', 'max:10000']]);
 
-        return response()->json(['data' => $this->resource($adjust->handle($id, $stockItem, $data['delta']))]);
+        return response()->json(['data' => $this->resource($adjust->handle($id, $stockItem, $data['delta'], $data['reason'] ?? 'adjustment', $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
+    }
+
+    public function reserve(Request $r, StockItem $stockItem, ReserveStock $reserve): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000']]);
+
+        return response()->json(['data' => $this->resource($reserve->handle($id, $stockItem, $data['quantity']))]);
+    }
+
+    public function release(Request $r, StockItem $stockItem, ReleaseReservedStock $release): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000']]);
+
+        return response()->json(['data' => $this->resource($release->handle($id, $stockItem, $data['quantity']))]);
+    }
+
+    public function issue(Request $r, StockItem $stockItem, IssueStock $issue): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000'], 'notes' => ['sometimes', 'nullable', 'string', 'max:10000']]);
+
+        return response()->json(['data' => $this->resource($issue->handle($id, $stockItem, $data['quantity'], $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
+    }
+
+    public function return(Request $r, StockItem $stockItem, ReturnStock $returnStock): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000'], 'notes' => ['sometimes', 'nullable', 'string', 'max:10000']]);
+
+        return response()->json(['data' => $this->resource($returnStock->handle($id, $stockItem, $data['quantity'], $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
+    }
+
+    public function count(Request $r, StockItem $stockItem, CountStock $count): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['counted_quantity' => ['required', 'integer', 'min:0', 'max:1000000'], 'notes' => ['sometimes', 'nullable', 'string', 'max:10000']]);
+
+        return response()->json(['data' => $this->resource($count->handle($id, $stockItem, $data['counted_quantity'], $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
+    }
+
+    public function update(Request $r, StockItem $stockItem, UpdateStockItem $update): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['part_number' => 'sometimes|required|string|max:96', 'name' => 'sometimes|required|string|max:255', 'description' => 'sometimes|nullable|string|max:10000', 'category' => 'sometimes|nullable|string|max:255', 'location' => 'sometimes|nullable|string|max:255', 'supplier_name' => 'sometimes|nullable|string|max:255', 'lead_time_days' => 'sometimes|integer|min:0', 'notes' => 'sometimes|nullable|string|max:10000', 'reorder_level' => 'sometimes|integer|min:0', 'reorder_quantity' => 'sometimes|integer|min:0', 'unit' => 'sometimes|nullable|string|max:32', 'unit_cost' => 'sometimes|nullable|numeric|min:0']);
+
+        return response()->json(['data' => $this->resource($update->handle($id, $stockItem, $data))]);
+    }
+
+    public function destroy(Request $r, StockItem $stockItem, DeleteStockItem $delete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('delete', $stockItem), 404);
+        $delete->handle($id, $stockItem);
+
+        return response()->json(null, 204);
     }
 
     private function teamId(Request $r): ?int
@@ -59,6 +152,15 @@ class StockItemController extends Controller
 
     private function resource(StockItem $i): array
     {
-        return ['id' => (string) $i->getKey(), 'type' => 'maintenance-stock-item', 'attributes' => ['part_number' => $i->part_number, 'name' => $i->name, 'location' => $i->location, 'quantity' => $i->quantity, 'reorder_level' => $i->reorder_level, 'unit' => $i->unit]];
+        return ['id' => (string) $i->getKey(), 'type' => 'maintenance-stock-item', 'attributes' => ['part_number' => $i->part_number, 'name' => $i->name, 'description' => $i->description, 'category' => $i->category, 'location' => $i->location, 'supplier_name' => $i->supplier_name, 'lead_time_days' => $i->lead_time_days, 'notes' => $i->notes, 'quantity' => $i->quantity, 'reserved_quantity' => $i->reserved_quantity, 'available_quantity' => $i->availableQuantity(), 'is_low_stock' => $i->isLowStock(), 'is_out_of_stock' => $i->isOutOfStock(), 'reorder_level' => $i->reorder_level, 'reorder_quantity' => $i->reorder_quantity, 'unit' => $i->unit, 'unit_cost' => $i->unit_cost]];
+    }
+
+    public function movements(Request $r, StockItem $stockItem): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('view', $stockItem), 404);
+
+        return response()->json(['data' => $stockItem->movements()->latest()->get()->map(fn ($movement): array => ['id' => (string) $movement->id, 'type' => 'maintenance-stock-movement', 'attributes' => $movement->only(['delta', 'quantity_before', 'quantity_after', 'reason', 'notes', 'user_id', 'created_at'])])->values()]);
     }
 }

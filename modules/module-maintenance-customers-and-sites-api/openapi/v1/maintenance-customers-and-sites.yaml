@@ -2,8 +2,28 @@ openapi: 3.1.0
 info: {title: maintenance customers and sites API, version: 1.0.0}
 paths:
   /api/v1/maintenance/customers-and-sites:
-    get: {operationId: maintenance.customers.and.sites.list, security: [{sanctum: []}], responses: {'200': {description: Authorized customers}}}
+    get: {operationId: maintenance.customers.and.sites.list, security: [{sanctum: []}], parameters: [{name: is_active, in: query, schema: {type: boolean}}, {name: type, in: query, schema: {type: string, enum: [customer, vendor, supplier, both]}}], responses: {'200': {description: Authorized customers}}}
     post: {operationId: maintenance.customers.and.sites.create, security: [{sanctum: []}], responses: {'201': {description: Customer created}}}
   /api/v1/maintenance/customers-and-sites/{id}:
     get: {operationId: maintenance.customers.and.sites.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Customer}}}
+  /api/v1/maintenance/customers-and-sites/sites:
+    get: {operationId: maintenance.customers.and.sites.sites.list, security: [{sanctum: []}], parameters: [{name: is_active, in: query, schema: {type: boolean}}, {name: customer_id, in: query, schema: {type: integer}}], responses: {'200': {description: Authorized sites}}}
+  /api/v1/maintenance/customers-and-sites/contacts:
+    get: {operationId: maintenance.customers.and.sites.contacts.list, security: [{sanctum: []}], parameters: [{name: customer_id, in: query, schema: {type: integer}}, {name: is_active, in: query, schema: {type: boolean}}], responses: {'200': {description: Authorized contacts}}}
+    post: {operationId: maintenance.customers.and.sites.contacts.create, security: [{sanctum: []}], responses: {'201': {description: Contact created}}}
+  /api/v1/maintenance/customers-and-sites/contacts/{contact}:
+    patch: {operationId: maintenance.customers.and.sites.contacts.update, security: [{sanctum: []}], parameters: [{name: contact, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Contact updated}}}
+    delete: {operationId: maintenance.customers.and.sites.contacts.delete, security: [{sanctum: []}], parameters: [{name: contact, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Contact deleted}}}
+  /api/v1/maintenance/customers-and-sites/locations:
+    get: {operationId: maintenance.customers.and.sites.locations.list, security: [{sanctum: []}], parameters: [{name: site_id, in: query, schema: {type: integer}}, {name: is_active, in: query, schema: {type: boolean}}], responses: {'200': {description: Authorized locations}}}
+    post: {operationId: maintenance.customers.and.sites.locations.create, security: [{sanctum: []}], responses: {'201': {description: Location created}}}
+  /api/v1/maintenance/customers-and-sites/locations/{location}:
+    patch: {operationId: maintenance.customers.and.sites.locations.update, security: [{sanctum: []}], parameters: [{name: location, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Location updated}}}
+    delete: {operationId: maintenance.customers.and.sites.locations.delete, security: [{sanctum: []}], parameters: [{name: location, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Location deleted}}}
+  /api/v1/maintenance/customers-and-sites/service-windows:
+    get: {operationId: maintenance.customers.and.sites.service.windows.list, security: [{sanctum: []}], parameters: [{name: site_id, in: query, schema: {type: integer}}], responses: {'200': {description: Authorized service windows}}}
+    post: {operationId: maintenance.customers.and.sites.service.windows.create, security: [{sanctum: []}], responses: {'201': {description: Service window created}}}
+  /api/v1/maintenance/customers-and-sites/service-windows/{serviceWindow}:
+    patch: {operationId: maintenance.customers.and.sites.service.windows.update, security: [{sanctum: []}], parameters: [{name: serviceWindow, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Service window updated}}}
+    delete: {operationId: maintenance.customers.and.sites.service.windows.delete, security: [{sanctum: []}], parameters: [{name: serviceWindow, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Service window deleted}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

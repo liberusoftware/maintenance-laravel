@@ -1,5 +1,5 @@
 <div>
-    <form wire:submit="save" class="space-y-4">
+    <form wire:submit="{{ $editingOrganizationId ? 'update' : 'save' }}" class="space-y-4">
         <div>
             <label for="maintenance-core-name">Name</label>
             <input id="maintenance-core-name" wire:model="name" type="text" required>
@@ -15,12 +15,19 @@
             <textarea id="maintenance-core-description" wire:model="description"></textarea>
             @error('description') <p role="alert">{{ $message }}</p> @enderror
         </div>
-        <button type="submit">Create organization</button>
+        <button type="submit">{{ $editingOrganizationId ? 'Update organization' : 'Create organization' }}</button>
+        @if ($editingOrganizationId)
+            <button type="button" wire:click="cancelEdit">Cancel</button>
+        @endif
     </form>
 
     <ul aria-label="Organizations">
         @forelse ($organizations as $organization)
-            <li wire:key="maintenance-organization-{{ $organization->id }}">{{ $organization->name }} ({{ $organization->code }})</li>
+            <li wire:key="maintenance-organization-{{ $organization->id }}">
+                {{ $organization->name }} ({{ $organization->code }})
+                <button type="button" wire:click="edit({{ $organization->id }})">Edit</button>
+                <button type="button" wire:click="delete({{ $organization->id }})">Delete</button>
+            </li>
         @empty
             <li>No organizations found.</li>
         @endforelse

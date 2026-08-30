@@ -1,11 +1,21 @@
 openapi: 3.1.0
 info: {title: maintenance inspections API, version: 1.0.0}
 paths:
+  /api/v1/maintenance/inspections/templates:
+    get: {operationId: maintenance.inspections.templates.list, security: [{sanctum: []}], responses: {'200': {description: Active inspection templates}}}
+    post: {operationId: maintenance.inspections.templates.create, security: [{sanctum: []}], responses: {'201': {description: Inspection template created}}}
   /api/v1/maintenance/inspections:
     get: {operationId: maintenance.inspections.list, security: [{sanctum: []}], responses: {'200': {description: Authorized inspections}}}
     post: {operationId: maintenance.inspections.create, security: [{sanctum: []}], responses: {'201': {description: Inspection created}}}
   /api/v1/maintenance/inspections/{id}:
-    get: {operationId: maintenance.inspections.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Inspection}}}
+    get: {operationId: maintenance.inspections.get, security: [{sanctum: []}], responses: {'200': {description: Inspection}}}
+    patch: {operationId: maintenance.inspections.update, security: [{sanctum: []}], responses: {'200': {description: Inspection updated}}}
+    delete: {operationId: maintenance.inspections.delete, security: [{sanctum: []}], responses: {'204': {description: Inspection deleted}}}
   /api/v1/maintenance/inspections/{id}/complete:
-    post: {operationId: maintenance.inspections.complete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Inspection completed}}}
+    post: {operationId: maintenance.inspections.complete, security: [{sanctum: []}], responses: {'200': {description: Inspection completed}}}
+  /api/v1/maintenance/inspections/{inspection}/follow-ups:
+    get: {operationId: maintenance.inspections.follow.ups.list, security: [{sanctum: []}], parameters: [{name: inspection, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Inspection follow-ups}}}
+    post: {operationId: maintenance.inspections.follow.ups.create, security: [{sanctum: []}], parameters: [{name: inspection, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Inspection follow-up created}}}
+  /api/v1/maintenance/inspections/follow-ups/{followUp}/complete:
+    post: {operationId: maintenance.inspections.follow.ups.complete, security: [{sanctum: []}], parameters: [{name: followUp, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Inspection follow-up completed}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

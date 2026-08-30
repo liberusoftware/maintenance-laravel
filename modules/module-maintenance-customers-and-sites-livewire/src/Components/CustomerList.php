@@ -6,6 +6,8 @@ namespace Liberu\Modules\Maintenance\CustomersAndSites\Livewire\Components;
 
 use Illuminate\View\View;
 use Liberu\Modules\Maintenance\CustomersAndSites\Actions\CreateCustomer;
+use Liberu\Modules\Maintenance\CustomersAndSites\Actions\DeleteCustomer;
+use Liberu\Modules\Maintenance\CustomersAndSites\Actions\UpdateCustomer;
 use Liberu\Modules\Maintenance\CustomersAndSites\Models\Customer;
 use Livewire\Component;
 
@@ -17,14 +19,52 @@ class CustomerList extends Component
 
     public string $email = '';
 
+    public string $type = 'customer';
+
+    public string $phone = '';
+
+    public ?int $editingCustomerId = null;
+
     public function save(CreateCustomer $create): void
     {
         $id = auth()->user()?->currentTeam?->getKey();
         abort_if($id === null, 403);
-        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'email' => 'nullable|email|max:255']);
-        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'email' => $this->email]);
-        $this->reset(['name', 'code', 'email']);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'email' => 'nullable|email|max:255', 'phone' => 'nullable|string|max:64', 'type' => 'required|in:customer,vendor,supplier,both']);
+        $create->handle((int) $id, ['name' => $this->name, 'code' => $this->code, 'email' => $this->email, 'phone' => $this->phone, 'type' => $this->type]);
+        $this->reset(['name', 'code', 'email', 'phone', 'type']);
         $this->dispatch('maintenance-customers-and-sites-customer-created');
+    }
+
+    public function edit(int $customerId): void
+    {
+        $customer = $this->customerForCurrentTeam($customerId);
+        $this->editingCustomerId = $customer->getKey();
+        $this->name = $customer->name;
+        $this->code = $customer->code;
+        $this->email = (string) ($customer->email ?? '');
+        $this->phone = (string) ($customer->phone ?? '');
+        $this->type = (string) ($customer->type ?? 'customer');
+    }
+
+    public function update(UpdateCustomer $update): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null || $this->editingCustomerId === null, 403);
+        $this->validate(['name' => 'required|string|max:255', 'code' => 'required|string|max:64', 'email' => 'nullable|email|max:255', 'phone' => 'nullable|string|max:64', 'type' => 'required|in:customer,vendor,supplier,both']);
+        $update->handle((int) $teamId, $this->customerForCurrentTeam($this->editingCustomerId), ['name' => $this->name, 'code' => $this->code, 'email' => $this->email, 'phone' => $this->phone, 'type' => $this->type]);
+        $this->cancelEdit();
+    }
+
+    public function delete(int $customerId, DeleteCustomer $delete): void
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        $delete->handle((int) $teamId, $this->customerForCurrentTeam($customerId));
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->reset(['name', 'code', 'email', 'phone', 'type', 'editingCustomerId']);
     }
 
     public function render(): View
@@ -33,5 +73,13 @@ class CustomerList extends Component
         $customers = $id === null ? collect() : Customer::where('team_id', $id)->orderBy('name')->get();
 
         return view('module-maintenance-customers-and-sites-livewire::livewire.customer-list', compact('customers'));
+    }
+
+    private function customerForCurrentTeam(int $customerId): Customer
+    {
+        $teamId = auth()->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+
+        return Customer::query()->where('team_id', $teamId)->findOrFail($customerId);
     }
 }

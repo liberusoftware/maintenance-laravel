@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Liberu\Modules\Maintenance\Assets\Filament\Resources;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -14,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Liberu\Modules\Maintenance\Assets\Actions\DeleteAsset;
+use Liberu\Modules\Maintenance\Assets\Actions\RecordAssetHistory;
 use Liberu\Modules\Maintenance\Assets\Filament\Resources\AssetResource\Pages\CreateAsset;
 use Liberu\Modules\Maintenance\Assets\Filament\Resources\AssetResource\Pages\EditAsset;
 use Liberu\Modules\Maintenance\Assets\Filament\Resources\AssetResource\Pages\ListAssets;
@@ -29,7 +33,7 @@ class AssetResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([TextInput::make('name')->required()->maxLength(255), TextInput::make('code')->required()->maxLength(64), TextInput::make('category')->maxLength(255), TextInput::make('serial_number')->maxLength(255), TextInput::make('condition')->maxLength(64), TextInput::make('status')->maxLength(64)]);
+        return $schema->components([TextInput::make('name')->required()->maxLength(255), Textarea::make('description')->maxLength(10000), TextInput::make('code')->required()->maxLength(64), TextInput::make('category')->maxLength(255), TextInput::make('serial_number')->maxLength(255), TextInput::make('model')->maxLength(255), TextInput::make('manufacturer')->maxLength(255), TextInput::make('location')->maxLength(255), DatePicker::make('purchase_date'), DatePicker::make('warranty_expiry')->afterOrEqual('purchase_date'), Textarea::make('notes')->maxLength(10000), TextInput::make('condition')->maxLength(64), TextInput::make('criticality')->maxLength(32), TextInput::make('status')->maxLength(64), TextInput::make('sensor_type')->maxLength(80), TextInput::make('sensor_id')->maxLength(255)]);
     }
 
     public static function getEloquentQuery(): Builder
@@ -42,8 +46,13 @@ class AssetResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('category'), TextColumn::make('condition')->badge(), TextColumn::make('status')->badge()])->recordActions([
+        return $table->columns([TextColumn::make('name')->searchable()->sortable(), TextColumn::make('code')->sortable(), TextColumn::make('category'), TextColumn::make('condition')->badge(), TextColumn::make('criticality')->badge(), TextColumn::make('status')->badge(), TextColumn::make('warranty_expiry')->date(), TextColumn::make('health_status')->badge()])->recordActions([
             EditAction::make(),
+            Action::make('recordHistory')->label('Record history')->form([TextInput::make('type')->required()->maxLength(64), Textarea::make('note')->required()->maxLength(10000)])->action(function (Asset $record, array $data): void {
+                $teamId = auth()->user()?->currentTeam?->getKey();
+                abort_if($teamId === null, 403);
+                app(RecordAssetHistory::class)->handle((int) $teamId, $record, $data['type'], $data['note'], (int) auth()->id());
+            }),
             DeleteAction::make()->action(function (Asset $record): void {
                 $teamId = auth()->user()?->currentTeam?->getKey();
                 abort_if($teamId === null, 403);

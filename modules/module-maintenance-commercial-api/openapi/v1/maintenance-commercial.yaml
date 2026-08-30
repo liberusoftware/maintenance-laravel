@@ -18,10 +18,70 @@ paths:
       responses:
         "201":
           description: Created commercial record
+  /api/v1/maintenance/commercial/{id}:
+    get:
+      operationId: maintenance.commercial.get
+      security:
+        - sanctum: []
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Commercial record}
+    patch:
+      operationId: maintenance.commercial.update
+      security:
+        - sanctum: []
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Updated commercial record}
+    delete:
+      operationId: maintenance.commercial.delete
+      security:
+        - sanctum: []
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        "204": {description: Deleted commercial record}
+  /api/v1/maintenance/commercial/{record}/lines:
+    get:
+      operationId: maintenance.commercial.lines.list
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Authorized billable lines}
+    post:
+      operationId: maintenance.commercial.lines.create
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "201": {description: Created billable line}
+  /api/v1/maintenance/commercial/{record}/lines/{line}:
+    patch:
+      operationId: maintenance.commercial.lines.update
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+        - {name: line, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Updated billable line}
+    delete:
+      operationId: maintenance.commercial.lines.delete
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+        - {name: line, in: path, required: true, schema: {type: string}}
+      responses:
+        "204": {description: Deleted billable line}
 components:
   securitySchemes:
     sanctum:
       type: http
       scheme: bearer
       bearerFormat: Sanctum
-

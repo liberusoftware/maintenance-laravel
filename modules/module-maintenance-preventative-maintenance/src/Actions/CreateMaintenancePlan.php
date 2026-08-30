@@ -15,12 +15,13 @@ class CreateMaintenancePlan
         $name = trim((string) ($attributes['name'] ?? ''));
         $code = strtoupper(trim((string) ($attributes['code'] ?? '')));
         $value = (int) ($attributes['frequency_value'] ?? 0);
-        if ($name === '' || $code === '' || $value < 1) {
+        $unit = (string) ($attributes['frequency_unit'] ?? 'days');
+        if ($name === '' || $code === '' || $value < 1 || ! in_array($unit, ['hours', 'days', 'weeks', 'months', 'years', 'meters'], true)) {
             throw ValidationException::withMessages(['name' => 'Name, code, and a positive frequency are required.']);
         }if (MaintenancePlan::where('team_id', $teamId)->where('code', $code)->exists()) {
             throw ValidationException::withMessages(['code' => 'The plan code is already in use.']);
         }
 
-        return DB::transaction(fn () => MaintenancePlan::create(array_merge($attributes, ['team_id' => $teamId, 'name' => $name, 'code' => $code, 'frequency_value' => $value, 'frequency_unit' => $attributes['frequency_unit'] ?? 'days', 'is_active' => $attributes['is_active'] ?? true])));
+        return DB::transaction(fn () => MaintenancePlan::create(array_merge($attributes, ['team_id' => $teamId, 'name' => $name, 'code' => $code, 'frequency_value' => $value, 'frequency_unit' => $unit, 'is_active' => $attributes['is_active'] ?? true])));
     }
 }

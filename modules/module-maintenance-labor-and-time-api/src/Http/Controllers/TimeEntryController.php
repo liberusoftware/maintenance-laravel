@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\ApproveTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateTimeEntry;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\DeleteTimeEntry;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\RejectTimeEntry;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\UpdateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Models\TimeEntry;
 
 class TimeEntryController extends Controller
@@ -18,7 +21,14 @@ class TimeEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('viewAny', TimeEntry::class), 403);
-        $items = TimeEntry::where('team_id', $id)->latest()->paginate(min($r->integer('per_page', 25), 100));
+        $query = TimeEntry::query()->where('team_id', $id);
+        if ($r->filled('status')) {
+            $query->where('status', $r->string('status')->toString());
+        }
+        if ($r->filled('user_id')) {
+            $query->forUser($r->integer('user_id'));
+        }
+        $items = $query->latest()->paginate(min($r->integer('per_page', 25), 100));
 
         return response()->json(['data' => $items->getCollection()->map(fn (TimeEntry $e) => $this->resource($e))->values(), 'meta' => ['current_page' => $items->currentPage(), 'last_page' => $items->lastPage(), 'total' => $items->total()]]);
     }
@@ -28,7 +38,7 @@ class TimeEntryController extends Controller
         $id = $this->teamId($r);
         abort_if($id === null, 403);
         abort_unless($r->user()->can('create', TimeEntry::class), 403);
-        $data = $r->validate(['description' => 'nullable|string|max:255', 'minutes' => 'required|integer|min:1', 'rate' => 'nullable|numeric|min:0', 'expense_amount' => 'nullable|numeric|min:0', 'currency' => 'nullable|string|size:3', 'started_at' => 'nullable|date', 'ended_at' => 'nullable|date']);
+        $data = $r->validate(['description' => 'nullable|string|max:255', 'minutes' => 'required|integer|min:1', 'rate' => 'nullable|numeric|min:0', 'expense_amount' => 'nullable|numeric|min:0', 'currency' => 'nullable|string|size:3', 'started_at' => 'nullable|date', 'ended_at' => 'nullable|date|after:started_at']);
         $data['user_id'] = $r->user()->getKey();
 
         return response()->json(['data' => $this->resource($create->handle($id, $data))], 201);
@@ -48,6 +58,36 @@ class TimeEntryController extends Controller
         abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('update', $timeEntry), 404);
 
         return response()->json(['data' => $this->resource($approve->handle($id, $timeEntry, (int) $r->user()->getKey()))]);
+    }
+
+    public function reject(Request $r, TimeEntry $timeEntry, RejectTimeEntry $reject): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('update', $timeEntry), 404);
+        $data = $r->validate(['reason' => 'sometimes|nullable|string|max:2000']);
+
+        return response()->json(['data' => $this->resource($reject->handle($id, $timeEntry, (int) $r->user()->getKey(), $data['reason'] ?? null))]);
+    }
+
+    public function update(Request $r, TimeEntry $timeEntry, UpdateTimeEntry $update): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('update', $timeEntry), 404);
+        $data = $r->validate(['description' => 'sometimes|nullable|string|max:255', 'minutes' => 'sometimes|required|integer|min:1', 'rate' => 'sometimes|nullable|numeric|min:0', 'expense_amount' => 'sometimes|nullable|numeric|min:0', 'currency' => 'sometimes|string|size:3', 'started_at' => 'sometimes|nullable|date', 'ended_at' => 'sometimes|nullable|date|after:started_at']);
+
+        return response()->json(['data' => $this->resource($update->handle($id, $timeEntry, $data))]);
+    }
+
+    public function destroy(Request $r, TimeEntry $timeEntry, DeleteTimeEntry $delete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $timeEntry->team_id && $r->user()->can('delete', $timeEntry), 404);
+        $delete->handle($id, $timeEntry);
+
+        return response()->json(null, 204);
     }
 
     private function teamId(Request $r): ?int

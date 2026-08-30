@@ -2,8 +2,10 @@ openapi: 3.1.0
 info: {title: maintenance preventative maintenance API, version: 1.0.0}
 paths:
   /api/v1/maintenance/preventative-maintenance:
-    get: {operationId: maintenance.preventative.maintenance.list, security: [{sanctum: []}], responses: {'200': {description: Authorized plans}}}
+    get: {operationId: maintenance.preventative.maintenance.list, security: [{sanctum: []}], parameters: [{name: window, in: query, schema: {type: string, enum: [overdue, due_soon, upcoming]}}, {name: days, in: query, schema: {type: integer, minimum: 1, maximum: 365}}], responses: {'200': {description: Authorized plans}}}
     post: {operationId: maintenance.preventative.maintenance.create, security: [{sanctum: []}], responses: {'201': {description: Plan created}}}
   /api/v1/maintenance/preventative-maintenance/{id}:
     get: {operationId: maintenance.preventative.maintenance.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Plan}}}
+  /api/v1/maintenance/preventative-maintenance/{id}/complete:
+    post: {operationId: maintenance.preventative.maintenance.complete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Plan completed}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

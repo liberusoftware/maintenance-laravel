@@ -36,3 +36,24 @@ it('creates an organization through the Livewire public action', function () {
         'code' => 'CREATED',
     ]);
 });
+
+it('updates and deletes an organization through Livewire actions', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $organization = app(CreateOrganization::class)->execute($team->id, 'Old Plant', 'OLD');
+    $this->actingAs($user);
+
+    Livewire::test(OrganizationList::class)
+        ->call('edit', $organization->id)
+        ->set('name', 'New Plant')
+        ->set('code', 'NEW')
+        ->call('update')
+        ->assertHasNoErrors();
+    expect($organization->fresh()->code)->toBe('NEW');
+
+    Livewire::test(OrganizationList::class)
+        ->call('delete', $organization->id)
+        ->assertHasNoErrors();
+    $this->assertDatabaseMissing('maintenance_organizations', ['id' => $organization->id]);
+});

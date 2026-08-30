@@ -8,4 +8,6 @@ paths:
     get: {operationId: maintenance.labor.and.time.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Time entry}}}
   /api/v1/maintenance/labor-and-time/{id}/approve:
     post: {operationId: maintenance.labor.and.time.approve, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Time entry approved}}}
+  /api/v1/maintenance/labor-and-time/{id}/reject:
+    post: {operationId: maintenance.labor.and.time.reject, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Time entry rejected}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

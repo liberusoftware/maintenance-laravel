@@ -6,6 +6,7 @@ namespace Liberu\Modules\Maintenance\Commercial\Filament;
 
 use Filament\Panel;
 use Filament\PanelPlugin;
+use Liberu\Modules\Maintenance\Commercial\Filament\Resources\CommercialResource;
 
 class CommercialFilamentPlugin implements PanelPlugin
 {
@@ -14,7 +15,10 @@ class CommercialFilamentPlugin implements PanelPlugin
         return 'module-maintenance-commercial-filament';
     }
 
-    public function register(Panel $panel): void {}
+    public function register(Panel $panel): void
+    {
+        $panel->resources([CommercialResource::class]);
+    }
 
     public function boot(Panel $panel): void {}
 }

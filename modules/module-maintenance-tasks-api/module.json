@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.liberu.dev/module/v1.json",
+  "name": "module-maintenance-tasks-api",
+  "display_name": "Maintenance Tasks API",
+  "description": "Sanctum-protected API for maintenance tasks.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Tasks\\Api\\TasksApiServiceProvider",
+  "requires": { "php": "^8.5", "laravel": "^13.0", "packages": { "liberusoftware/module-maintenance-tasks": "0.1.0" } },
+  "capabilities": ["maintenance.tasks.api"],
+  "default_enabled": true,
+  "features": ["Task CRUD", "Completion", "Tenant isolation"]
+}

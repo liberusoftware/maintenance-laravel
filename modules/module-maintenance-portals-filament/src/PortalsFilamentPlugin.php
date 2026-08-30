@@ -6,6 +6,7 @@ namespace Liberu\Modules\Maintenance\Portals\Filament;
 
 use Filament\Panel;
 use Filament\PanelPlugin;
+use Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource;
 
 class PortalsFilamentPlugin implements PanelPlugin
 {
@@ -14,7 +15,10 @@ class PortalsFilamentPlugin implements PanelPlugin
         return 'module-maintenance-portals-filament';
     }
 
-    public function register(Panel $panel): void {}
+    public function register(Panel $panel): void
+    {
+        $panel->resources([PortalsResource::class]);
+    }
 
     public function boot(Panel $panel): void {}
 }

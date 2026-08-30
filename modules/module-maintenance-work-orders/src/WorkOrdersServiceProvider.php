@@ -13,6 +13,7 @@ class WorkOrdersServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        $this->mergeConfigFrom(__DIR__.'/../config/maintenance-work-orders.php', 'maintenance-work-orders');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Gate::policy(WorkOrder::class, WorkOrderPolicy::class);
     }

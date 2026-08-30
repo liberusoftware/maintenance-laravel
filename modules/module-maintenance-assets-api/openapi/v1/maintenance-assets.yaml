@@ -2,10 +2,89 @@ openapi: 3.1.0
 info: {title: maintenance assets API, version: 1.0.0}
 paths:
   /api/v1/maintenance/assets:
-    get: {operationId: maintenance.assets.list, security: [{sanctum: []}], responses: {'200': {description: Authorized assets}}}
+    get: {operationId: maintenance.assets.list, security: [{sanctum: []}], parameters: [{name: status, in: query, schema: {type: string}}, {name: criticality, in: query, schema: {type: string, enum: [normal, high, critical]}}, {name: condition, in: query, schema: {type: string}}, {name: under_warranty, in: query, schema: {type: boolean}}, {name: warranty_expired, in: query, schema: {type: boolean}}], responses: {'200': {description: Authorized assets}}}
     post: {operationId: maintenance.assets.create, security: [{sanctum: []}], responses: {'201': {description: Asset created}}}
   /api/v1/maintenance/assets/{id}:
     get: {operationId: maintenance.assets.get, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Asset}}}
     patch: {operationId: maintenance.assets.update, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Asset updated}}}
     delete: {operationId: maintenance.assets.delete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Asset deleted}}}
-components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}
+  /api/v1/maintenance/assets/{id}/history:
+    post: {operationId: maintenance.assets.history, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Asset history recorded}}}
+  /api/v1/maintenance/assets/{asset}/meters:
+    get: {operationId: maintenance.assets.meters.list, security: [{sanctum: []}], parameters: [{name: asset, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Authorized asset meters}}}
+    post: {operationId: maintenance.assets.meters.create, security: [{sanctum: []}], parameters: [{name: asset, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Asset meter created}}}
+  /api/v1/maintenance/assets/{asset}/meters/{meter}/readings:
+    post: {operationId: maintenance.assets.meters.readings.create, security: [{sanctum: []}], parameters: [{name: asset, in: path, required: true, schema: {type: string}}, {name: meter, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Asset meter reading recorded}}}
+  /api/iot-sensors/readings:
+    post:
+      operationId: maintenance.assets.sensors.record
+      security: []
+      description: Record a reading from a configured asset sensor.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sensor_id, metric_name, value, reading_at]
+              properties:
+                sensor_id: {type: string, maxLength: 255}
+                metric_name: {type: string, maxLength: 120}
+                value: {type: number}
+                unit: {type: string, nullable: true, maxLength: 32}
+                sensor_type: {type: string, nullable: true, maxLength: 80}
+                reading_at: {type: string, format: date-time}
+                metadata: {type: object, nullable: true}
+      responses:
+        '201': {description: Sensor reading recorded}
+        '403': {description: Sensor is disabled}
+        '404': {description: Sensor asset not found}
+  /api/iot-sensors/readings/batch:
+    post:
+      operationId: maintenance.assets.sensors.recordBatch
+      security: []
+      description: Record multiple sensor readings and return per-reading failures.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [readings]
+              properties:
+                readings:
+                  type: array
+                  maxItems: 1000
+                  items: {$ref: '#/components/schemas/SensorReadingInput'}
+      responses: {'200': {description: Batch results}}
+  /api/iot-sensors/dashboard:
+    get:
+      operationId: maintenance.assets.sensors.dashboard
+      security: [{sanctum: []}]
+      responses: {'200': {description: Tenant sensor health summary}}
+  /api/iot-sensors/assets/{id}/health:
+    get:
+      operationId: maintenance.assets.sensors.health
+      security: [{sanctum: []}]
+      parameters: [{name: id, in: path, required: true, schema: {type: string}}, {name: hours, in: query, schema: {type: integer, minimum: 1, maximum: 720}}]
+      responses: {'200': {description: Asset sensor health}}
+  /api/iot-sensors/assets/{id}/insights:
+    get:
+      operationId: maintenance.assets.sensors.insights
+      security: [{sanctum: []}]
+      parameters: [{name: id, in: path, required: true, schema: {type: string}}, {name: days, in: query, schema: {type: integer, minimum: 1, maximum: 365}}]
+      responses: {'200': {description: Asset sensor trend insights}}
+components:
+  securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}
+  schemas:
+    SensorReadingInput:
+      type: object
+      required: [sensor_id, metric_name, value, reading_at]
+      properties:
+        sensor_id: {type: string, maxLength: 255}
+        metric_name: {type: string, maxLength: 120}
+        value: {type: number}
+        unit: {type: string, nullable: true, maxLength: 32}
+        sensor_type: {type: string, nullable: true, maxLength: 80}
+        reading_at: {type: string, format: date-time}
+        metadata: {type: object, nullable: true}
