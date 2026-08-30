@@ -9,6 +9,8 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/commercial')->grou
     Route::get('/', [CommercialRecordController::class, 'index']);
     Route::post('/', [CommercialRecordController::class, 'store']);
     Route::get('/{record}/lines', [CommercialRecordController::class, 'lines']);
+    Route::get('/{record}/coverages', [CommercialRecordController::class, 'coverages']);
+    Route::post('/{record}/coverages', [CommercialRecordController::class, 'storeCoverage']);
     Route::post('/{record}/lines', [CommercialRecordController::class, 'storeLine']);
     Route::patch('/{record}/lines/{line}', [CommercialRecordController::class, 'updateLine']);
     Route::delete('/{record}/lines/{line}', [CommercialRecordController::class, 'destroyLine']);

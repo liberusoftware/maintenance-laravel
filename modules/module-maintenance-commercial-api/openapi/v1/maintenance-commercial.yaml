@@ -3,6 +3,9 @@ info:
   title: maintenance commercial API
   version: 1.0.0
 paths:
+  /api/v1/maintenance/commercial/{record}/coverages:
+    get: {operationId: maintenance.commercial.coverages.list, security: [{sanctum: []}], responses: {'200': {description: Covered assets and services}}}
+    post: {operationId: maintenance.commercial.coverages.create, security: [{sanctum: []}], responses: {'201': {description: Covered asset or service created}}}
   /api/v1/maintenance/commercial:
     get:
       operationId: maintenance.commercial.list

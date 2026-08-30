@@ -6,6 +6,7 @@ use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Commercial\Actions\CreateCommercialLine;
 use Liberu\Modules\Maintenance\Commercial\Actions\CreateCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Actions\TransitionCommercialRecord;
+use Liberu\Modules\Maintenance\Commercial\Models\CommercialCoverage;
 use Liberu\Modules\Maintenance\Commercial\Models\CommercialLine;
 use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
 use Liberu\Modules\Maintenance\Compliance\Actions\CreateComplianceRecord;
@@ -107,6 +108,17 @@ it('exposes commercial billable lines through the tenant API', function () {
     $this->withToken($token)->deleteJson("/api/v1/maintenance/commercial/{$record}/lines/{$line}")->assertNoContent();
 
     expect(CommercialLine::query()->where('commercial_record_id', $record)->count())->toBe(0);
+});
+
+it('exposes commercial covered services and SLA terms through the tenant API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('commercial-coverage-test')->plainTextToken;
+    $record = $this->withToken($token)->postJson('/api/v1/maintenance/commercial', ['kind' => 'contract', 'title' => 'Service agreement'])->assertCreated()->json('data.id');
+    $this->withToken($token)->postJson("/api/v1/maintenance/commercial/{$record}/coverages", ['service_name' => 'Emergency response', 'coverage_type' => 'service', 'rate' => 250, 'sla_hours' => 4, 'renewal_on' => '2027-08-30'])->assertCreated()->assertJsonPath('data.attributes.sla_hours', 4);
+    $this->withToken($token)->getJson("/api/v1/maintenance/commercial/{$record}/coverages")->assertOk()->assertJsonCount(1, 'data');
+    expect(CommercialCoverage::query()->where('team_id', $team->id)->where('commercial_record_id', $record)->value('service_name'))->toBe('Emergency response');
 });
 
 it('restricts reporting records to the supported metric families', function () {

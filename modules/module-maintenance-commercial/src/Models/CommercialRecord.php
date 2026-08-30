@@ -26,4 +26,9 @@ class CommercialRecord extends Model
     {
         return $this->hasMany(CommercialLine::class)->orderBy('sort_order');
     }
+
+    public function coverages(): HasMany
+    {
+        return $this->hasMany(CommercialCoverage::class);
+    }
 }
