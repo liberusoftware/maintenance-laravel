@@ -33,6 +33,16 @@ class PurchaseOrder extends Model
         return $this->hasMany(PurchaseOrderReceipt::class);
     }
 
+    public function returns(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderReturn::class);
+    }
+
+    public function costAllocations(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderCostAllocation::class);
+    }
+
     public function scopeOpen(Builder $query): Builder
     {
         return $query->whereIn('status', ['draft', 'ordered', 'partially_received']);

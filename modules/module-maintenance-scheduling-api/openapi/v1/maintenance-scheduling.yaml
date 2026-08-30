@@ -1,6 +1,18 @@
 openapi: 3.1.0
 info: {title: maintenance scheduling API, version: 1.0.0}
 paths:
+  /api/v1/maintenance/scheduling/territories:
+    get: {operationId: maintenance.scheduling.territories.list, security: [{sanctum: []}], responses: {'200': {description: Authorized scheduling territories}}}
+    post: {operationId: maintenance.scheduling.territories.create, security: [{sanctum: []}], responses: {'201': {description: Scheduling territory created}}}
+  /api/v1/maintenance/scheduling/skills:
+    get: {operationId: maintenance.scheduling.skills.list, security: [{sanctum: []}], responses: {'200': {description: Authorized scheduling skills}}}
+    post: {operationId: maintenance.scheduling.skills.create, security: [{sanctum: []}], responses: {'201': {description: Scheduling skill created}}}
+  /api/v1/maintenance/scheduling/shifts:
+    get: {operationId: maintenance.scheduling.shifts.list, security: [{sanctum: []}], responses: {'200': {description: Authorized scheduling shifts}}}
+    post: {operationId: maintenance.scheduling.shifts.create, security: [{sanctum: []}], responses: {'201': {description: Scheduling shift created}}}
+  /api/v1/maintenance/scheduling/territories/{territory}:
+    patch: {operationId: maintenance.scheduling.territories.update, security: [{sanctum: []}], responses: {'200': {description: Scheduling territory updated}}}
+    delete: {operationId: maintenance.scheduling.territories.delete, security: [{sanctum: []}], responses: {'204': {description: Scheduling territory deleted}}}
   /api/v1/maintenance/scheduling:
     get: {operationId: maintenance.scheduling.list, security: [{sanctum: []}], parameters: [{name: window, in: query, schema: {type: string, enum: [upcoming, due_soon, overdue]}}, {name: days, in: query, schema: {type: integer, minimum: 0}}, {name: resource_key, in: query, schema: {type: string}}, {name: territory, in: query, schema: {type: string}}, {name: status, in: query, schema: {type: string}}], responses: {'200': {description: Authorized schedule entries including legacy maintenance details}}}
     post: {operationId: maintenance.scheduling.create, security: [{sanctum: []}], responses: {'201': {description: Schedule entry created}}}

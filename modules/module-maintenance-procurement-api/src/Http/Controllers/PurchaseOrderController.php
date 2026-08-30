@@ -7,9 +7,11 @@ namespace Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Liberu\Modules\Maintenance\Procurement\Actions\AllocatePurchaseOrderCost;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseOrder;
 use Liberu\Modules\Maintenance\Procurement\Actions\PlacePurchaseOrder;
 use Liberu\Modules\Maintenance\Procurement\Actions\ReceivePurchaseOrder;
+use Liberu\Modules\Maintenance\Procurement\Actions\ReturnPurchaseOrder;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseOrder;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
 
@@ -57,6 +59,28 @@ final class PurchaseOrderController extends Controller
         $purchaseOrder = $this->forCurrentTeam($request, $purchaseOrder);
 
         return response()->json(['data' => $this->resource($place->handle($teamId, $purchaseOrder))]);
+    }
+
+    public function return(Request $request, string $purchaseOrder, ReturnPurchaseOrder $return): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        $order = $this->forCurrentTeam($request, $purchaseOrder);
+        $data = $request->validate(['items' => ['required', 'array', 'min:1'], 'returned_at' => ['nullable', 'date'], 'reason' => ['nullable', 'string', 'max:10000']]);
+        $result = $return->handle($teamId, $order, $data, (int) $request->user()->getKey());
+
+        return response()->json(['data' => ['id' => (string) $result->getKey(), 'type' => 'maintenance-purchase-order-return', 'attributes' => $result->only(['purchase_order_id', 'status', 'returned_at', 'items', 'reason'])]], 201);
+    }
+
+    public function allocateCost(Request $request, string $purchaseOrder, AllocatePurchaseOrderCost $allocate): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        $order = $this->forCurrentTeam($request, $purchaseOrder);
+        $data = $request->validate(['cost_center' => ['required', 'string', 'max:120'], 'amount' => ['required', 'numeric', 'gt:0'], 'currency' => ['nullable', 'string', 'size:3'], 'description' => ['nullable', 'string', 'max:10000']]);
+        $result = $allocate->handle($teamId, $order, $data);
+
+        return response()->json(['data' => ['id' => (string) $result->getKey(), 'type' => 'maintenance-purchase-order-cost-allocation', 'attributes' => $result->only(['purchase_order_id', 'cost_center', 'amount', 'currency', 'description'])]], 201);
     }
 
     private function teamId(Request $request): ?int
