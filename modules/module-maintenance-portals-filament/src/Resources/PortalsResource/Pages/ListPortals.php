@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource\Pages;
+namespace Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource\Pages;
 
 use Filament\Resources\Pages\ListRecords;
-use Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource;
+use Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource;
 
 final class ListPortals extends ListRecords
 {

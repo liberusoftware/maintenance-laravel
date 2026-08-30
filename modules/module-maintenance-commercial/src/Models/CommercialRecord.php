@@ -6,6 +6,7 @@ namespace Liberu\Modules\Maintenance\Commercial\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Liberu\Modules\OrganizationsTeams\Models\Team;
 
 class CommercialRecord extends Model
@@ -19,5 +20,10 @@ class CommercialRecord extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function lines(): HasMany
+    {
+        return $this->hasMany(CommercialLine::class)->orderBy('sort_order');
     }
 }

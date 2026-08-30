@@ -10,7 +10,10 @@
     "laravel": "^13.0",
     "packages": {
       "liberusoftware/module-manager": "^1.0",
-      "liberusoftware/organizations-teams": "^1.0"
+      "liberusoftware/organizations-teams": "^1.0",
+      "liberusoftware/module-maintenance-work-orders": "0.1.0",
+      "liberusoftware/module-maintenance-assets": "0.1.0",
+      "liberusoftware/module-maintenance-preventative-maintenance": "0.1.0"
     }
   },
   "capabilities": [

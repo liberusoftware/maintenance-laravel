@@ -1,12 +1,23 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Commercial\Actions\CreateCommercialRecord;
+use Liberu\Modules\Maintenance\Commercial\Actions\CreateCommercialLine;
 use Liberu\Modules\Maintenance\Commercial\Actions\TransitionCommercialRecord;
 use Liberu\Modules\Maintenance\Commercial\Models\CommercialRecord;
+use Liberu\Modules\Maintenance\Commercial\Models\CommercialLine;
 use Liberu\Modules\Maintenance\Compliance\Actions\CreateComplianceRecord;
 use Liberu\Modules\Maintenance\Compliance\Models\ComplianceRecord;
+use Liberu\Modules\Maintenance\Documents\Actions\CreateMaintenanceDocument;
+use Liberu\Modules\Maintenance\Documents\Actions\CreateDocumentVersion;
+use Liberu\Modules\Maintenance\Documents\Models\MaintenanceDocument;
+use Liberu\Modules\Maintenance\Notes\Models\MaintenanceNote;
+use Liberu\Modules\Maintenance\Notes\Actions\CreateMaintenanceNote;
+use Liberu\Modules\Maintenance\Tasks\Actions\CreateMaintenanceTask;
+use Liberu\Modules\Maintenance\Tasks\Actions\CompleteMaintenanceTask;
+use Liberu\Modules\Maintenance\Tasks\Models\MaintenanceTask;
 use Liberu\Modules\Maintenance\Portal\Actions\CreatePortalRecord;
 use Liberu\Modules\Maintenance\Portal\Actions\TransitionPortalRecord;
 use Liberu\Modules\Maintenance\Portal\Models\PortalRecord;
@@ -22,6 +33,9 @@ use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
 use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 use Liberu\Modules\Maintenance\Report\Queries\BuildReportSummary;
+use Liberu\Modules\Maintenance\Report\Queries\MaintenanceMetrics;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 
 it('creates tenant-scoped records for the remaining maintenance capabilities', function () {
     $team = Team::factory()->create();
@@ -39,11 +53,60 @@ it('creates tenant-scoped records for the remaining maintenance capabilities', f
         ->and($report->metric_value)->toBe('4.00');
 });
 
+it('builds tenant-scoped operational maintenance metrics from modular work orders', function () {
+    $team = Team::factory()->create();
+    $otherTeam = Team::factory()->create();
+    $create = app(CreateWorkOrder::class);
+    $transition = app(TransitionWorkOrder::class);
+    $order = $create->handle($team->id, ['title' => 'Repair pump', 'priority' => 'high']);
+    $order->forceFill(['submitted_at' => now()->subHours(5)])->save();
+    $transition->handle($team->id, $order, 'triaged');
+    $transition->handle($team->id, $order, 'in_progress');
+    $order->forceFill(['started_at' => now()->subHours(3)])->save();
+    $transition->handle($team->id, $order, 'completed');
+    $order->forceFill(['completed_at' => now()])->save();
+    $create->handle($otherTeam->id, ['title' => 'Other tenant repair']);
+
+    $metrics = app(MaintenanceMetrics::class)->handle($team->id, now()->subDay(), now()->addMinute());
+
+    expect($metrics['total_work_orders'])->toBe(1)
+        ->and($metrics['completed_work_orders'])->toBe(1)
+        ->and($metrics['mttr_hours'])->toBe(3.0)
+        ->and($metrics['average_response_hours'])->toBe(2.0)
+        ->and($metrics['first_time_fix_rate'])->toBe(100.0)
+        ->and($metrics['by_priority'])->toBe(['high' => 1]);
+});
+
 it('rejects incomplete remaining capability records', function () {
     $team = Team::factory()->create();
 
     expect(fn () => app(CreateCommercialRecord::class)->handle($team->id, ['kind' => 'quote']))
         ->toThrow(ValidationException::class);
+});
+
+it('keeps commercial billable lines tenant scoped and synchronizes record totals', function () {
+    $team = Team::factory()->create();
+    $record = app(CreateCommercialRecord::class)->handle($team->id, ['kind' => 'quote', 'title' => 'Annual service']);
+    $line = app(CreateCommercialLine::class)->handle($team->id, $record, ['description' => 'Preventative maintenance', 'quantity' => 2, 'unit_price' => 125.50]);
+
+    expect($line->line_total)->toBe('251.00')
+        ->and($record->refresh()->amount)->toBe('251.00')
+        ->and($record->lines()->count())->toBe(1);
+});
+
+it('exposes commercial billable lines through the tenant API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('commercial-lines-test')->plainTextToken;
+    $record = $this->withToken($token)->postJson('/api/v1/maintenance/commercial', ['kind' => 'quote', 'title' => 'Annual service'])->assertCreated()->json('data.id');
+
+    $line = $this->withToken($token)->postJson("/api/v1/maintenance/commercial/{$record}/lines", ['description' => 'Emergency response', 'quantity' => 3, 'unit_price' => 100])->assertCreated()->json('data.id');
+    $this->withToken($token)->patchJson("/api/v1/maintenance/commercial/{$record}/lines/{$line}", ['unit_price' => 125])->assertOk()->assertJsonPath('data.attributes.line_total', '375.00');
+    $this->withToken($token)->getJson("/api/v1/maintenance/commercial/{$record}/lines")->assertOk()->assertJsonCount(1, 'data');
+    $this->withToken($token)->deleteJson("/api/v1/maintenance/commercial/{$record}/lines/{$line}")->assertNoContent();
+
+    expect(CommercialLine::query()->where('commercial_record_id', $record)->count())->toBe(0);
 });
 
 it('restricts reporting records to the supported metric families', function () {
@@ -116,6 +179,118 @@ it('scopes compliance records by expiry', function () {
 
     expect(ComplianceRecord::query()->where('team_id', $team->id)->expired()->whereKey($expired)->exists())->toBeTrue()
         ->and(ComplianceRecord::query()->where('team_id', $team->id)->current()->whereKey($current)->exists())->toBeTrue();
+});
+
+it('exposes compliance evidence and corrective-action workflows through the tenant API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('compliance-actions-test')->plainTextToken;
+    $record = $this->withToken($token)->postJson('/api/v1/maintenance/compliance', ['kind' => 'incident', 'title' => 'Safety incident'])->assertCreated()->json('data.id');
+
+    $this->withToken($token)->postJson("/api/v1/maintenance/compliance/{$record}/evidence", ['kind' => 'photo', 'label' => 'Damaged guard', 'reference' => 'media/guard.jpg'])->assertCreated();
+    $action = $this->withToken($token)->postJson("/api/v1/maintenance/compliance/{$record}/corrective-actions", ['title' => 'Replace guard'])->assertCreated()->json('data.id');
+    $this->withToken($token)->postJson("/api/v1/maintenance/compliance/{$record}/corrective-actions/{$action}/complete")
+        ->assertOk()->assertJsonPath('data.attributes.status', 'completed');
+    $this->withToken($token)->getJson("/api/v1/maintenance/compliance/{$record}/evidence")->assertOk()->assertJsonCount(1, 'data');
+    $this->withToken($token)->getJson("/api/v1/maintenance/compliance/{$record}/corrective-actions")->assertOk()->assertJsonPath('data.0.attributes.status', 'completed');
+});
+
+it('supports tenant-scoped document approval and versioning through the modular API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('documents-test')->plainTextToken;
+
+    $document = $this->withToken($token)->postJson('/api/v1/maintenance/documents', [
+        'name' => 'Safety manual',
+        'document_type' => 'manual',
+        'file_name' => 'safety.pdf',
+    ])->assertCreated()->json('data.id');
+
+    $this->withToken($token)->postJson("/api/v1/maintenance/documents/{$document}/approve")
+        ->assertOk()->assertJsonPath('data.attributes.status', 'active');
+
+    $this->withToken($token)->postJson("/api/v1/maintenance/documents/{$document}/versions", [
+        'version' => '2.0',
+        'file_name' => 'safety-v2.pdf',
+        'change_notes' => 'Updated emergency procedure',
+    ])->assertCreated()->assertJsonPath('data.attributes.version', '2.0');
+
+    $this->withToken($token)->getJson('/api/v1/maintenance/documents?document_type=manual')
+        ->assertOk()->assertJsonCount(1, 'data');
+    $this->withToken($token)->getJson("/api/v1/maintenance/documents/{$document}/versions")
+        ->assertOk()->assertJsonCount(1, 'data');
+
+    expect(MaintenanceDocument::query()->find($document)->version)->toBe('2.0');
+});
+
+it('keeps document domain actions tenant scoped', function () {
+    $team = Team::factory()->create();
+    $otherTeam = Team::factory()->create();
+    $document = app(CreateMaintenanceDocument::class)->handle($team->id, ['name' => 'Permit']);
+    app(CreateDocumentVersion::class)->handle($team->id, $document, ['version' => '1.1']);
+
+    expect($document->refresh()->versions)->toHaveCount(1)
+        ->and($document->team_id)->toBe($team->id)
+        ->and(MaintenanceDocument::query()->where('team_id', $otherTeam->id)->count())->toBe(0);
+});
+
+it('exposes tenant-scoped maintenance notes through the modular API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('notes-test')->plainTextToken;
+
+    $note = $this->withToken($token)->postJson('/api/v1/maintenance/notes', [
+        'content' => 'Customer requested a morning visit.',
+        'noteable_type' => 'maintenance-customer',
+        'noteable_id' => 12,
+    ])->assertCreated()->json('data.id');
+
+    $this->withToken($token)->getJson('/api/v1/maintenance/notes')->assertOk()->assertJsonCount(1, 'data');
+    $this->withToken($token)->patchJson("/api/v1/maintenance/notes/{$note}", ['content' => 'Customer confirmed a morning visit.'])
+        ->assertOk()->assertJsonPath('data.attributes.content', 'Customer confirmed a morning visit.');
+    $this->withToken($token)->deleteJson("/api/v1/maintenance/notes/{$note}")->assertNoContent();
+    expect(MaintenanceNote::withTrashed()->find($note)->deleted_at)->not->toBeNull();
+});
+
+it('keeps maintenance note creation tenant scoped', function () {
+    $team = Team::factory()->create();
+    $otherTeam = Team::factory()->create();
+    $note = app(CreateMaintenanceNote::class)->handle($team->id, ['content' => 'Internal note']);
+
+    expect($note->team_id)->toBe($team->id)
+        ->and(MaintenanceNote::query()->where('team_id', $otherTeam->id)->exists())->toBeFalse();
+});
+
+it('supports tenant-scoped maintenance task assignment and completion', function () {
+    $team = Team::factory()->create();
+    $task = app(CreateMaintenanceTask::class)->handle($team->id, ['description' => 'Inspect HVAC unit', 'priority' => 2, 'due_date' => now()->addDay()->toDateString()]);
+    $completed = app(CompleteMaintenanceTask::class)->handle($team->id, $task);
+
+    expect($completed->status)->toBe('completed')
+        ->and($completed->completed_at)->not->toBeNull()
+        ->and(MaintenanceTask::query()->where('team_id', $team->id)->completed()->count())->toBe(1);
+});
+
+it('exposes maintenance task CRUD and overdue filtering through the tenant API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('tasks-test')->plainTextToken;
+
+    $task = $this->withToken($token)->postJson('/api/v1/maintenance/tasks', [
+        'description' => 'Inspect HVAC unit',
+        'due_date' => now()->subDay()->toDateString(),
+    ])->assertCreated()->json('data.id');
+
+    $this->withToken($token)->getJson('/api/v1/maintenance/tasks?overdue=1')->assertOk()->assertJsonCount(1, 'data');
+    $this->withToken($token)->patchJson("/api/v1/maintenance/tasks/{$task}", ['status' => 'in_progress'])
+        ->assertOk()->assertJsonPath('data.attributes.status', 'in_progress');
+    $this->withToken($token)->postJson("/api/v1/maintenance/tasks/{$task}/complete")
+        ->assertOk()->assertJsonPath('data.attributes.status', 'completed');
+    $this->withToken($token)->deleteJson("/api/v1/maintenance/tasks/{$task}")->assertNoContent();
 });
 
 it('enforces portal request status transitions', function () {

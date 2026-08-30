@@ -1,14 +1,51 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\CountStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\CreateInventoryLocation;
+use Liberu\Modules\Maintenance\Inventory\Actions\SetStockLevel;
+use Liberu\Modules\Maintenance\Inventory\Actions\TransferStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\IssueStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReturnStock;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
+
+it('supports warehouse and van stock levels with tenant-scoped transfers', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $item = app(CreateStockItem::class)->handle($team->id, ['part_number' => 'FILTER-1', 'name' => 'Air filter']);
+    $warehouse = app(CreateInventoryLocation::class)->handle($team->id, ['code' => 'MAIN', 'name' => 'Main warehouse']);
+    $van = app(CreateInventoryLocation::class)->handle($team->id, ['code' => 'VAN-1', 'name' => 'Van 1', 'type' => 'van']);
+    app(SetStockLevel::class)->handle($team->id, $item, $warehouse, 10, $user->id);
+
+    app(TransferStock::class)->handle($team->id, $item, $warehouse, $van, 4, $user->id, 'Dispatch stock');
+
+    expect($warehouse->levels()->first()->quantity)->toBe(6)
+        ->and($van->levels()->first()->quantity)->toBe(4)
+        ->and($item->fresh()->quantity)->toBe(10)
+        ->and($item->fresh()->movements()->where('reason', 'transfer_out')->exists())->toBeTrue();
+});
+
+it('exposes inventory locations and transfers through the API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $item = app(CreateStockItem::class)->handle($team->id, ['part_number' => 'PUMP-1', 'name' => 'Pump']);
+    $token = $user->createToken('inventory-location-api-test')->plainTextToken;
+
+    $location = $this->withToken($token)->postJson('/api/v1/maintenance/inventory/locations', ['code' => 'MAIN', 'name' => 'Main warehouse'])->assertCreated()->json('data.id');
+    $van = $this->withToken($token)->postJson('/api/v1/maintenance/inventory/locations', ['code' => 'VAN-1', 'name' => 'Van 1', 'type' => 'van'])->assertCreated()->json('data.id');
+    $this->withToken($token)->postJson("/api/v1/maintenance/inventory/locations/{$location}/levels", ['stock_item_id' => $item->id, 'quantity' => 8])->assertCreated();
+    $this->withToken($token)->postJson('/api/v1/maintenance/inventory/transfers', ['stock_item_id' => $item->id, 'from_location_id' => $location, 'to_location_id' => $van, 'quantity' => 3])->assertOk();
+    $this->withToken($token)->getJson('/api/v1/maintenance/inventory/locations')->assertOk()->assertJsonCount(2, 'data');
+});
+use Liberu\Modules\Maintenance\Inventory\Queries\ReorderRecommendations;
 
 it('creates and adjusts tenant-scoped stock', function () {
     $team = Team::factory()->create();
@@ -106,6 +143,18 @@ it('records explicit issues and returns through stock actions', function () {
     expect($item->quantity)->toBe(3)->and($item->movements()->latest()->first()->reason)->toBe('issue');
     $item = app(ReturnStock::class)->handle($team->id, $item, 1, 42, 'Unused part');
     expect($item->quantity)->toBe(4)->and($item->movements()->where('reason', 'return')->exists())->toBeTrue();
+});
+
+it('records physical counts and produces reorder recommendations', function () {
+    $team = Team::factory()->create();
+    $item = app(CreateStockItem::class)->handle($team->id, ['part_number' => 'filter-count', 'name' => 'Counted filter', 'quantity' => 8, 'reorder_level' => 10, 'reorder_quantity' => 20]);
+
+    $counted = app(CountStock::class)->handle($team->id, $item, 4, 42, 'Cycle count');
+    $recommendations = app(ReorderRecommendations::class)->handle($team->id);
+
+    expect($counted->quantity)->toBe(4)
+        ->and($counted->movements()->latest()->first()->reason)->toBe('count')
+        ->and($recommendations->first())->toMatchArray(['stock_item_id' => $item->id, 'recommended_quantity' => 16]);
 });
 
 it('retains legacy inventory part details in the modular stock item', function () {

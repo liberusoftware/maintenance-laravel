@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
+use Liberu\Modules\Maintenance\Inventory\Actions\CountStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\DeleteStockItem;
 use Liberu\Modules\Maintenance\Inventory\Actions\IssueStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
@@ -16,9 +17,19 @@ use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReturnStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\UpdateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
+use Liberu\Modules\Maintenance\Inventory\Queries\ReorderRecommendations;
 
 class StockItemController extends Controller
 {
+    public function reorderRecommendations(Request $r, ReorderRecommendations $recommendations): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($r->user()->can('viewAny', StockItem::class), 403);
+
+        return response()->json(['data' => $recommendations->handle($id)->values()]);
+    }
+
     public function index(Request $r): JsonResponse
     {
         $id = $this->teamId($r);
@@ -100,6 +111,16 @@ class StockItemController extends Controller
         $data = $r->validate(['quantity' => ['required', 'integer', 'min:1', 'max:1000000'], 'notes' => ['sometimes', 'nullable', 'string', 'max:10000']]);
 
         return response()->json(['data' => $this->resource($returnStock->handle($id, $stockItem, $data['quantity'], $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
+    }
+
+    public function count(Request $r, StockItem $stockItem, CountStock $count): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $stockItem->team_id && $r->user()->can('update', $stockItem), 404);
+        $data = $r->validate(['counted_quantity' => ['required', 'integer', 'min:0', 'max:1000000'], 'notes' => ['sometimes', 'nullable', 'string', 'max:10000']]);
+
+        return response()->json(['data' => $this->resource($count->handle($id, $stockItem, $data['counted_quantity'], $r->user()?->getAuthIdentifier(), $data['notes'] ?? null))]);
     }
 
     public function update(Request $r, StockItem $stockItem, UpdateStockItem $update): JsonResponse

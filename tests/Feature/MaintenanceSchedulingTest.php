@@ -1,10 +1,46 @@
 <?php
 
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
 use Liberu\Foundation\Organizations\Models\Team;
+use Liberu\Modules\Maintenance\Scheduling\Actions\CreateAvailabilityWindow;
+use Liberu\Modules\Maintenance\Scheduling\Actions\CreateEngineerSkill;
 use Liberu\Modules\Maintenance\Scheduling\Actions\CreateScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\CreateShift;
+use Liberu\Modules\Maintenance\Scheduling\Actions\CreateTravelSegment;
+use Liberu\Modules\Maintenance\Scheduling\Actions\DispatchScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Actions\TransitionScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\UpdateScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Models\AvailabilityWindow;
 use Liberu\Modules\Maintenance\Scheduling\Models\ScheduleEntry;
+
+it('supports tenant-scoped engineer availability through the scheduling API', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('scheduling-api-test')->plainTextToken;
+
+    $this->withToken($token)->postJson('/api/v1/maintenance/scheduling/availability', [
+        'user_id' => $user->id,
+        'weekday' => 1,
+        'starts_at' => '08:00',
+        'ends_at' => '16:00',
+        'timezone' => 'UTC',
+    ])->assertCreated()->assertJsonPath('data.attributes.weekday', 1);
+
+    $this->withToken($token)->getJson('/api/v1/maintenance/scheduling/availability?user_id='.$user->id)
+        ->assertOk()->assertJsonCount(1, 'data');
+});
+
+it('rejects overlapping availability windows for one engineer', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $action = app(CreateAvailabilityWindow::class);
+    $action->handle($team->id, ['user_id' => $user->id, 'weekday' => 1, 'starts_at' => '08:00', 'ends_at' => '12:00']);
+
+    expect(fn () => $action->handle($team->id, ['user_id' => $user->id, 'weekday' => 1, 'starts_at' => '11:00', 'ends_at' => '13:00']))
+        ->toThrow(ValidationException::class);
+});
 
 it('creates tenant-scoped schedule entries', function () {
     $team = Team::factory()->create();
@@ -18,6 +54,60 @@ it('creates tenant-scoped schedule entries', function () {
     expect($entry)->toBeInstanceOf(ScheduleEntry::class)
         ->and($entry->team_id)->toBe($team->id)
         ->and($entry->status)->toBe('scheduled');
+});
+
+it('requires assigned engineers to be available when windows are configured', function () {
+    $team = Team::factory()->create();
+    $engineer = User::factory()->create();
+    AvailabilityWindow::create([
+        'team_id' => $team->id,
+        'user_id' => $engineer->id,
+        'weekday' => 1,
+        'starts_at' => '08:00',
+        'ends_at' => '16:00',
+        'timezone' => 'America/New_York',
+    ]);
+    $action = app(CreateScheduleEntry::class);
+
+    $entry = $action->handle($team->id, [
+        'title' => 'Available visit',
+        'assigned_to' => $engineer->id,
+        'starts_at' => '2026-08-31 13:00:00',
+        'ends_at' => '2026-08-31 15:00:00',
+        'timezone' => 'UTC',
+    ]);
+
+    expect($entry->assigned_to)->toBe($engineer->id)
+        ->and(fn () => $action->handle($team->id, [
+            'title' => 'Unavailable visit',
+            'assigned_to' => $engineer->id,
+            'starts_at' => '2026-08-31 21:00:00',
+            'ends_at' => '2026-08-31 22:00:00',
+            'timezone' => 'UTC',
+        ]))->toThrow(ValidationException::class);
+});
+
+it('does not allow schedule updates to bypass engineer availability', function () {
+    $team = Team::factory()->create();
+    $engineer = User::factory()->create();
+    app(CreateAvailabilityWindow::class)->handle($team->id, [
+        'user_id' => $engineer->id,
+        'weekday' => 1,
+        'starts_at' => '08:00',
+        'ends_at' => '16:00',
+        'timezone' => 'UTC',
+    ]);
+    $entry = app(CreateScheduleEntry::class)->handle($team->id, [
+        'title' => 'Available visit',
+        'assigned_to' => $engineer->id,
+        'starts_at' => '2026-08-31 13:00:00',
+        'ends_at' => '2026-08-31 15:00:00',
+    ]);
+
+    expect(fn () => app(UpdateScheduleEntry::class)->handle($team->id, $entry, [
+        'starts_at' => '2026-08-31 21:00:00',
+        'ends_at' => '2026-08-31 22:00:00',
+    ]))->toThrow(ValidationException::class);
 });
 
 it('retains legacy maintenance schedule details', function () {
@@ -123,4 +213,34 @@ it('includes recurring due dates in upcoming schedules', function () {
     ]);
 
     expect(ScheduleEntry::query()->where('team_id', $team->id)->upcoming(7)->whereKey($entry)->exists())->toBeTrue();
+});
+
+it('supports tenant-scoped skills shifts travel and dispatch records', function () {
+    $team = Team::factory()->create();
+    $engineer = User::factory()->create();
+    $skill = app(CreateEngineerSkill::class)->handle($team->id, ['user_id' => $engineer->id, 'name' => 'HVAC', 'proficiency' => 4]);
+    $shift = app(CreateShift::class)->handle($team->id, ['user_id' => $engineer->id, 'name' => 'Day shift', 'weekday' => 1, 'starts_at' => '08:00', 'ends_at' => '16:00']);
+    $entry = app(CreateScheduleEntry::class)->handle($team->id, ['title' => 'Pump visit', 'starts_at' => now()->addDay(), 'ends_at' => now()->addDay()->addHour()]);
+    $travel = app(CreateTravelSegment::class)->handle($team->id, $entry, ['origin' => 'Depot', 'destination' => 'Plant A', 'planned_minutes' => 45]);
+    $dispatch = app(DispatchScheduleEntry::class)->handle($team->id, $entry, $engineer->id, $engineer->id, 'Bring safety kit.');
+
+    expect($skill->team_id)->toBe($team->id)
+        ->and($shift->user_id)->toBe($engineer->id)
+        ->and($travel->schedule_entry_id)->toBe($entry->id)
+        ->and($dispatch->status)->toBe('offered')
+        ->and($entry->refresh()->travelSegments)->toHaveCount(1)
+        ->and($entry->dispatches)->toHaveCount(1);
+});
+
+it('rejects duplicate engineer skills and overlapping shifts', function () {
+    $team = Team::factory()->create();
+    $engineer = User::factory()->create();
+    $skill = app(CreateEngineerSkill::class);
+    $skill->handle($team->id, ['user_id' => $engineer->id, 'name' => 'Electrical']);
+
+    expect(fn () => $skill->handle($team->id, ['user_id' => $engineer->id, 'name' => 'Electrical']))->toThrow(ValidationException::class);
+
+    $shift = app(CreateShift::class);
+    $shift->handle($team->id, ['user_id' => $engineer->id, 'name' => 'Morning', 'weekday' => 2, 'starts_at' => '08:00', 'ends_at' => '12:00']);
+    expect(fn () => $shift->handle($team->id, ['user_id' => $engineer->id, 'name' => 'Overlap', 'weekday' => 2, 'starts_at' => '11:00', 'ends_at' => '13:00']))->toThrow(ValidationException::class);
 });

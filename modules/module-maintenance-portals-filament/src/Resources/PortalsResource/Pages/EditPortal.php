@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource\Pages;
+namespace Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource\Pages;
 
 use Filament\Facades\Filament;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Liberu\Modules\Maintenance\Portal\Actions\UpdatePortalRecord;
-use Liberu\Modules\Maintenance\Portal\Filament\Resources\PortalsResource;
+use Liberu\Modules\Maintenance\Portals\Filament\Resources\PortalsResource;
 
 final class EditPortal extends EditRecord
 {

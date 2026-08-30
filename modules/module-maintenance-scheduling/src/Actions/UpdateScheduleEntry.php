@@ -10,6 +10,8 @@ use Liberu\Modules\Maintenance\Scheduling\Models\ScheduleEntry;
 
 final class UpdateScheduleEntry
 {
+    public function __construct(private readonly ValidateEngineerAvailability $validateAvailability) {}
+
     /** @param array<string, mixed> $attributes */
     public function handle(int $teamId, ScheduleEntry $entry, array $attributes): ScheduleEntry
     {
@@ -32,6 +34,11 @@ final class UpdateScheduleEntry
         if ($recurrenceValue < 1) {
             throw ValidationException::withMessages(['recurrence_value' => 'The recurrence value must be at least one.']);
         }
+        $this->validateAvailability->handle($teamId, array_merge([
+            'assigned_to' => $entry->assigned_to,
+            'starts_at' => $entry->starts_at,
+            'ends_at' => $entry->ends_at,
+        ], $attributes));
         $conflict = ScheduleEntry::query()
             ->where('team_id', $teamId)
             ->where('resource_key', $resourceKey)

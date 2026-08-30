@@ -21,6 +21,27 @@ class WorkOrder extends Model
 
     protected $casts = ['team_id' => 'integer', 'equipment_id' => 'integer', 'customer_id' => 'integer', 'vendor_id' => 'integer', 'assigned_to' => 'integer', 'requested_by' => 'integer', 'reviewed_by' => 'integer', 'maintenance_plan_id' => 'integer', 'checklist_id' => 'integer', 'due_date' => 'datetime', 'started_at' => 'datetime', 'submitted_at' => 'datetime', 'reviewed_at' => 'datetime', 'completed_at' => 'datetime', 'estimated_minutes' => 'integer', 'actual_minutes' => 'integer', 'metadata' => 'array'];
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $workOrder): void {
+            $workOrder->submitted_at ??= now();
+        });
+
+        static::updating(function (self $workOrder): void {
+            if (! $workOrder->isDirty('status')) {
+                return;
+            }
+
+            if ($workOrder->status === 'in_progress') {
+                $workOrder->started_at ??= now();
+            }
+
+            if ($workOrder->status === 'completed') {
+                $workOrder->completed_at ??= now();
+            }
+        });
+    }
+
     public function estimatedHours(): ?float
     {
         return $this->estimated_minutes === null ? null : round((int) $this->estimated_minutes / 60, 2);
@@ -94,5 +115,10 @@ class WorkOrder extends Model
     public function evidence(): HasMany
     {
         return $this->hasMany(WorkOrderEvidence::class);
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(WorkOrderTask::class)->orderBy('sort_order');
     }
 }
