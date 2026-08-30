@@ -14,8 +14,12 @@ final class CreateAssetWarranty
     public function handle(int $teamId, Asset $asset, array $attributes): AssetWarranty
     {
         abort_unless((int) $asset->team_id === $teamId, 404);
-        if (empty($attributes['expires_on'])) throw ValidationException::withMessages(['expires_on' => 'An expiry date is required.']);
-        if (! empty($attributes['starts_on']) && $attributes['expires_on'] < $attributes['starts_on']) throw ValidationException::withMessages(['expires_on' => 'The expiry date must not precede the start date.']);
+        if (empty($attributes['expires_on'])) {
+            throw ValidationException::withMessages(['expires_on' => 'An expiry date is required.']);
+        }
+        if (! empty($attributes['starts_on']) && $attributes['expires_on'] < $attributes['starts_on']) {
+            throw ValidationException::withMessages(['expires_on' => 'The expiry date must not precede the start date.']);
+        }
 
         return DB::transaction(fn (): AssetWarranty => AssetWarranty::create(array_merge($attributes, ['team_id' => $teamId, 'asset_id' => $asset->getKey(), 'status' => $attributes['status'] ?? 'active'])));
     }

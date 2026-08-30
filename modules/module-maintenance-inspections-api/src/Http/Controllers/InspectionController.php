@@ -7,20 +7,20 @@ namespace Liberu\Modules\Maintenance\Inspections\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Liberu\Modules\Maintenance\Inspections\Actions\AddInspectionTemplateItem;
 use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspectionFollowUp;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionFollowUp;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionTemplate;
-use Liberu\Modules\Maintenance\Inspections\Actions\AddInspectionTemplateItem;
-use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspectionTemplateItem;
-use Liberu\Modules\Maintenance\Inspections\Actions\RemoveInspectionTemplateItem;
-use Liberu\Modules\Maintenance\Inspections\Actions\DuplicateInspectionTemplate;
 use Liberu\Modules\Maintenance\Inspections\Actions\DeleteInspection;
+use Liberu\Modules\Maintenance\Inspections\Actions\DuplicateInspectionTemplate;
+use Liberu\Modules\Maintenance\Inspections\Actions\RemoveInspectionTemplateItem;
 use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspection;
+use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspectionTemplateItem;
 use Liberu\Modules\Maintenance\Inspections\Models\Inspection;
-use Liberu\Modules\Maintenance\Inspections\Models\InspectionTemplate;
 use Liberu\Modules\Maintenance\Inspections\Models\InspectionFollowUp;
+use Liberu\Modules\Maintenance\Inspections\Models\InspectionTemplate;
 
 final class InspectionController extends Controller
 {
@@ -48,7 +48,9 @@ final class InspectionController extends Controller
         $record = $this->templateForCurrentTeam($request, $template);
         abort_unless($request->user()->can('update', $record), 403);
         $data = $request->validate(['key' => ['required', 'string', 'max:120'], 'type' => ['sometimes', 'string'], 'required' => ['sometimes', 'boolean'], 'options' => ['sometimes', 'array'], 'when' => ['sometimes', 'array'], 'condition' => ['sometimes', 'array']]);
-        $key = $data['key']; unset($data['key']);
+        $key = $data['key'];
+        unset($data['key']);
+
         return response()->json(['data' => $this->templateResource($add->handle($this->teamId($request), $record, $key, $data))], 201);
     }
 
@@ -56,7 +58,8 @@ final class InspectionController extends Controller
     {
         $record = $this->templateForCurrentTeam($request, $template);
         abort_unless($request->user()->can('update', $record), 403);
-        return response()->json(['data' => $this->templateResource($update->handle($this->teamId($request), $record, $item, $request->validate(['type' => ['sometimes', 'string'], 'required' => ['sometimes', 'boolean'], 'options' => ['sometimes', 'array'], 'when' => ['sometimes', 'array'], 'condition' => ['sometimes', 'array']]))) ]);
+
+        return response()->json(['data' => $this->templateResource($update->handle($this->teamId($request), $record, $item, $request->validate(['type' => ['sometimes', 'string'], 'required' => ['sometimes', 'boolean'], 'options' => ['sometimes', 'array'], 'when' => ['sometimes', 'array'], 'condition' => ['sometimes', 'array']])))]);
     }
 
     public function destroyTemplateItem(Request $request, string $template, string $item, RemoveInspectionTemplateItem $remove): JsonResponse
@@ -64,6 +67,7 @@ final class InspectionController extends Controller
         $record = $this->templateForCurrentTeam($request, $template);
         abort_unless($request->user()->can('update', $record), 403);
         $remove->handle($this->teamId($request), $record, $item);
+
         return response()->json(null, 204);
     }
 
@@ -72,6 +76,7 @@ final class InspectionController extends Controller
         $record = $this->templateForCurrentTeam($request, $template);
         abort_unless($request->user()->can('create', InspectionTemplate::class), 403);
         $data = $request->validate(['name' => ['sometimes', 'string', 'max:255'], 'key' => ['sometimes', 'string', 'max:120']]);
+
         return response()->json(['data' => $this->templateResource($duplicate->handle($this->teamId($request), $record, $data['name'] ?? null, $data['key'] ?? null))], 201);
     }
 

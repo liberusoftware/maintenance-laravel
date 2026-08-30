@@ -16,11 +16,14 @@ final class MaintenanceDueSoonNotification extends Notification implements Shoul
 
     public function __construct(public MaintenancePlan $plan, public int $daysUntilDue = 7) {}
 
-    public function via(object $notifiable): array { return ['mail', 'database']; }
+    public function via(object $notifiable): array
+    {
+        return ['mail', 'database'];
+    }
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject("Upcoming Maintenance: {$this->plan->name}")
             ->greeting("Hello {$notifiable->name}!")
             ->line("{$this->plan->name} is due in {$this->daysUntilDue} days.")

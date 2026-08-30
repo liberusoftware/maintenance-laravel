@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Liberu\Modules\OrganizationsTeams\Models\Team;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
+use Liberu\Modules\OrganizationsTeams\Models\Team;
 
 class Asset extends Model
 {
@@ -91,8 +91,12 @@ class Asset extends Model
         }
 
         $recentStatuses = $this->recentSensorReadings()->pluck('status');
-        if ($recentStatuses->contains('critical')) return 'critical';
-        if ($recentStatuses->contains('warning')) return 'warning';
+        if ($recentStatuses->contains('critical')) {
+            return 'critical';
+        }
+        if ($recentStatuses->contains('warning')) {
+            return 'warning';
+        }
 
         if ($this->last_sensor_reading_at === null && $recentStatuses->isEmpty()) {
             return 'no_data';

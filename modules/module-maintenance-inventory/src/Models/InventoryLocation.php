@@ -12,9 +12,18 @@ use Liberu\Modules\OrganizationsTeams\Models\Team;
 class InventoryLocation extends Model
 {
     protected $table = 'maintenance_inventory_locations';
+
     protected $fillable = ['team_id', 'code', 'name', 'type', 'is_active'];
+
     protected $casts = ['team_id' => 'integer', 'is_active' => 'boolean'];
 
-    public function team(): BelongsTo { return $this->belongsTo(Team::class); }
-    public function levels(): HasMany { return $this->hasMany(StockLevel::class, 'location_id'); }
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function levels(): HasMany
+    {
+        return $this->hasMany(StockLevel::class, 'location_id');
+    }
 }

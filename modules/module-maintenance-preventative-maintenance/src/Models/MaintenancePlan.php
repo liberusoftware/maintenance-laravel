@@ -7,10 +7,10 @@ namespace Liberu\Modules\Maintenance\PreventativeMaintenance\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
-use Liberu\Modules\OrganizationsTeams\Models\Team;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
+use Liberu\Modules\OrganizationsTeams\Models\Team;
 
 class MaintenancePlan extends Model
 {

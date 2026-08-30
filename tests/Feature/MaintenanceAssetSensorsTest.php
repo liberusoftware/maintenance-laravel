@@ -8,7 +8,6 @@ use Liberu\Modules\Maintenance\Assets\Actions\CreateAssetMeter;
 use Liberu\Modules\Maintenance\Assets\Actions\RecordAssetMeterReading;
 use Liberu\Modules\Maintenance\Assets\Models\AssetMeter;
 use Liberu\Modules\Maintenance\Assets\Models\SensorReading;
-use Liberu\Modules\Maintenance\Assets\Models\Asset;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
 
 uses(RefreshDatabase::class);

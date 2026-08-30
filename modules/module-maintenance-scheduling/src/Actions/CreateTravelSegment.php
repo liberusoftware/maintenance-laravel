@@ -16,8 +16,12 @@ final class CreateTravelSegment
         abort_unless((int) $entry->team_id === $teamId, 404);
         $origin = trim((string) ($attributes['origin'] ?? ''));
         $destination = trim((string) ($attributes['destination'] ?? ''));
-        if ($origin === '' || $destination === '') throw ValidationException::withMessages(['travel' => 'Origin and destination are required.']);
-        if (isset($attributes['planned_minutes']) && (int) $attributes['planned_minutes'] < 0) throw ValidationException::withMessages(['planned_minutes' => 'Travel duration cannot be negative.']);
+        if ($origin === '' || $destination === '') {
+            throw ValidationException::withMessages(['travel' => 'Origin and destination are required.']);
+        }
+        if (isset($attributes['planned_minutes']) && (int) $attributes['planned_minutes'] < 0) {
+            throw ValidationException::withMessages(['planned_minutes' => 'Travel duration cannot be negative.']);
+        }
 
         return DB::transaction(fn (): TravelSegment => TravelSegment::create(array_merge($attributes, ['team_id' => $teamId, 'schedule_entry_id' => $entry->getKey(), 'origin' => $origin, 'destination' => $destination])));
     }

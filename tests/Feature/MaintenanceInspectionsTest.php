@@ -3,17 +3,17 @@
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
-use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspection;
-use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection;
-use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionTemplate;
 use Liberu\Modules\Maintenance\Inspections\Actions\AddInspectionTemplateItem;
+use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspection;
+use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspectionFollowUp;
+use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection;
+use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionFollowUp;
+use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionTemplate;
 use Liberu\Modules\Maintenance\Inspections\Actions\DuplicateInspectionTemplate;
 use Liberu\Modules\Maintenance\Inspections\Actions\RemoveInspectionTemplateItem;
 use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspectionTemplateItem;
-use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionFollowUp;
-use Liberu\Modules\Maintenance\Inspections\Actions\CompleteInspectionFollowUp;
-use Liberu\Modules\Maintenance\Inspections\Models\InspectionFollowUp;
 use Liberu\Modules\Maintenance\Inspections\Models\Inspection;
+use Liberu\Modules\Maintenance\Inspections\Models\InspectionFollowUp;
 
 it('creates and completes tenant-scoped inspection follow-ups through the API', function () {
     $user = User::factory()->create();

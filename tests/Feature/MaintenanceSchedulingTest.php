@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Scheduling\Actions\CreateAvailabilityWindow;
 use Liberu\Modules\Maintenance\Scheduling\Actions\CreateEngineerSkill;

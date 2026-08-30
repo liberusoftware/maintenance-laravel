@@ -39,6 +39,7 @@ final class ValidateInspectionChecklist
                 if ($requireRequired && ($definition['required'] ?? false) === true) {
                     throw ValidationException::withMessages(["readings.{$field}" => 'This inspection reading is required.']);
                 }
+
                 continue;
             }
             $this->validateValue($field, $readings[$field], $definition);

@@ -200,7 +200,9 @@ final class MaintenanceReportService
     {
         foreach ($keys as $key) {
             $value = data_get($order->metadata, $key);
-            if (is_numeric($value)) return (float) $value;
+            if (is_numeric($value)) {
+                return (float) $value;
+            }
         }
 
         return 0.0;
@@ -209,7 +211,9 @@ final class MaintenanceReportService
     private function laborCost(WorkOrder $order): float
     {
         $explicit = $this->metadataNumber($order, ['labor_cost', 'labor_total']);
-        if ($explicit > 0) return $explicit;
+        if ($explicit > 0) {
+            return $explicit;
+        }
 
         $minutes = $order->actual_minutes ?? ($order->started_at !== null && $order->completed_at !== null ? $order->started_at->diffInMinutes($order->completed_at) : 0);
 

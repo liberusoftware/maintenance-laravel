@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Liberu\Foundation\Organizations\Models\Team;
+use Liberu\Modules\Maintenance\Assets\Actions\CreateAsset;
 
 it('exposes tenant-scoped asset hierarchy categories specifications warranties and history', function () {
     $user = User::factory()->create();
@@ -50,7 +51,7 @@ it('rejects asset hierarchy references from another tenant', function () {
     $team = Team::factory()->create(['user_id' => $user->id]);
     $otherTeam = Team::factory()->create();
     $user->forceFill(['current_team_id' => $team->id])->save();
-    $otherAsset = \Liberu\Modules\Maintenance\Assets\Actions\CreateAsset::class;
+    $otherAsset = CreateAsset::class;
     $foreign = app($otherAsset)->handle($otherTeam->id, ['name' => 'Foreign asset', 'code' => 'foreign']);
     $token = $user->createToken('asset-structure-isolation-test')->plainTextToken;
 

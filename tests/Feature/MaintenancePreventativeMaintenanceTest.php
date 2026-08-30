@@ -1,12 +1,13 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CompleteMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CreateMaintenancePlan;
-use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\UpdateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\GenerateWorkOrderFromPlan;
+use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\UpdateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Models\MaintenancePlan;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
 
@@ -113,7 +114,7 @@ it('generates one linked work order from an active preventative plan', function 
 });
 
 it('generates preventative work orders through the tenant API', function () {
-    $user = \App\Models\User::factory()->create();
+    $user = User::factory()->create();
     $team = Team::factory()->create(['user_id' => $user->id]);
     $user->forceFill(['current_team_id' => $team->id])->save();
     $token = $user->createToken('preventative-generation-test')->plainTextToken;

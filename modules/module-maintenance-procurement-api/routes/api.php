@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\PurchaseOrderController;
 use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\PurchaseRequestController;
 use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\VendorContractController;
 use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\VendorPerformanceEvaluationController;
-use Liberu\Modules\Maintenance\Procurement\Api\Http\Controllers\PurchaseOrderController;
 
 Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/procurement')->group(function (): void {
     Route::get('/contracts', [VendorContractController::class, 'index']);

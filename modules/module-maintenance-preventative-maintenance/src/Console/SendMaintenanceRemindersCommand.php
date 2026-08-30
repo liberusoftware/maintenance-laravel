@@ -11,6 +11,7 @@ use Liberu\Modules\Maintenance\PreventativeMaintenance\Notifications\Maintenance
 final class SendMaintenanceRemindersCommand extends Command
 {
     protected $signature = 'maintenance:send-reminders {--days=3 : Number of days before due date}';
+
     protected $description = 'Send reminders for preventative maintenance due on a target date';
 
     public function handle(): int
@@ -24,6 +25,7 @@ final class SendMaintenanceRemindersCommand extends Command
         }
 
         $this->info("Sent {$plans->filter(fn (MaintenancePlan $plan): bool => $plan->assignedUser !== null)->count()} maintenance reminder(s).");
+
         return self::SUCCESS;
     }
 }

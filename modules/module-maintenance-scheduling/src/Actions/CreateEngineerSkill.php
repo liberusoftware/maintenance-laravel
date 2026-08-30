@@ -15,8 +15,12 @@ final class CreateEngineerSkill
         $name = trim((string) ($attributes['name'] ?? ''));
         $userId = (int) ($attributes['user_id'] ?? 0);
         $proficiency = (int) ($attributes['proficiency'] ?? 1);
-        if ($userId < 1 || $name === '' || $proficiency < 1 || $proficiency > 5) throw ValidationException::withMessages(['skill' => 'An engineer, skill name, and proficiency from one to five are required.']);
-        if (EngineerSkill::query()->where('team_id', $teamId)->where('user_id', $userId)->where('name', $name)->exists()) throw ValidationException::withMessages(['name' => 'That engineer skill already exists.']);
+        if ($userId < 1 || $name === '' || $proficiency < 1 || $proficiency > 5) {
+            throw ValidationException::withMessages(['skill' => 'An engineer, skill name, and proficiency from one to five are required.']);
+        }
+        if (EngineerSkill::query()->where('team_id', $teamId)->where('user_id', $userId)->where('name', $name)->exists()) {
+            throw ValidationException::withMessages(['name' => 'That engineer skill already exists.']);
+        }
 
         return DB::transaction(fn (): EngineerSkill => EngineerSkill::create(array_merge($attributes, ['team_id' => $teamId, 'user_id' => $userId, 'name' => $name, 'proficiency' => $proficiency])));
     }

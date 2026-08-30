@@ -36,6 +36,7 @@ final class SensorController extends Controller
             $asset = Asset::query()->where('sensor_id', $data['sensor_id'])->first();
             if ($asset === null || ! $asset->sensor_enabled) {
                 $errors[] = ['index' => $index, 'sensor_id' => $data['sensor_id'], 'message' => 'Sensor is not enabled for this asset.'];
+
                 continue;
             }
             try {
@@ -52,12 +53,14 @@ final class SensorController extends Controller
     public function health(Request $request, Asset $asset, SensorHealthService $health): JsonResponse
     {
         $this->authorizeAsset($request, $asset);
+
         return response()->json(['success' => true, 'data' => $health->summary($asset, max(1, $request->integer('hours', 24)))]);
     }
 
     public function insights(Request $request, Asset $asset, SensorHealthService $health): JsonResponse
     {
         $this->authorizeAsset($request, $asset);
+
         return response()->json(['success' => true, 'data' => $health->insights($asset, max(1, $request->integer('days', 30)))]);
     }
 
@@ -65,6 +68,7 @@ final class SensorController extends Controller
     {
         $teamId = $request->user()?->currentTeam?->getKey();
         abort_if($teamId === null, 403);
+
         return response()->json(['success' => true, 'data' => $health->dashboard((int) $teamId)]);
     }
 

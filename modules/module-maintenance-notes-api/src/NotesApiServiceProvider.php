@@ -8,5 +8,8 @@ use Illuminate\Support\ServiceProvider;
 
 final class NotesApiServiceProvider extends ServiceProvider
 {
-    public function boot(): void { $this->loadRoutesFrom(__DIR__.'/../routes/api.php'); }
+    public function boot(): void
+    {
+        $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
+    }
 }

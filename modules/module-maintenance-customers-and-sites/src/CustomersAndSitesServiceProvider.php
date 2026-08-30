@@ -6,8 +6,8 @@ namespace Liberu\Modules\Maintenance\CustomersAndSites;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use Liberu\Modules\Maintenance\CustomersAndSites\Models\Customer;
 use Liberu\Modules\Maintenance\CustomersAndSites\Models\Contact;
+use Liberu\Modules\Maintenance\CustomersAndSites\Models\Customer;
 use Liberu\Modules\Maintenance\CustomersAndSites\Models\Location;
 use Liberu\Modules\Maintenance\CustomersAndSites\Models\ServiceWindow;
 use Liberu\Modules\Maintenance\CustomersAndSites\Models\Site;

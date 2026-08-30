@@ -12,6 +12,7 @@ use Liberu\Modules\Maintenance\PreventativeMaintenance\Notifications\Maintenance
 final class CheckDueMaintenanceCommand extends Command
 {
     protected $signature = 'maintenance:check-due {--days=7 : Number of days to look ahead}';
+
     protected $description = 'Notify assignees about overdue and upcoming preventative maintenance';
 
     public function handle(): int
@@ -28,6 +29,7 @@ final class CheckDueMaintenanceCommand extends Command
         }
 
         $this->info("Checked {$overdue->count()} overdue and {$upcoming->count()} upcoming maintenance plans.");
+
         return self::SUCCESS;
     }
 }

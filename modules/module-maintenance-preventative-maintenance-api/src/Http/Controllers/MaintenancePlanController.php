@@ -10,8 +10,8 @@ use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CompleteMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\CreateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\DeleteMaintenancePlan;
-use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\UpdateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\GenerateWorkOrderFromPlan;
+use Liberu\Modules\Maintenance\PreventativeMaintenance\Actions\UpdateMaintenancePlan;
 use Liberu\Modules\Maintenance\PreventativeMaintenance\Models\MaintenancePlan;
 
 class MaintenancePlanController extends Controller

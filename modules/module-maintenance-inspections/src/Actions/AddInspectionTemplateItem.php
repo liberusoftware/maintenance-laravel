@@ -23,6 +23,7 @@ final class AddInspectionTemplateItem
             $checklist = $template->checklist ?? [];
             $checklist[$key] = $definition;
             $template->update(['checklist' => $checklist]);
+
             return $template->refresh();
         });
     }
@@ -38,5 +39,8 @@ final class AddInspectionTemplateItem
         }
     }
 
-    private function assertOwnership(int $teamId, InspectionTemplate $template): void { abort_unless((int) $template->team_id === $teamId, 404); }
+    private function assertOwnership(int $teamId, InspectionTemplate $template): void
+    {
+        abort_unless((int) $template->team_id === $teamId, 404);
+    }
 }

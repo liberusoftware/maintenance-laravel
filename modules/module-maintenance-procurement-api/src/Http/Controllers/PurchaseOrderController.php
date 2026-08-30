@@ -8,8 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Procurement\Actions\CreatePurchaseOrder;
-use Liberu\Modules\Maintenance\Procurement\Actions\ReceivePurchaseOrder;
 use Liberu\Modules\Maintenance\Procurement\Actions\PlacePurchaseOrder;
+use Liberu\Modules\Maintenance\Procurement\Actions\ReceivePurchaseOrder;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseOrder;
 use Liberu\Modules\Maintenance\Procurement\Models\PurchaseRequest;
 

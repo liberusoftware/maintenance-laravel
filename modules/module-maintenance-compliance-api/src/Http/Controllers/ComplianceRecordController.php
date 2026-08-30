@@ -7,14 +7,14 @@ namespace Liberu\Modules\Maintenance\Compliance\Api\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Liberu\Modules\Maintenance\Compliance\Actions\CreateComplianceRecord;
 use Liberu\Modules\Maintenance\Compliance\Actions\CompleteCorrectiveAction;
 use Liberu\Modules\Maintenance\Compliance\Actions\CreateComplianceEvidence;
+use Liberu\Modules\Maintenance\Compliance\Actions\CreateComplianceRecord;
 use Liberu\Modules\Maintenance\Compliance\Actions\CreateCorrectiveAction;
 use Liberu\Modules\Maintenance\Compliance\Actions\DeleteComplianceRecord;
 use Liberu\Modules\Maintenance\Compliance\Actions\UpdateComplianceRecord;
-use Liberu\Modules\Maintenance\Compliance\Models\ComplianceRecord;
 use Liberu\Modules\Maintenance\Compliance\Models\ComplianceEvidence;
+use Liberu\Modules\Maintenance\Compliance\Models\ComplianceRecord;
 use Liberu\Modules\Maintenance\Compliance\Models\CorrectiveAction;
 
 class ComplianceRecordController extends Controller

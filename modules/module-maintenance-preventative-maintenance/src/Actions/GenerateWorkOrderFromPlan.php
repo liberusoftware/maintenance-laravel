@@ -17,11 +17,15 @@ final class GenerateWorkOrderFromPlan
     public function handle(int $teamId, MaintenancePlan $plan): WorkOrder
     {
         abort_unless((int) $plan->team_id === $teamId, 404);
-        if (! $plan->is_active) throw ValidationException::withMessages(['is_active' => 'Inactive plans cannot generate work orders.']);
+        if (! $plan->is_active) {
+            throw ValidationException::withMessages(['is_active' => 'Inactive plans cannot generate work orders.']);
+        }
 
         return DB::transaction(function () use ($teamId, $plan): WorkOrder {
             $existing = $plan->workOrders()->whereNotIn('status', ['completed', 'cancelled'])->latest()->first();
-            if ($existing !== null) return $existing;
+            if ($existing !== null) {
+                return $existing;
+            }
 
             return $this->createWorkOrder->handle($teamId, array_filter([
                 'title' => $plan->name,

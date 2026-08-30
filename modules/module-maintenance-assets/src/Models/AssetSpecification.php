@@ -11,9 +11,18 @@ use Liberu\Modules\OrganizationsTeams\Models\Team;
 class AssetSpecification extends Model
 {
     protected $table = 'maintenance_asset_specifications';
+
     protected $fillable = ['team_id', 'asset_id', 'key', 'value', 'unit', 'sort_order'];
+
     protected $casts = ['team_id' => 'integer', 'asset_id' => 'integer', 'sort_order' => 'integer'];
 
-    public function team(): BelongsTo { return $this->belongsTo(Team::class); }
-    public function asset(): BelongsTo { return $this->belongsTo(Asset::class); }
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function asset(): BelongsTo
+    {
+        return $this->belongsTo(Asset::class);
+    }
 }

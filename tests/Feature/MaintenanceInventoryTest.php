@@ -4,15 +4,15 @@ use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\Inventory\Actions\AdjustStock;
-use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Actions\CountStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\CreateInventoryLocation;
-use Liberu\Modules\Maintenance\Inventory\Actions\SetStockLevel;
-use Liberu\Modules\Maintenance\Inventory\Actions\TransferStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\CreateStockItem;
 use Liberu\Modules\Maintenance\Inventory\Actions\IssueStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReleaseReservedStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReserveStock;
 use Liberu\Modules\Maintenance\Inventory\Actions\ReturnStock;
+use Liberu\Modules\Maintenance\Inventory\Actions\SetStockLevel;
+use Liberu\Modules\Maintenance\Inventory\Actions\TransferStock;
 use Liberu\Modules\Maintenance\Inventory\Models\StockItem;
 
 it('supports warehouse and van stock levels with tenant-scoped transfers', function () {

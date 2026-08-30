@@ -16,11 +16,14 @@ final class MaintenanceOverdueNotification extends Notification implements Shoul
 
     public function __construct(public MaintenancePlan $plan) {}
 
-    public function via(object $notifiable): array { return ['mail', 'database']; }
+    public function via(object $notifiable): array
+    {
+        return ['mail', 'database'];
+    }
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject("OVERDUE: Maintenance Required - {$this->plan->name}")
             ->greeting("Hello {$notifiable->name}!")
             ->line("{$this->plan->name} is overdue.")

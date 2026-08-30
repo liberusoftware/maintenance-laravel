@@ -12,8 +12,11 @@ final class CompleteMaintenanceTask
     public function handle(int $teamId, MaintenanceTask $task): MaintenanceTask
     {
         abort_unless((int) $task->team_id === $teamId, 404);
-        if ($task->status === 'completed') throw ValidationException::withMessages(['status' => 'The task is already completed.']);
+        if ($task->status === 'completed') {
+            throw ValidationException::withMessages(['status' => 'The task is already completed.']);
+        }
         $task->update(['status' => 'completed', 'completed_at' => now()]);
+
         return $task->refresh();
     }
 }

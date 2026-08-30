@@ -4,11 +4,11 @@ use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Liberu\Foundation\Organizations\Models\Team;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\ApproveTimeEntry;
-use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateAttendance;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateEngineerSkill;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateExpense;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateLaborRate;
+use Liberu\Modules\Maintenance\LaborAndTime\Actions\CreateTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Actions\RejectTimeEntry;
 use Liberu\Modules\Maintenance\LaborAndTime\Models\TimeEntry;
 
@@ -61,7 +61,7 @@ it('creates and approves a tenant-scoped time entry', function () {
 
 it('provides tenant-scoped skills, attendance, labor rates, and expenses', function () {
     $team = Team::factory()->create();
-    $user = \App\Models\User::factory()->create();
+    $user = User::factory()->create();
 
     $skill = app(CreateEngineerSkill::class)->handle($team->id, ['user_id' => $user->id, 'skill' => 'HVAC', 'level' => 4]);
     $attendance = app(CreateAttendance::class)->handle($team->id, ['user_id' => $user->id, 'attendance_date' => today(), 'clocked_in_at' => now()->subHours(8), 'clocked_out_at' => now()]);

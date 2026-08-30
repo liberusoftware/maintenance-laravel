@@ -16,11 +16,14 @@ final class MaintenanceReminderNotification extends Notification implements Shou
 
     public function __construct(public MaintenancePlan $plan, public int $daysUntilDue = 3) {}
 
-    public function via(object $notifiable): array { return ['mail', 'database']; }
+    public function via(object $notifiable): array
+    {
+        return ['mail', 'database'];
+    }
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject("Reminder: Maintenance Due - {$this->plan->name}")
             ->greeting("Hello {$notifiable->name}!")
             ->line("{$this->plan->name} is due in {$this->daysUntilDue} days.");
