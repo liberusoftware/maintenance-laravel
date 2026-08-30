@@ -10,12 +10,16 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\Scheduling\Actions\CreateEngineerSkill;
 use Liberu\Modules\Maintenance\Scheduling\Actions\CreateShift;
+use Liberu\Modules\Maintenance\Scheduling\Actions\CreateTerritory;
 use Liberu\Modules\Maintenance\Scheduling\Actions\CreateTravelSegment;
+use Liberu\Modules\Maintenance\Scheduling\Actions\DeleteTerritory;
 use Liberu\Modules\Maintenance\Scheduling\Actions\DispatchScheduleEntry;
+use Liberu\Modules\Maintenance\Scheduling\Actions\UpdateTerritory;
 use Liberu\Modules\Maintenance\Scheduling\Models\Dispatch;
 use Liberu\Modules\Maintenance\Scheduling\Models\EngineerSkill;
 use Liberu\Modules\Maintenance\Scheduling\Models\ScheduleEntry;
 use Liberu\Modules\Maintenance\Scheduling\Models\Shift;
+use Liberu\Modules\Maintenance\Scheduling\Models\Territory;
 use Liberu\Modules\Maintenance\Scheduling\Models\TravelSegment;
 
 final class SchedulingOperationsController extends Controller
@@ -70,6 +74,51 @@ final class SchedulingOperationsController extends Controller
         $data = $request->validate(['origin' => ['required', 'string', 'max:255'], 'destination' => ['required', 'string', 'max:255'], 'planned_minutes' => ['nullable', 'integer', 'min:0'], 'actual_minutes' => ['nullable', 'integer', 'min:0'], 'status' => ['nullable', 'in:planned,in_progress,completed,cancelled'], 'metadata' => ['nullable', 'array']]);
 
         return response()->json(['data' => $this->resource($create->handle($teamId, $entry, $data), 'maintenance-travel-segment', ['team_id', 'schedule_entry_id', 'origin', 'destination', 'planned_minutes', 'actual_minutes', 'status', 'metadata'])], 201);
+    }
+
+    public function territories(Request $request): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($request->user()->can('viewAny', Territory::class), 403);
+        $query = Territory::query()->where('team_id', $teamId)->orderBy('name');
+        if (! $request->boolean('include_inactive')) {
+            $query->active();
+        }
+
+        return response()->json(['data' => $query->get()->map(fn (Territory $territory): array => $this->resource($territory, 'maintenance-territory', ['team_id', 'name', 'code', 'description', 'is_active', 'metadata']))->values()]);
+    }
+
+    public function storeTerritory(Request $request, CreateTerritory $create): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        abort_unless($request->user()->can('create', Territory::class), 403);
+        $data = $request->validate(['name' => ['required', 'string', 'max:128'], 'code' => ['required', 'string', 'max:64'], 'description' => ['nullable', 'string', 'max:10000'], 'is_active' => ['sometimes', 'boolean'], 'metadata' => ['nullable', 'array']]);
+
+        return response()->json(['data' => $this->resource($create->handle($teamId, $data), 'maintenance-territory', ['team_id', 'name', 'code', 'description', 'is_active', 'metadata'])], 201);
+    }
+
+    public function updateTerritory(Request $request, string $territory, UpdateTerritory $update): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        $record = Territory::query()->where('team_id', $teamId)->findOrFail($territory);
+        abort_unless($request->user()->can('update', $record), 404);
+        $data = $request->validate(['name' => ['sometimes', 'required', 'string', 'max:128'], 'code' => ['sometimes', 'required', 'string', 'max:64'], 'description' => ['sometimes', 'nullable', 'string', 'max:10000'], 'is_active' => ['sometimes', 'boolean'], 'metadata' => ['sometimes', 'nullable', 'array']]);
+
+        return response()->json(['data' => $this->resource($update->handle($teamId, $record, $data), 'maintenance-territory', ['team_id', 'name', 'code', 'description', 'is_active', 'metadata'])]);
+    }
+
+    public function destroyTerritory(Request $request, string $territory, DeleteTerritory $delete): JsonResponse
+    {
+        $teamId = $this->teamId($request);
+        abort_if($teamId === null, 403);
+        $record = Territory::query()->where('team_id', $teamId)->findOrFail($territory);
+        abort_unless($request->user()->can('delete', $record), 404);
+        $delete->handle($teamId, $record);
+
+        return response()->json(null, 204);
     }
 
     public function travelIndex(Request $request, string $scheduleEntry): JsonResponse

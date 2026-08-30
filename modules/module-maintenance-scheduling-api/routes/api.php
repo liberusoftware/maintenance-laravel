@@ -14,6 +14,10 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/scheduling')->grou
     Route::post('/skills', [SchedulingOperationsController::class, 'storeSkill']);
     Route::get('/shifts', [SchedulingOperationsController::class, 'shifts']);
     Route::post('/shifts', [SchedulingOperationsController::class, 'storeShift']);
+    Route::get('/territories', [SchedulingOperationsController::class, 'territories']);
+    Route::post('/territories', [SchedulingOperationsController::class, 'storeTerritory']);
+    Route::patch('/territories/{territory}', [SchedulingOperationsController::class, 'updateTerritory']);
+    Route::delete('/territories/{territory}', [SchedulingOperationsController::class, 'destroyTerritory']);
     Route::get('/{scheduleEntry}/travel', [SchedulingOperationsController::class, 'travelIndex']);
     Route::post('/{scheduleEntry}/travel', [SchedulingOperationsController::class, 'travel']);
     Route::get('/{scheduleEntry}/dispatches', [SchedulingOperationsController::class, 'dispatchIndex']);
