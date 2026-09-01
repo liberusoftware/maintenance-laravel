@@ -8780,16 +8780,16 @@
         },
         {
             "name": "liberusoftware/organizations-teams",
-            "version": "1.5.0",
+  "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liberusoftware/module-organizations-teams.git",
-                "reference": "12f20e83088659fe9194823d090e44358eed3a56"
+    "reference": "19b4d5e950668b9b400f336d696e4c236560c914"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liberusoftware/module-organizations-teams/zipball/12f20e83088659fe9194823d090e44358eed3a56",
-                "reference": "12f20e83088659fe9194823d090e44358eed3a56",
+    "url": "https://api.github.com/repos/liberusoftware/module-organizations-teams/zipball/19b4d5e950668b9b400f336d696e4c236560c914",
+    "reference": "19b4d5e950668b9b400f336d696e4c236560c914",
                 "shasum": ""
             },
             "require": {
@@ -8829,10 +8829,10 @@
             ],
             "description": "Organization, team, membership, invitation, ownership, and context foundation.",
             "support": {
-                "source": "https://github.com/liberusoftware/module-organizations-teams/tree/1.5.0",
+    "source": "https://github.com/liberusoftware/module-organizations-teams/tree/1.5.1",
                 "issues": "https://github.com/liberusoftware/module-organizations-teams/issues"
             },
-            "time": "2026-08-09T15:38:02+00:00"
+  "time": "2026-09-01T01:24:00+00:00"
         },
         {
             "name": "liberusoftware/organizations-teams-filament",
