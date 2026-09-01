@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "10996a8bfd1478a15cc81afba4722866",
+    "content-hash": "8f8393af07131a9fd16f6b58bb4de502",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -6302,11 +6302,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/module-maintenance-assets",
-                "reference": "c4d14141020bf5d6667780d08d8eb9ba727bc0e4"
+                "reference": "8135a447f92d2835c8d9e01c64fcd662edf65770"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-maintenance-work-orders": "0.1.0",
                 "liberusoftware/module-manager": "^1.0",
                 "liberusoftware/organizations-teams": "^1.0",
                 "php": "^8.5"
@@ -6993,6 +6994,79 @@
             }
         },
         {
+            "name": "liberusoftware/module-maintenance-documents",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-documents",
+                "reference": "15124dff10a2569a24ba591d7d429b4164f2eae1"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/files-media": "^1.0",
+                "liberusoftware/module-manager": "^1.0",
+                "liberusoftware/organizations-teams": "^1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-documents",
+                    "provider": "Liberu\\Modules\\Maintenance\\Documents\\DocumentsServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Documents\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Tenant-scoped maintenance document management.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-documents-api",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-documents-api",
+                "reference": "c4e29637165665edc072f3665d63ed35e38864d7"
+            },
+            "require": {
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "liberusoftware/module-maintenance-documents": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-documents-api",
+                    "provider": "Liberu\\Modules\\Maintenance\\Documents\\Api\\DocumentsApiServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Documents\\Api\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Maintenance documents API presentation adapter.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
             "name": "liberusoftware/module-maintenance-inspections",
             "version": "0.1.0",
             "dist": {
@@ -7463,6 +7537,78 @@
             }
         },
         {
+            "name": "liberusoftware/module-maintenance-notes",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-notes",
+                "reference": "1b51d927ab251963c4d416a45ec4fe0f47859305"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-manager": "^1.0",
+                "liberusoftware/organizations-teams": "^1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-notes",
+                    "provider": "Liberu\\Modules\\Maintenance\\Notes\\NotesServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Notes\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Tenant-scoped notes for maintenance customer and commercial workflows.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-notes-api",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-notes-api",
+                "reference": "02618092b95bdbce0734f92c3beeaca56171c60e"
+            },
+            "require": {
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "liberusoftware/module-maintenance-notes": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-notes-api",
+                    "provider": "Liberu\\Modules\\Maintenance\\Notes\\Api\\NotesApiServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Notes\\Api\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Maintenance notes API presentation adapter.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
             "name": "liberusoftware/module-maintenance-portals",
             "version": "0.1.0",
             "dist": {
@@ -7624,11 +7770,12 @@
             "dist": {
                 "type": "path",
                 "url": "modules/module-maintenance-preventative-maintenance",
-                "reference": "eb42e4189ed4ba6754cc35707fe9ba6a9e883eeb"
+                "reference": "6d0891fefe2b71867950b5dec393a286aacea2c6"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-maintenance-work-orders": "0.1.0",
                 "liberusoftware/module-manager": "^1.0",
                 "liberusoftware/organizations-teams": "^1.0",
                 "php": "^8.5"
@@ -7904,11 +8051,14 @@
             "dist": {
                 "type": "path",
                 "url": "modules/module-maintenance-reporting",
-                "reference": "04c4cb2b0d3159d3d8438d586cda56c22d0ce684"
+                "reference": "4e8fffc7379914d14ee9284289b5d009255b5c18"
             },
             "require": {
                 "illuminate/database": "^13.0",
                 "illuminate/support": "^13.0",
+                "liberusoftware/module-maintenance-assets": "0.1.0",
+                "liberusoftware/module-maintenance-preventative-maintenance": "0.1.0",
+                "liberusoftware/module-maintenance-work-orders": "0.1.0",
                 "liberusoftware/module-manager": "^1.0",
                 "liberusoftware/organizations-teams": "^1.0",
                 "php": "^8.5"
@@ -8189,6 +8339,78 @@
                 "AGPL-3.0-or-later"
             ],
             "description": "Scheduling Livewire adapter for Liberu Maintenance",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-tasks",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-tasks",
+                "reference": "dd8fc26cfd3b546c22eb8f2b359053a8d01cf13f"
+            },
+            "require": {
+                "illuminate/database": "^13.0",
+                "illuminate/support": "^13.0",
+                "liberusoftware/module-manager": "^1.0",
+                "liberusoftware/organizations-teams": "^1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-tasks",
+                    "provider": "Liberu\\Modules\\Maintenance\\Tasks\\TasksServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Tasks\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Tenant-scoped maintenance tasks and assignments.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "liberusoftware/module-maintenance-tasks-api",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/module-maintenance-tasks-api",
+                "reference": "bb3b198a5b3a37402c4992800fa92244a36edcaa"
+            },
+            "require": {
+                "illuminate/http": "^13.0",
+                "illuminate/routing": "^13.0",
+                "laravel/sanctum": "^4.0",
+                "liberusoftware/module-maintenance-tasks": "0.1.0",
+                "php": "^8.5"
+            },
+            "type": "liberu-module",
+            "extra": {
+                "liberu": {
+                    "name": "module-maintenance-tasks-api",
+                    "provider": "Liberu\\Modules\\Maintenance\\Tasks\\Api\\TasksApiServiceProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Liberu\\Modules\\Maintenance\\Tasks\\Api\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Maintenance tasks API presentation adapter.",
             "transport-options": {
                 "symlink": false,
                 "relative": true
@@ -8558,16 +8780,16 @@
         },
         {
             "name": "liberusoftware/organizations-teams",
-            "version": "1.5.0",
+  "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liberusoftware/module-organizations-teams.git",
-                "reference": "12f20e83088659fe9194823d090e44358eed3a56"
+    "reference": "19b4d5e950668b9b400f336d696e4c236560c914"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liberusoftware/module-organizations-teams/zipball/12f20e83088659fe9194823d090e44358eed3a56",
-                "reference": "12f20e83088659fe9194823d090e44358eed3a56",
+    "url": "https://api.github.com/repos/liberusoftware/module-organizations-teams/zipball/19b4d5e950668b9b400f336d696e4c236560c914",
+    "reference": "19b4d5e950668b9b400f336d696e4c236560c914",
                 "shasum": ""
             },
             "require": {
@@ -8607,10 +8829,10 @@
             ],
             "description": "Organization, team, membership, invitation, ownership, and context foundation.",
             "support": {
-                "source": "https://github.com/liberusoftware/module-organizations-teams/tree/1.5.0",
+    "source": "https://github.com/liberusoftware/module-organizations-teams/tree/1.5.1",
                 "issues": "https://github.com/liberusoftware/module-organizations-teams/issues"
             },
-            "time": "2026-08-09T15:38:02+00:00"
+  "time": "2026-09-01T01:24:00+00:00"
         },
         {
             "name": "liberusoftware/organizations-teams-filament",

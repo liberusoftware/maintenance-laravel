@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.liberu.dev/module/v1.json",
+  "name": "module-maintenance-notes-api",
+  "display_name": "Maintenance Notes API",
+  "description": "Sanctum-protected API for maintenance notes.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Notes\\Api\\NotesApiServiceProvider",
+  "requires": { "php": "^8.5", "laravel": "^13.0", "packages": { "liberusoftware/module-maintenance-notes": "0.1.0" } },
+  "capabilities": ["maintenance.notes.api"],
+  "default_enabled": true,
+  "features": ["Note CRUD", "Tenant isolation"]
+}

@@ -32,6 +32,9 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'profile_photo_path' => null,
             'current_team_id' => null,
+            // Factory users represent established accounts by default. Tests
+            // covering the first-login experience can explicitly set this null.
+            'onboarding_completed_at' => now(),
         ];
     }
 

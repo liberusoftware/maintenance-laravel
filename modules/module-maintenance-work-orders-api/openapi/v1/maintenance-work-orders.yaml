@@ -1,6 +1,30 @@
 openapi: 3.1.0
 info: {title: maintenance work orders API, version: 1.0.0}
 paths:
+  /api/v1/maintenance/work-orders/public:
+    post:
+      operationId: maintenance.work.orders.public.create
+      security: []
+      description: Submit a guest maintenance request to the configured public intake team.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description, priority, location, guest_name, guest_email]
+              properties:
+                title: {type: string, maxLength: 255}
+                description: {type: string, maxLength: 2000}
+                priority: {type: string, enum: [low, medium, high, critical]}
+                location: {type: string, maxLength: 255}
+                guest_name: {type: string, maxLength: 255}
+                guest_email: {type: string, format: email}
+                guest_phone: {type: string, nullable: true, maxLength: 64}
+                equipment: {type: string, nullable: true, maxLength: 500}
+      responses:
+        '201': {description: Guest work order submitted}
+        '503': {description: Public intake is disabled}
   /api/v1/maintenance/work-orders:
     get: {operationId: maintenance.work.orders.list, security: [{sanctum: []}], parameters: [{name: window, in: query, schema: {type: string, enum: [overdue, due_within]}}, {name: days, in: query, schema: {type: integer, minimum: 1, maximum: 365}}, {name: assigned_to, in: query, schema: {type: integer, minimum: 1}}], responses: {'200': {description: Authorized work orders}}}
     post: {operationId: maintenance.work.orders.create, security: [{sanctum: []}], responses: {'201': {description: Work order created}}}
@@ -20,4 +44,9 @@ paths:
     post: {operationId: maintenance.work.orders.evidence.create, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Evidence created}}}
   /api/v1/maintenance/work-orders/{id}/evidence/{evidence}:
     delete: {operationId: maintenance.work.orders.evidence.delete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}, {name: evidence, in: path, required: true, schema: {type: string}}], responses: {'204': {description: Evidence removed}}}
+  /api/v1/maintenance/work-orders/{id}/tasks:
+    get: {operationId: maintenance.work.orders.tasks.list, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Work-order tasks}}
+    post: {operationId: maintenance.work.orders.tasks.create, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Work-order task created}}}
+  /api/v1/maintenance/work-orders/{id}/tasks/{task}/complete:
+    post: {operationId: maintenance.work.orders.tasks.complete, security: [{sanctum: []}], parameters: [{name: id, in: path, required: true, schema: {type: string}}, {name: task, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Work-order task completed}}}
 components: {securitySchemes: {sanctum: {type: http, scheme: bearer, bearerFormat: Sanctum}}}

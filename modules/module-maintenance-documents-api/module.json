@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.liberu.dev/module/v1.json",
+  "name": "module-maintenance-documents-api",
+  "display_name": "Maintenance Documents API",
+  "description": "Sanctum-protected API for maintenance documents and versions.",
+  "version": "0.1.0",
+  "category": "presentation",
+  "provider": "Liberu\\Modules\\Maintenance\\Documents\\Api\\DocumentsApiServiceProvider",
+  "requires": { "php": "^8.5", "laravel": "^13.0", "packages": { "liberusoftware/module-maintenance-documents": "0.1.0" } },
+  "capabilities": ["maintenance.documents.api"],
+  "default_enabled": true,
+  "features": ["Document CRUD", "Approval", "Versioning"]
+}

@@ -38,15 +38,11 @@ Homestead.json
 /.vagrant
 .phpunit.result.cache
 rr
-# .rr.yaml is tracked in git (needed for RoadRunner configuration)
-
 # Backup files
 *.bak
 *.backup
 composer.phar
 .idea
-.rr.yaml
-
 # stray sqlite artifact from artisan/tinker runs
 /boilerplate-laravel
 docs/superpowers

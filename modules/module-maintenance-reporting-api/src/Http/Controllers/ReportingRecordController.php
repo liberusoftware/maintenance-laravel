@@ -15,6 +15,8 @@ use Liberu\Modules\Maintenance\Report\Actions\UpdateReportRecord;
 use Liberu\Modules\Maintenance\Report\Models\ReportKind;
 use Liberu\Modules\Maintenance\Report\Models\ReportRecord;
 use Liberu\Modules\Maintenance\Report\Queries\BuildReportSummary;
+use Liberu\Modules\Maintenance\Report\Queries\MaintenanceMetrics;
+use Liberu\Modules\Maintenance\Report\Services\MaintenanceReportService;
 
 class ReportingRecordController extends Controller
 {
@@ -42,6 +44,33 @@ class ReportingRecordController extends Controller
         $period = $request->validate(['period_start' => 'sometimes|date', 'period_end' => 'sometimes|date|after_or_equal:period_start']);
 
         return response()->json(['data' => $summary->handle((int) $teamId, isset($period['period_start']) ? now()->parse($period['period_start']) : null, isset($period['period_end']) ? now()->parse($period['period_end']) : null)]);
+    }
+
+    public function metrics(Request $request, MaintenanceMetrics $metrics): JsonResponse
+    {
+        $teamId = $request->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        abort_unless($request->user()->can('viewAny', ReportRecord::class), 403);
+        $period = $request->validate(['period_start' => 'sometimes|date', 'period_end' => 'sometimes|date|after_or_equal:period_start']);
+
+        return response()->json(['data' => $metrics->handle((int) $teamId, isset($period['period_start']) ? now()->parse($period['period_start']) : null, isset($period['period_end']) ? now()->parse($period['period_end']) : null)]);
+    }
+
+    public function comprehensive(Request $request, MaintenanceReportService $reports): JsonResponse
+    {
+        $teamId = $request->user()?->currentTeam?->getKey();
+        abort_if($teamId === null, 403);
+        abort_unless($request->user()->can('viewAny', ReportRecord::class), 403);
+        $period = $request->validate([
+            'period_start' => ['sometimes', 'date'],
+            'period_end' => ['sometimes', 'date', 'after_or_equal:period_start'],
+        ]);
+
+        return response()->json(['data' => $reports->generateComprehensiveReport(
+            (int) $teamId,
+            isset($period['period_start']) ? now()->parse($period['period_start']) : null,
+            isset($period['period_end']) ? now()->parse($period['period_end']) : null,
+        )]);
     }
 
     public function store(Request $request, CreateReportRecord $create): JsonResponse

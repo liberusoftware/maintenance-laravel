@@ -26,7 +26,7 @@ class VendorEvaluationResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-star';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';
+    protected static string|\UnitEnum|null $navigationGroup = 'Procurement';
 
     public static function form(Schema $schema): Schema
     {

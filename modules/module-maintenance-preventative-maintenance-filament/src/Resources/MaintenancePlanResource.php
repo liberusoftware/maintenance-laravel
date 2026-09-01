@@ -27,7 +27,7 @@ class MaintenancePlanResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-arrow-path';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';
+    protected static string|\UnitEnum|null $navigationGroup = 'Planning';
 
     public static function form(Schema $schema): Schema
     {

@@ -3,6 +3,18 @@ info:
   title: maintenance compliance API
   version: 1.0.0
 paths:
+  /api/v1/maintenance/compliance/requirements:
+    get: {operationId: maintenance.compliance.requirements.list, security: [{sanctum: []}], responses: {'200': {description: Tenant-scoped compliance requirements}}}
+    post: {operationId: maintenance.compliance.requirements.create, security: [{sanctum: []}], responses: {'201': {description: Compliance requirement created}}}
+  /api/v1/maintenance/compliance/permits:
+    get: {operationId: maintenance.compliance.permits.list, security: [{sanctum: []}], responses: {'200': {description: Tenant-scoped compliance permits}}}
+    post: {operationId: maintenance.compliance.permits.create, security: [{sanctum: []}], responses: {'201': {description: Compliance permit created}}}
+  /api/v1/maintenance/compliance/risk-assessments:
+    get: {operationId: maintenance.compliance.risk-assessments.list, security: [{sanctum: []}], responses: {'200': {description: Tenant-scoped risk assessments}}}
+    post: {operationId: maintenance.compliance.risk-assessments.create, security: [{sanctum: []}], responses: {'201': {description: Risk assessment created}}}
+  /api/v1/maintenance/compliance/incidents:
+    get: {operationId: maintenance.compliance.incidents.list, security: [{sanctum: []}], responses: {'200': {description: Tenant-scoped compliance incidents}}}
+    post: {operationId: maintenance.compliance.incidents.create, security: [{sanctum: []}], responses: {'201': {description: Compliance incident created}}}
   /api/v1/maintenance/compliance:
     get:
       operationId: maintenance.compliance.list
@@ -18,10 +30,53 @@ paths:
       responses:
         "201":
           description: Created compliance record
+  /api/v1/maintenance/compliance/{record}/evidence:
+    get:
+      operationId: maintenance.compliance.evidence.list
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Authorized compliance evidence}
+    post:
+      operationId: maintenance.compliance.evidence.create
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "201": {description: Compliance evidence created}
+  /api/v1/maintenance/compliance/{record}/corrective-actions:
+    get:
+      operationId: maintenance.compliance.corrective.actions.list
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Authorized corrective actions}
+    post:
+      operationId: maintenance.compliance.corrective.actions.create
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+      responses:
+        "201": {description: Corrective action created}
+  /api/v1/maintenance/compliance/{record}/corrective-actions/{action}/complete:
+    post:
+      operationId: maintenance.compliance.corrective.actions.complete
+      security:
+        - sanctum: []
+      parameters:
+        - {name: record, in: path, required: true, schema: {type: string}}
+        - {name: action, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Corrective action completed}
 components:
   securitySchemes:
     sanctum:
       type: http
       scheme: bearer
       bearerFormat: Sanctum
-

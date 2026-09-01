@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\ModulePlugins;
+use App\Filament\Pages\AccountSetupWizard;
 use App\Support\ThemeColors;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -30,10 +31,14 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->colors(app(ThemeColors::class)->forSite())
+            ->navigationGroups([
+                'Get started', 'Work management', 'Planning', 'Assets & inventory', 'Customers & sites', 'Procurement', 'Insights', 'Administration', 'Account', 'Settings', 'Operations',
+            ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
             ->pages([
                 Dashboard::class,
+                AccountSetupWizard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\Filament\App\Widgets')
             ->widgets([

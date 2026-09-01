@@ -52,4 +52,9 @@ class StockItem extends Model
     {
         return $this->hasMany(StockMovement::class);
     }
+
+    public function levels(): HasMany
+    {
+        return $this->hasMany(StockLevel::class);
+    }
 }

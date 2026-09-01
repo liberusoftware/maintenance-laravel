@@ -282,6 +282,12 @@
         ,{"type":"path","url":"modules/module-maintenance-reporting-api","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-reporting-api":"0.1.0"}}}
         ,{"type":"path","url":"modules/module-maintenance-reporting-filament","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-reporting-filament":"0.1.0"}}}
         ,{"type":"path","url":"modules/module-maintenance-reporting-livewire","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-reporting-livewire":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-documents","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-documents":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-documents-api","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-documents-api":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-notes","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-notes":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-notes-api","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-notes-api":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-tasks","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-tasks":"0.1.0"}}}
+        ,{"type":"path","url":"modules/module-maintenance-tasks-api","options":{"symlink":false,"versions":{"liberusoftware/module-maintenance-tasks-api":"0.1.0"}}}
     ],
     "require": {
         "php": "^8.5",
@@ -379,6 +385,12 @@
         "liberusoftware/module-maintenance-reporting-api": "0.1.0",
         "liberusoftware/module-maintenance-reporting-filament": "0.1.0",
         "liberusoftware/module-maintenance-reporting-livewire": "0.1.0",
+        "liberusoftware/module-maintenance-documents": "0.1.0",
+        "liberusoftware/module-maintenance-documents-api": "0.1.0",
+        "liberusoftware/module-maintenance-notes": "0.1.0",
+        "liberusoftware/module-maintenance-notes-api": "0.1.0",
+        "liberusoftware/module-maintenance-tasks": "0.1.0",
+        "liberusoftware/module-maintenance-tasks-api": "0.1.0",
         "liberusoftware/notifications": "^1.0",
         "liberusoftware/observability": "^1.0",
         "liberusoftware/organizations-teams": "^1.0",

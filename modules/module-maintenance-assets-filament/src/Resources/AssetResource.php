@@ -29,7 +29,7 @@ class AssetResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cube';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';
+    protected static string|\UnitEnum|null $navigationGroup = 'Assets & inventory';
 
     public static function form(Schema $schema): Schema
     {

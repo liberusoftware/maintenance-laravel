@@ -7,6 +7,7 @@ namespace Liberu\Modules\Maintenance\CustomersAndSites\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Liberu\Modules\OrganizationsTeams\Models\Team;
 
 class Customer extends Model
@@ -60,5 +61,10 @@ class Customer extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(Contact::class);
     }
 }

@@ -10,6 +10,8 @@ use Liberu\Modules\Maintenance\Inspections\Models\Inspection;
 
 final class UpdateInspection
 {
+    public function __construct(private readonly ValidateInspectionChecklist $validateChecklist) {}
+
     /** @param array<string, mixed> $attributes */
     public function handle(int $teamId, Inspection $inspection, array $attributes): Inspection
     {
@@ -23,6 +25,7 @@ final class UpdateInspection
         if ($title === '') {
             throw ValidationException::withMessages(['title' => 'An inspection title is required.']);
         }
+        $this->validateChecklist->handle($teamId, $attributes['template_key'] ?? $inspection->template_key, $attributes['readings'] ?? $inspection->readings);
 
         return DB::transaction(function () use ($inspection, $attributes, $title): Inspection {
             $inspection->fill(array_merge($attributes, ['title' => $title]));

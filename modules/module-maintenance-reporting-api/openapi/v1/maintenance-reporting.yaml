@@ -11,6 +11,28 @@ paths:
       responses:
         "200":
           description: Authorized reporting summary
+  /api/v1/maintenance/reporting/metrics:
+    get:
+      operationId: maintenance.reporting.metrics
+      security:
+        - sanctum: []
+      parameters:
+        - {name: period_start, in: query, schema: {type: string, format: date-time}}
+        - {name: period_end, in: query, schema: {type: string, format: date-time}}
+      responses:
+        "200":
+          description: Tenant-scoped operational maintenance metrics
+  /api/v1/maintenance/reporting/comprehensive:
+    get:
+      operationId: maintenance.reporting.comprehensive
+      security:
+        - sanctum: []
+      parameters:
+        - {name: period_start, in: query, schema: {type: string, format: date-time}}
+        - {name: period_end, in: query, schema: {type: string, format: date-time}}
+      responses:
+        "200":
+          description: Tenant-scoped comprehensive maintenance report
   /api/v1/maintenance/reporting:
     get:
       operationId: maintenance.reporting.list

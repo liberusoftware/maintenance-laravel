@@ -18,4 +18,9 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/work-orders')->gro
     Route::get('/{workOrder}/evidence', [WorkOrderController::class, 'evidence']);
     Route::post('/{workOrder}/evidence', [WorkOrderController::class, 'addEvidence']);
     Route::delete('/{workOrder}/evidence/{evidence}', [WorkOrderController::class, 'removeEvidence']);
+    Route::get('/{workOrder}/tasks', [WorkOrderController::class, 'tasks']);
+    Route::post('/{workOrder}/tasks', [WorkOrderController::class, 'addTask']);
+    Route::post('/{workOrder}/tasks/{task}/complete', [WorkOrderController::class, 'completeTask']);
 });
+
+Route::middleware('throttle:10,1')->post('api/v1/maintenance/work-orders/public', [WorkOrderController::class, 'submitGuest']);

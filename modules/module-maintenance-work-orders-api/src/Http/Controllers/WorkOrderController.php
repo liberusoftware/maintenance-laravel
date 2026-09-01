@@ -10,19 +10,31 @@ use Illuminate\Routing\Controller;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\AddWorkOrderEvidence;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\CompleteWorkOrderTask;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrder;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\CreateWorkOrderTask;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\DeleteWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\RemoveWorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\RemoveWorkOrderEvidence;
+use Liberu\Modules\Maintenance\WorkOrders\Actions\SubmitGuestWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\TransitionWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Actions\UpdateWorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrder;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderComment;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderDependency;
 use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderEvidence;
+use Liberu\Modules\Maintenance\WorkOrders\Models\WorkOrderTask;
 
 class WorkOrderController extends Controller
 {
+    public function submitGuest(Request $r, SubmitGuestWorkOrder $submit): JsonResponse
+    {
+        $teamId = config('maintenance-work-orders.public_team_id');
+        abort_if($teamId === null, 503, 'Public maintenance intake is not configured.');
+
+        return response()->json(['data' => $this->resource($submit->handle((int) $teamId, $r->all()))], 201);
+    }
+
     public function index(Request $r): JsonResponse
     {
         $id = $this->teamId($r);
@@ -185,6 +197,34 @@ class WorkOrderController extends Controller
         return response()->json(['data' => $this->evidenceResource($add->handle($id, $workOrder, $data))], 201);
     }
 
+    public function tasks(Request $r, WorkOrder $workOrder): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('view', $workOrder), 404);
+
+        return response()->json(['data' => $workOrder->tasks()->get()->map(fn (WorkOrderTask $task): array => $this->taskResource($task))->values()]);
+    }
+
+    public function addTask(Request $r, WorkOrder $workOrder, CreateWorkOrderTask $create): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && $r->user()->can('update', $workOrder), 404);
+        $data = $r->validate(['title' => ['required', 'string', 'max:255'], 'description' => ['sometimes', 'nullable', 'string', 'max:10000'], 'assigned_to' => ['sometimes', 'nullable', 'integer', 'min:1'], 'priority' => ['sometimes', 'string', 'max:32'], 'due_at' => ['sometimes', 'nullable', 'date'], 'sort_order' => ['sometimes', 'integer', 'min:0']]);
+
+        return response()->json(['data' => $this->taskResource($create->handle($id, $workOrder, $data))], 201);
+    }
+
+    public function completeTask(Request $r, WorkOrder $workOrder, WorkOrderTask $task, CompleteWorkOrderTask $complete): JsonResponse
+    {
+        $id = $this->teamId($r);
+        abort_if($id === null, 403);
+        abort_unless($id === (int) $workOrder->team_id && (int) $task->work_order_id === (int) $workOrder->getKey() && $r->user()->can('update', $workOrder), 404);
+
+        return response()->json(['data' => $this->taskResource($complete->handle($id, $task))]);
+    }
+
     public function removeEvidence(Request $r, WorkOrder $workOrder, WorkOrderEvidence $evidence, RemoveWorkOrderEvidence $remove): JsonResponse
     {
         $id = $this->teamId($r);
@@ -193,6 +233,11 @@ class WorkOrderController extends Controller
         $remove->handle($id, $evidence);
 
         return response()->noContent();
+    }
+
+    private function taskResource(WorkOrderTask $task): array
+    {
+        return ['id' => (string) $task->getKey(), 'type' => 'maintenance-work-order-task', 'attributes' => ['work_order_id' => (string) $task->work_order_id, 'title' => $task->title, 'description' => $task->description, 'assigned_to' => $task->assigned_to, 'status' => $task->status, 'priority' => $task->priority, 'due_at' => $task->due_at?->toISOString(), 'completed_at' => $task->completed_at?->toISOString(), 'sort_order' => $task->sort_order, 'metadata' => $task->metadata, 'created_at' => $task->created_at?->toISOString(), 'updated_at' => $task->updated_at?->toISOString()]];
     }
 
     private function teamId(Request $r): ?int
