@@ -15,6 +15,8 @@ Route::middleware('auth:sanctum')->prefix('api/v1/maintenance/inspections')->gro
     Route::get('/{inspection}', [InspectionController::class, 'show']);
     Route::patch('/{inspection}', [InspectionController::class, 'update']);
     Route::post('/{inspection}/complete', [InspectionController::class, 'complete']);
+    Route::post('/{inspection}/sign', [InspectionController::class, 'sign']);
+    Route::post('/{inspection}/certificate', [InspectionController::class, 'issueCertificate']);
     Route::get('/{inspection}/follow-ups', [InspectionController::class, 'followUps']);
     Route::post('/{inspection}/follow-ups', [InspectionController::class, 'storeFollowUp']);
     Route::post('/follow-ups/{followUp}/complete', [InspectionController::class, 'completeFollowUp']);

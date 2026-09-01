@@ -13,6 +13,10 @@ paths:
     delete: {operationId: maintenance.inspections.delete, security: [{sanctum: []}], responses: {'204': {description: Inspection deleted}}}
   /api/v1/maintenance/inspections/{id}/complete:
     post: {operationId: maintenance.inspections.complete, security: [{sanctum: []}], responses: {'200': {description: Inspection completed}}}
+  /api/v1/maintenance/inspections/{id}/sign:
+    post: {operationId: maintenance.inspections.sign, security: [{sanctum: []}], responses: {'200': {description: Inspection signature recorded}}}
+  /api/v1/maintenance/inspections/{id}/certificate:
+    post: {operationId: maintenance.inspections.certificate.issue, security: [{sanctum: []}], responses: {'200': {description: Inspection certificate issued}}}
   /api/v1/maintenance/inspections/{inspection}/follow-ups:
     get: {operationId: maintenance.inspections.follow.ups.list, security: [{sanctum: []}], parameters: [{name: inspection, in: path, required: true, schema: {type: string}}], responses: {'200': {description: Inspection follow-ups}}}
     post: {operationId: maintenance.inspections.follow.ups.create, security: [{sanctum: []}], parameters: [{name: inspection, in: path, required: true, schema: {type: string}}], responses: {'201': {description: Inspection follow-up created}}}

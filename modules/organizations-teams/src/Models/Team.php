@@ -11,6 +11,10 @@ use Liberu\Foundation\Organizations\Database\Factories\TeamFactory;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
+/**
+ * @property string $name
+ * @property array<string, mixed>|null $settings
+ */
 class Team extends JetstreamTeam
 {
     /** @use HasFactory<TeamFactory> */

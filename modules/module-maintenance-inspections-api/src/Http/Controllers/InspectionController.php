@@ -15,7 +15,9 @@ use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionFollowUp;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionTemplate;
 use Liberu\Modules\Maintenance\Inspections\Actions\DeleteInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\DuplicateInspectionTemplate;
+use Liberu\Modules\Maintenance\Inspections\Actions\IssueInspectionCertificate;
 use Liberu\Modules\Maintenance\Inspections\Actions\RemoveInspectionTemplateItem;
+use Liberu\Modules\Maintenance\Inspections\Actions\SignInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspectionTemplateItem;
 use Liberu\Modules\Maintenance\Inspections\Models\Inspection;
@@ -130,6 +132,22 @@ final class InspectionController extends Controller
         $data = $request->validate(['outcome' => ['required', 'in:pass,fail,conditional']]);
 
         return response()->json(['data' => $this->resource($complete->handle((int) $inspection->team_id, $inspection, $data['outcome']))]);
+    }
+
+    public function sign(Request $request, Inspection $inspection, SignInspection $sign): JsonResponse
+    {
+        $this->authorizeRecord($request, $inspection, 'update');
+        $data = $request->validate(['signature' => ['required', 'string', 'max:10000']]);
+
+        return response()->json(['data' => $this->resource($sign->handle((int) $inspection->team_id, $inspection, $data['signature']))]);
+    }
+
+    public function issueCertificate(Request $request, Inspection $inspection, IssueInspectionCertificate $issue): JsonResponse
+    {
+        $this->authorizeRecord($request, $inspection, 'update');
+        $data = $request->validate(['certificate' => ['required', 'string', 'max:255']]);
+
+        return response()->json(['data' => $this->resource($issue->handle((int) $inspection->team_id, $inspection, $data['certificate']))]);
     }
 
     public function followUps(Request $request, string $inspection): JsonResponse

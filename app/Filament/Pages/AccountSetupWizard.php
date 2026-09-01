@@ -14,6 +14,9 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Liberu\Foundation\Organizations\Models\Team;
 
+/**
+ * @property-read Schema $form
+ */
 final class AccountSetupWizard extends Page implements HasForms
 {
     use InteractsWithForms;
@@ -36,7 +39,7 @@ final class AccountSetupWizard extends Page implements HasForms
     public function mount(): void
     {
         $team = $this->team();
-        $settings = $team?->settings ?? [];
+        $settings = $team === null ? [] : ($team->settings ?? []);
 
         $this->form->fill([
             'team_name' => $team?->name,
@@ -156,12 +159,18 @@ final class AccountSetupWizard extends Page implements HasForms
 
     public static function canAccess(): bool
     {
-        return auth()->check() && auth()->user()?->currentTeam !== null;
+        return auth()->check() && auth()->user()->currentTeam !== null;
     }
 
     private function team(): ?Team
     {
-        $tenant = Filament::getTenant() ?? auth()->user()?->currentTeam ?? auth()->user()?->latestTeam;
+        $user = auth()->user();
+
+        if ($user === null) {
+            return null;
+        }
+
+        $tenant = Filament::getTenant() ?? $user->currentTeam ?? $user->latestTeam;
 
         return $tenant instanceof Team ? $tenant : null;
     }

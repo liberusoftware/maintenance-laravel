@@ -10,6 +10,7 @@ use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspection;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionFollowUp;
 use Liberu\Modules\Maintenance\Inspections\Actions\CreateInspectionTemplate;
 use Liberu\Modules\Maintenance\Inspections\Actions\DuplicateInspectionTemplate;
+use Liberu\Modules\Maintenance\Inspections\Actions\IssueInspectionCertificate;
 use Liberu\Modules\Maintenance\Inspections\Actions\RemoveInspectionTemplateItem;
 use Liberu\Modules\Maintenance\Inspections\Actions\UpdateInspectionTemplateItem;
 use Liberu\Modules\Maintenance\Inspections\Models\Inspection;
@@ -110,6 +111,20 @@ it('does not allow a completed inspection to be completed again', function () {
 
     expect(fn () => app(CompleteInspection::class)->handle($team->id, $inspection, 'fail'))
         ->toThrow(ValidationException::class);
+});
+
+it('records signatures and issues certificates only for completed passing inspections', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create(['user_id' => $user->id]);
+    $user->forceFill(['current_team_id' => $team->id])->save();
+    $token = $user->createToken('inspection-certificates-test')->plainTextToken;
+    $inspection = app(CreateInspection::class)->handle($team->id, ['title' => 'Pressure test']);
+    expect($user->fresh()->currentTeam?->id)->toBe($team->id)->and($inspection->team_id)->toBe($team->id)->and($user->fresh()->can('update', $inspection))->toBeTrue();
+    $this->withToken($token)->postJson("/api/v1/maintenance/inspections/{$inspection->id}/sign", ['signature' => 'Tech sign'])->assertNotFound();
+    app(CompleteInspection::class)->handle($team->id, $inspection, 'pass');
+    $this->withToken($token)->postJson("/api/v1/maintenance/inspections/{$inspection->id}/sign", ['signature' => 'Tech sign'])->assertOk()->assertJsonPath('data.attributes.signature', 'Tech sign');
+    $this->withToken($token)->postJson("/api/v1/maintenance/inspections/{$inspection->id}/certificate", ['certificate' => 'CERT-100'])->assertOk()->assertJsonPath('data.attributes.certificate', 'CERT-100');
+    expect(app(IssueInspectionCertificate::class)->handle($team->id, $inspection->refresh(), 'CERT-101')->certificate)->toBe('CERT-101');
 });
 
 it('provides inspection status, outcome, and date query scopes', function () {
