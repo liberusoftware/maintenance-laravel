@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Pages\AccountSetupWizard;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,15 @@ Route::get('/dashboard', function () {
         $panel = Filament::getPanel('admin');
         $tenant = $user->getDefaultTenant($panel);
 
+        if ($user->onboarding_completed_at === null) {
+            return redirect(AccountSetupWizard::getUrl(panel: 'admin', tenant: $tenant));
+        }
+
         return redirect($tenant !== null ? $panel->getUrl($tenant) : '/'.$panel->getPath());
+    }
+
+    if ($user instanceof User && $user->onboarding_completed_at === null) {
+        return redirect(AccountSetupWizard::getUrl(panel: 'app'));
     }
 
     return redirect()->route('filament.app.pages.dashboard');

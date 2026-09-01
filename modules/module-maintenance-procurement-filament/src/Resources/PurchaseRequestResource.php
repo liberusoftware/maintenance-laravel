@@ -30,7 +30,7 @@ class PurchaseRequestResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';
+    protected static string|\UnitEnum|null $navigationGroup = 'Procurement';
 
     public static function form(Schema $schema): Schema
     {

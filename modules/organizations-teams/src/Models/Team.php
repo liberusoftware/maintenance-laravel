@@ -41,6 +41,7 @@ class Team extends JetstreamTeam
         'personal_team',
         'organization_id',
         'status',
+        'settings',
     ];
 
     /**
@@ -50,6 +51,7 @@ class Team extends JetstreamTeam
      */
     protected $casts = [
         'personal_team' => 'boolean',
+        'settings' => 'encrypted:array',
     ];
 
     /**

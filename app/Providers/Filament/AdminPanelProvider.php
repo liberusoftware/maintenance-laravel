@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\ModulePlugins;
+use App\Filament\Pages\AccountSetupWizard;
 use App\Support\ThemeColors;
 use BezhanSalleh\FilamentShield\Middleware\SyncShieldTenant;
 use Filament\Http\Middleware\Authenticate;
@@ -34,10 +35,14 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors(app(ThemeColors::class)->forSite())
+            ->navigationGroups([
+                'Get started', 'Work management', 'Planning', 'Assets & inventory', 'Customers & sites', 'Procurement', 'Insights', 'Administration', 'Account', 'Settings', 'Operations',
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
+                AccountSetupWizard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([

@@ -29,7 +29,7 @@ class ScheduleEntryResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Maintenance';
+    protected static string|\UnitEnum|null $navigationGroup = 'Planning';
 
     public static function form(Schema $schema): Schema
     {
