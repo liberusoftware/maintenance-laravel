@@ -5,11 +5,11 @@
   "license": "MIT",
   "require": {
     "php": "^8.5",
-    "illuminate/http": "^13.0",
-    "illuminate/routing": "^13.0",
-    "illuminate/support": "^13.0",
+    "illuminate/http": "^13.38.0",
+    "illuminate/routing": "^13.38.0",
+    "illuminate/support": "^13.38.0",
     "liberusoftware/module-maintenance-maintenance-core": "0.1.0",
-    "laravel/sanctum": "^4.0"
+    "laravel/sanctum": "^4.3.3"
   },
   "autoload": {
     "psr-4": {

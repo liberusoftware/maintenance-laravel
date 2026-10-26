@@ -5,8 +5,8 @@
   "license": "AGPL-3.0-or-later",
   "require": {
     "php": "^8.5",
-    "illuminate/database": "^13.0",
-    "illuminate/support": "^13.0",
+    "illuminate/database": "^13.38.0",
+    "illuminate/support": "^13.38.0",
     "liberusoftware/module-manager": "^1.0",
     "liberusoftware/organizations-teams": "^1.0"
   },

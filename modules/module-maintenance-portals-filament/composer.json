@@ -5,7 +5,7 @@
   "license": "AGPL-3.0-or-later",
   "require": {
     "php": "^8.5",
-    "filament/filament": "~5.1",
+    "filament/filament": "^5.11.0",
     "liberusoftware/module-maintenance-portals": "0.1.0"
   },
   "autoload": {
