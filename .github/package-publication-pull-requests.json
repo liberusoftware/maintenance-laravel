@@ -1,0 +1,146 @@
+{
+  "liberusoftware/module-maintenance-commercial": {
+    "branch": "sync/maintenance-laravel/v0.1.1-d9fb6f474ce4",
+    "path": "modules/module-maintenance-commercial",
+    "repository": "https://github.com/liberusoftware/module-maintenance-commercial",
+    "source_signature": "d9fb6f474ce40a6b84aaf155a1b7e6a74d25388009dde98e8e41e04848016689",
+    "source_tree": "974c5ef2d932f6f5412811bff0498bc7f63ddfcd",
+    "url": "https://github.com/liberusoftware/module-maintenance-commercial/pull/3",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-commercial-api": {
+    "branch": "sync/maintenance-laravel/v0.1.1-ab1e4df112d1",
+    "path": "modules/module-maintenance-commercial-api",
+    "repository": "https://github.com/liberusoftware/module-maintenance-commercial-api",
+    "source_signature": "ab1e4df112d1e973cf26bb8528648a8158a6603938ff7735b609e9d7bcbb1749",
+    "source_tree": "72c910c97d63688258753f43af1821994c909007",
+    "url": "https://github.com/liberusoftware/module-maintenance-commercial-api/pull/4",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-commercial-filament": {
+    "branch": "sync/maintenance-laravel/v0.1.1-3bcf7c92e9e6",
+    "path": "modules/module-maintenance-commercial-filament",
+    "repository": "https://github.com/liberusoftware/module-maintenance-commercial-filament",
+    "source_signature": "3bcf7c92e9e6d84d1ad4cf117e89320d26296ca2effe5a0a24439e926d5e663f",
+    "source_tree": "03e6e1cdaf733658dce0d4590441a130e28ffcaa",
+    "url": "https://github.com/liberusoftware/module-maintenance-commercial-filament/pull/3",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-commercial-livewire": {
+    "branch": "sync/maintenance-laravel/v0.1.1-c346b4560ae9",
+    "path": "modules/module-maintenance-commercial-livewire",
+    "repository": "https://github.com/liberusoftware/module-maintenance-commercial-livewire",
+    "source_signature": "c346b4560ae9a63759c0229b16343aa63b31d29dd9f68c9167b3e52bb73f1a57",
+    "source_tree": "d001ce603404de0b194346e0472b9d3e325e5b40",
+    "url": "https://github.com/liberusoftware/module-maintenance-commercial-livewire/pull/2",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-compliance": {
+    "branch": "sync/maintenance-laravel/v0.1.1-c8b8bb4485f0",
+    "path": "modules/module-maintenance-compliance",
+    "repository": "https://github.com/liberusoftware/module-maintenance-compliance",
+    "source_signature": "c8b8bb4485f05316800b8049cf9b03c79693ae3adc07c04973bf284e07076e23",
+    "source_tree": "838e74caae7750cc200f35816a6db808a827a8a8",
+    "url": "https://github.com/liberusoftware/module-maintenance-compliance/pull/3",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-compliance-api": {
+    "branch": "sync/maintenance-laravel/v0.1.1-b3c45eb708f4",
+    "path": "modules/module-maintenance-compliance-api",
+    "repository": "https://github.com/liberusoftware/module-maintenance-compliance-api",
+    "source_signature": "b3c45eb708f4d5ccffd01110f8e8708287c90ad7af49c3bf2ed28d2d4c41b5ab",
+    "source_tree": "2343616373f5646c439bc21b0d2cb7ece63115b7",
+    "url": "https://github.com/liberusoftware/module-maintenance-compliance-api/pull/5",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-compliance-filament": {
+    "branch": "sync/maintenance-laravel/v0.1.1-3220c712a294",
+    "path": "modules/module-maintenance-compliance-filament",
+    "repository": "https://github.com/liberusoftware/module-maintenance-compliance-filament",
+    "source_signature": "3220c712a294274b60f03f8dd99d48ec6a9efb46c735e016b7b52bb37ed6c5be",
+    "source_tree": "b5555d262d89cbc61c87f7f7de075829ce925671",
+    "url": "https://github.com/liberusoftware/module-maintenance-compliance-filament/pull/4",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-compliance-livewire": {
+    "branch": "sync/maintenance-laravel/v0.1.1-941d71663a42",
+    "path": "modules/module-maintenance-compliance-livewire",
+    "repository": "https://github.com/liberusoftware/module-maintenance-compliance-livewire",
+    "source_signature": "941d71663a4253f6cae33566d266a1a1163d11669b8cf480cbea4249c2e8ae48",
+    "source_tree": "92e318a3639489d536c823169e42c7a051b273a0",
+    "url": "https://github.com/liberusoftware/module-maintenance-compliance-livewire/pull/3",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-portals": {
+    "branch": "sync/maintenance-laravel/v0.1.1-b4653c2da11b",
+    "path": "modules/module-maintenance-portals",
+    "repository": "https://github.com/liberusoftware/module-maintenance-portals",
+    "source_signature": "b4653c2da11be490a3d47137249288ec3d5f33a077bce20d1643873d6a2d43b5",
+    "source_tree": "27d0f89ec54adb4a5d40b9d740fec5b200b5197b",
+    "url": "https://github.com/liberusoftware/module-maintenance-portals/pull/3",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-portals-api": {
+    "branch": "sync/maintenance-laravel/v0.1.1-249e855a9d00",
+    "path": "modules/module-maintenance-portals-api",
+    "repository": "https://github.com/liberusoftware/module-maintenance-portals-api",
+    "source_signature": "249e855a9d00e54db5a676991a54eeca172eba23767c6b567c0cba1a9ebdb420",
+    "source_tree": "763f052e93bf212f54afdd069b072911deb0d7f1",
+    "url": "https://github.com/liberusoftware/module-maintenance-portals-api/pull/4",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-portals-filament": {
+    "branch": "sync/maintenance-laravel/v0.1.1-14c587cdfe60",
+    "path": "modules/module-maintenance-portals-filament",
+    "repository": "https://github.com/liberusoftware/module-maintenance-portals-filament",
+    "source_signature": "14c587cdfe60124ba1f78a42fc80b4bddb432f46e3e0224e2b95624e514b9db9",
+    "source_tree": "6a87b57584db98d626ee8f6e8556220cd0f15622",
+    "url": "https://github.com/liberusoftware/module-maintenance-portals-filament/pull/3",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-portals-livewire": {
+    "branch": "sync/maintenance-laravel/v0.1.1-ba219918d71d",
+    "path": "modules/module-maintenance-portals-livewire",
+    "repository": "https://github.com/liberusoftware/module-maintenance-portals-livewire",
+    "source_signature": "ba219918d71dc8c352b5891c0857b25d76bbc8c9fdee28b181af8c38c28a8d5f",
+    "source_tree": "2093b2ce44c49d539e2960e4f947cdde0809f8a4",
+    "url": "https://github.com/liberusoftware/module-maintenance-portals-livewire/pull/2",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-reporting": {
+    "branch": "sync/maintenance-laravel/v0.1.1-d7a65fec2586",
+    "path": "modules/module-maintenance-reporting",
+    "repository": "https://github.com/liberusoftware/module-maintenance-reporting",
+    "source_signature": "d7a65fec25863f36f4c68b2e5886fb670c625345bde85a205e8a428eff11aee8",
+    "source_tree": "1cbb5c9f9ef38d181953e66297ea0732d6772238",
+    "url": "https://github.com/liberusoftware/module-maintenance-reporting/pull/8",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-reporting-api": {
+    "branch": "sync/maintenance-laravel/v0.1.1-35cedb5d860b",
+    "path": "modules/module-maintenance-reporting-api",
+    "repository": "https://github.com/liberusoftware/module-maintenance-reporting-api",
+    "source_signature": "35cedb5d860be06f27d29b2263d1b2d94508db2e9792b8d184937242df1edfeb",
+    "source_tree": "91c48be2db8de6c9bc306a267b93fda09be79f2d",
+    "url": "https://github.com/liberusoftware/module-maintenance-reporting-api/pull/8",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-reporting-filament": {
+    "branch": "sync/maintenance-laravel/v0.1.1-7858eec18c7e",
+    "path": "modules/module-maintenance-reporting-filament",
+    "repository": "https://github.com/liberusoftware/module-maintenance-reporting-filament",
+    "source_signature": "7858eec18c7e1fc4db9109239e7ff7b4885b3af68cf803bea4baf1df5b9b4eec",
+    "source_tree": "9b428146891036cbf3f9945eaacfa91d878a67ef",
+    "url": "https://github.com/liberusoftware/module-maintenance-reporting-filament/pull/5",
+    "version": "0.1.1"
+  },
+  "liberusoftware/module-maintenance-reporting-livewire": {
+    "branch": "sync/maintenance-laravel/v0.1.1-b5627e7f6153",
+    "path": "modules/module-maintenance-reporting-livewire",
+    "repository": "https://github.com/liberusoftware/module-maintenance-reporting-livewire",
+    "source_signature": "b5627e7f615332000b68be078cd1adb6ddf56cf95124f195fafc2c03a9ce8928",
+    "source_tree": "6e0fab6cecf7de716cf02ac2322d0fb83348de99",
+    "url": "https://github.com/liberusoftware/module-maintenance-reporting-livewire/pull/5",
+    "version": "0.1.1"
+  }
+}
