@@ -6,14 +6,18 @@
   "require": {
     "php": "^8.5",
     "filament/filament": "^5.11.0",
-    "liberusoftware/module-maintenance-maintenance-core": "0.1.0"
+    "liberusoftware/module-maintenance-maintenance-core": "^0.1.0"
   },
   "autoload": {
     "psr-4": {
       "Liberu\\Modules\\Maintenance\\Core\\Filament\\": "src/"
     }
   },
-  "extra": { "liberu": { "name": "module-maintenance-core-filament" } },
+  "extra": {
+    "liberu": {
+      "name": "module-maintenance-core-filament"
+    }
+  },
   "version": "0.1.0",
   "config": {
     "allow-plugins": {
