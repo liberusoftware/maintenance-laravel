@@ -1,0 +1,507 @@
+{
+  "maintenance-maintenance-core": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-activity-comments": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-analytics-core": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-analytics-google": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-analytics-meta": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-api-access": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-application": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-audit": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-currency-context": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-developer-experience": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-feature-flags": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-files-media": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-identity-core": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-identity-core-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-identity-socialstream": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-import-export": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-integrations": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-jetstream-bridge": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-localization-core": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-localization-core-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-localization-mymemory": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-assets": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-assets-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-assets-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-assets-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-commercial": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-commercial-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-commercial-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-commercial-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-compliance": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-compliance-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-compliance-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-compliance-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-core-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-core-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-core-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-customers-and-sites": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-customers-and-sites-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-customers-and-sites-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-customers-and-sites-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-inspections": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-inspections-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-inspections-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-inspections-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-inventory": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-inventory-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-inventory-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-inventory-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-labor-and-time": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-labor-and-time-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-labor-and-time-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-labor-and-time-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-portals": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-portals-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-portals-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-portals-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-preventative-maintenance": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-preventative-maintenance-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-preventative-maintenance-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-preventative-maintenance-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-procurement": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-procurement-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-procurement-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-procurement-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-reporting": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-reporting-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-reporting-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-reporting-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-scheduling": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-scheduling-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-scheduling-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-scheduling-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-work-orders": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-work-orders-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-work-orders-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-maintenance-work-orders-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-module-manager": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-module-manager-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-notifications": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-observability": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-organizations-teams": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-organizations-teams-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-profiles": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-roles-permissions": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-roles-permissions-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-scheduler-queues": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-search": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-search-api": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-sessions-devices": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-sessions-devices-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-settings": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-settings-filament": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-theme-support": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-theme-support-livewire": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-two-factor-authentication": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-users-roles": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "module-webhooks": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "theme-base": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "theme-clear-signal": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "theme-dark": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  },
+  "theme-default": {
+    "archived": false,
+    "default_branch": "main",
+    "private": false
+  }
+}

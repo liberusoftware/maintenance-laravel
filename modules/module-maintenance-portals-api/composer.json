@@ -7,7 +7,7 @@
     "php": "^8.5",
     "illuminate/http": "^13.38.0",
     "illuminate/routing": "^13.38.0",
-    "liberusoftware/module-maintenance-portals": "0.1.0",
+    "liberusoftware/module-maintenance-portals": "^0.1.0",
     "laravel/sanctum": "^4.3.3"
   },
   "autoload": {
